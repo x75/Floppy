@@ -19,13 +19,16 @@ class Info(object):
 
 
 class InputInfo(Info):
-    def __call__(self):
+    def __call__(self, noException=False):
         if self.valueSet:
             return self.value
         elif self.default:
             return self.default
         else:
-            raise InputNotAvailable('Input not set for node.')
+            if noException:
+                return None
+            else:
+                raise InputNotAvailable('Input not set for node.')
 
     def set(self, value):
         self. value = value
@@ -71,8 +74,8 @@ class MetaNode(type):
         result = type.__new__(cls, name, bases, classdict)
         # result.__dict__['Input'] = result._addInput
         NODECLASSES[name] = result
-        result._inputs = OrderedDict()
-        result._outputs = OrderedDict()
+        result.__inputs__ = OrderedDict()
+        result.__outputs__ = OrderedDict()
         for inp in MetaNode.inputs:
             result._addInput(data=inp, cls=result)
 
@@ -94,32 +97,37 @@ class Node(object, metaclass=MetaNode):
     To access the value of an input during the Node's 'run' method or 'check' method use
     'myNodeInstance._myStringInput'. An 'InputNotAvailable' Exception is raised is the input is not set yet.
     """
-    _inputs = OrderedDict()
+    # __inputs__ = OrderedDict()
 
-    def __init__(self, nodeID):
-        # self._inputs = OrderedDict()
+    def __init__(self, nodeID, graph):
+        self.__pos__ = (0,0)
+        self.graph = graph
+        # self.__inputs__ = OrderedDict()
         self.ID = nodeID
-        self.inputs = {}
-        self.outputs = {}
-        self.inputPins = {}
-        self.outputPins = {}
+        self.inputs = OrderedDict()
+        self.outputs = OrderedDict()
+        self.inputPins = OrderedDict()
+        self.outputPins = OrderedDict()
         self.inProgress = 1
-        for i, inp in enumerate(self._inputs.values()):
+        for i, inp in enumerate(self.__inputs__.values()):
             inp = copy(inp)
-            inpID = '{}:I{}'.format(self.ID, i)
+            inpID = '{}:I{}'.format(self.ID, inp.name)
             newPin = Pin(inpID, inp, self)
             self.inputPins[inp.name] = newPin
             self.inputs[inp.name] = inp
 
-        for i, out in enumerate(self._outputs.values()):
+        for i, out in enumerate(self.__outputs__.values()):
             out = copy(out)
-            outID = '{}:O{}'.format(self.ID, i)
+            outID = '{}:O{}'.format(self.ID, out.name)
             newPin = Pin(outID, out, self)
             self.outputPins[out.name] = newPin
             self.outputs[out.name] = out
 
     def __str__(self):
         return '{}-{}'.format(self.__class__.__name__, self.ID)
+
+    def __hash__(self):
+        return hash(str(self))
 
     def next(self):
         """
@@ -143,8 +151,20 @@ class Node(object, metaclass=MetaNode):
         print('Executing node {}'.format(self))
 
     def notify(self):
+        """
+        Manage the node's state after execution and set input values of subsequent nodes.
+        :return: None
+        :rtype: None
+        """
         self.inProgress -= 1
-        pass
+        for con in self.graph.getConnectionsFrom(self):
+            outputName = con['outputName']
+            nextNode = con['inputNode']
+            nextInput = con['inputName']
+            nextNode.setInput(nextInput, self.outputs[outputName].value)
+
+    def setInput(self, inputName, value):
+        self.inputs[inputName].set(value)
 
     def check(self) -> bool:
         if self.inProgress:
@@ -156,11 +176,11 @@ class Node(object, metaclass=MetaNode):
 
     def _addInput(*args, data='', cls=None):
         inputInfo = InputInfo(**data)
-        cls._inputs[data['name']] = inputInfo
+        cls.__inputs__[data['name']] = inputInfo
 
     def _addOutput(*args, data='', cls=None):
         outputInfo = OutputInfo(**data)
-        cls._outputs[data['name']] = outputInfo
+        cls.__outputs__[data['name']] = outputInfo
         
     def __getattr__(self, item):
         if item.startswith('_') and not item.startswith('__'):
@@ -180,16 +200,43 @@ class Node(object, metaclass=MetaNode):
     def getOutputInfo(self, outputName):
         return self.outputs[outputName]
 
+    def getInputID(self, inputName):
+        return '{}:I{}'.format(self.ID, inputName)
+
+    def getOutputID(self, outputName):
+        return '{}:O{}'.format(self.ID, outputName)
+
+    def __repr__(self):
+        inputConns = [self.graph.getConnectionOfInput(inp) for inp in self.inputs.values()]
+        inputConns = [inputConn['outputNode'].getOutputID(inputConn['outputName']) for inputConn in inputConns]
+        outputConns = [self.graph.getConnectionsOfOutput(out) for out in self.outputs.values()]
+        print('xxx', outputConns)
+        return repr({'class': self.__class__.__name__,
+                     'position': self.__pos__,
+                     'inputs': [(inputName, inp.varType, inp(True), inp.default)
+                                for inputName, inp in self.inputs.items()],
+                     'inputConnections': inputConns,
+                     'outputs': [(outputName, out.varType, out.value, out.default)
+                                 for outputName, out in self.outputs.items()],
+                     'outputConnections': None})
 
 
 class Pin(object):
     def __init__(self, pinID, info, node):
         self.ID = pinID
+        self.name = info.name
         self.info = info
+        info.ID = pinID
         self.node = node
 
 
 class TestNode(Node):
     Input('strInput', str)
+    Output('strOutput', str)
+
+class TestNode2(Node):
+    Input('strInput', str)
+    Input('floatInput', float, default=10.)
+    Input('Input', str, default='TestNode')
     Output('strOutput', str)
 

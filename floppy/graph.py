@@ -9,10 +9,12 @@ class Graph(object):
 
     def __init__(self, painter=None):
         self.connections = {}
+        self.reverseConnections = {}
         if painter:
-            self.decorator = painter.decorateNode
+            self.painter = painter
+            painter.registerGraph(self)
         else:
-            self.decorator = dummy
+            self.painter = dummy
 
     def __getattr__(self, item):
         if item == 'newID':
@@ -23,11 +25,15 @@ class Graph(object):
             return super(Graph, self).__getattr__(item)
 
     def spawnNode(self, nodeClass, connections=None, position=(0, 0)):
-        nodeClass = self.decorator(nodeClass)
-        newNode = nodeClass(self.newID)
+        # nodeClass = self.decorator(nodeClass, position)
+        newNode = nodeClass(self.newID, self)
+        self.reverseConnections[newNode] = []
+        self.connections[newNode] = []
         if connections:
             self._spawnConnections(connections, newNode)
+        self.painter.registerNode(newNode, position)
         Graph.nodes[newNode.ID] = newNode
+
         return newNode
 
     def _spawnConnections(self, connections, newNode):
@@ -58,10 +64,39 @@ class Graph(object):
                                                                                        out,
                                                                                        str(inpNode),
                                                                                        inp))
-        self.connections[outNode] = {'outputName': out,
-                                     'inputName': inp,
-                                     'inputNode': inpNode}
+        self.connections[outNode].append({'outputName': out,
+                                          'inputName': inp,
+                                          'inputNode': inpNode})
+        self.reverseConnections[inpNode].append({'outputName': out,
+                                                 'inputName': inp,
+                                                 'outputNode': outNode})
         self.update()
+
+    def getConnectionsFrom(self, node):
+        """
+        Returns a list of all connections that involve 'node's' outputs.
+        :param node:
+        :return: List of connection dictionaries.
+        :rtype: list
+        """
+        return self.connections[node]
+
+    def getConnectionsTo(self, node):
+        """
+
+        :param node:
+        :return:
+        """
+        return self.reverseConnections[node]
+
+    def getConnectionOfInput(self, inp):
+        for con in self.getConnectionsTo(self.nodes[int(inp.ID.partition(':')[0])]):
+            if con['inputName'] == inp.name:
+                return con
+
+    def getConnectionsOfOutput(self, output):
+        return [con for con in self.getConnectionsFrom(self.nodes[int(output.ID.partition(':')[0])]) if con['outputName'] == output.name]
+
 
     def update(self):
         pass
@@ -79,7 +114,10 @@ class Graph(object):
         :return:
         """
         running = True
+        i = 0
         while running:
+            i += 1
+            print('\nExecuting iteration {}.'.format(i))
             running = False
             for node in self.nodes.values():
                 checked = node.check()
