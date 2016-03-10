@@ -2,7 +2,7 @@
 # from PyQt5 import QtCore
 # from PyQt5 import QtGui
 # from PyQt5 import QtOpenGL
-from floppy.node import InputNotAvailable
+from floppy.node import InputNotAvailable, ControlNode
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtGui import *
@@ -46,7 +46,7 @@ class Painter2D(Painter):
         else:
             x = .9
         self.scale *= x
-        self.repaint()
+        self.repaint()  # Dirty trick to make sure the connection beziers are drawn at the same zoom level as the nodes.
         self.update()
 
 
@@ -79,13 +79,43 @@ class Painter2D(Painter):
                 xx = xx.x()
                 if x1 < xx < x2 and y1 < yy < y2:
                     self.clickedNode = nodePoints[-1]
+                    # print(self.clickedNode)
                     self.update()
                     self.downOverNode = event.pos()
                     break
 
+    def getOutputPinAt(self, pos):
+        for point, pin in self.outputPinPositions:
+            if abs(pos.x() - point.x()) < 7 * self.scale and abs(pos.y() - point.y()) < 7 * self.scale:
+                return pin
+
+    def getInputPinAt(self, pos):
+        for point, pin in self.inputPinPositions:
+            if abs(pos.x() - point.x()) < 7 * self.scale and abs(pos.y() - point.y()) < 7 * self.scale:
+                return pin
+
 
     def mouseReleaseEvent(self, event):
         super(Painter2D, self).mouseReleaseEvent(event)
+        if event.button() == Qt.LeftButton and self.looseConnection and self.clickedPin:
+            valid = True
+            if ':I' in self.clickedPin:
+                inputNodeID, _, inputName = self.clickedPin.partition(':I')
+                try:
+                    outputNodeID, _, outputName = self.getOutputPinAt(event.pos()).partition(':O')
+                except AttributeError:
+                    valid = False
+            else:
+                outputNodeID, _, outputName = self.clickedPin.partition(':O')
+                try:
+                    inputNodeID, _, inputName = self.getInputPinAt(event.pos()).partition(':I')
+                except AttributeError:
+                    valid = False
+            if valid:
+                try:
+                    self.graph.connect(outputNodeID, outputName, inputNodeID, inputName)
+                except TypeError:
+                    print('Cannot connect pins of different type')
         self.drag = False
         self.downOverNode = False
         self.looseConnection = False
@@ -98,6 +128,7 @@ class Painter2D(Painter):
         if self.drag:
             self.globalOffset += event.pos()-self.drag
             self.drag = event.pos()
+            # self.repaint()
             self.update()
         if self.downOverNode:
             node = self.clickedNode
@@ -168,16 +199,21 @@ class Painter2D(Painter):
                 if inputPin.ID == self.clickedPin:
                     pen.setColor(Qt.red)
                     painter.setPen(pen)
-
-                painter.drawEllipse(x-4, y+drawOffset+8, 8, 8)
-                point = QPoint(x, y+drawOffset+12) * painter.transform()
+                if inputPin.name == 'Control':
+                    painter.drawEllipse(x-4+w/2., y-4, 8, 8)
+                    point = QPoint(x+w/2., y) * painter.transform()
+                    self.inputPinPositions.append((point, inputPin.ID))
+                    continue
+                else:
+                    painter.drawEllipse(x-4, y+drawOffset+8, 8, 8)
+                    point = QPoint(x, y+drawOffset+12) * painter.transform()
                 # self.pinPositions.append((point, i+j))
                 self.inputPinPositions.append((point, inputPin.ID))
                 drawOffset += 16
                 try:
                     text = inputPin.info()
                 except InputNotAvailable:
-                    text = 'None'
+                    text = inputPin.name
                 self.drawLineEdit(x, y+drawOffset+8, w, h, text, painter, Qt.AlignLeft)
             for k, outputPin in enumerate(node.outputPins.values()):
                 # pen.setColor(QColor(0, 115, 130))
@@ -187,8 +223,14 @@ class Painter2D(Painter):
                 if outputPin.ID == self.clickedPin:
                     pen.setColor(Qt.red)
                     painter.setPen(pen)
-                painter.drawEllipse(x + w-4, y+drawOffset+8, 8, 8)
-                point = QPoint(x + w-4, y+drawOffset+12) * painter.transform()
+                if outputPin.name == 'Final':
+                    painter.drawEllipse(x-4+w/2., y+10+drawOffset, 8, 8)
+                    point = QPoint(x+w/2., y+drawOffset+14) * painter.transform()
+                    self.outputPinPositions.append((point, outputPin.ID))
+                    continue
+                else:
+                    painter.drawEllipse(x + w-4, y+drawOffset+8, 8, 8)
+                    point = QPoint(x + w-4, y+drawOffset+12) * painter.transform()
                 drawOffset += 16
                 self.outputPinPositions.append((point, outputPin.ID))
                 self.drawLineEdit(x, y+drawOffset+8, w, h, 'out', painter, Qt.AlignRight)
@@ -220,12 +262,17 @@ class Painter2D(Painter):
                 start = self.pinPositions[outputID]
                 end = self.pinPositions[inputID]
                 color = Painter2D.PINCOLORS[varType]
-                self.drawBezier(start, end, color, painter)
+                rotate = None
+                if issubclass(type(info['inputNode']), ControlNode) and info['inputName'] == 'Control':
+                    rotate = 'input'
+                elif issubclass(type(info['outputNode']), ControlNode) and info['outputName'] == 'Final':
+                    rotate = 'output'
+                self.drawBezier(start, end, color, painter, rotate)
 
     def drawLooseConnection(self, position):
         self.looseConnection = position
 
-    def drawBezier(self, start, end, color, painter):
+    def drawBezier(self, start, end, color, painter, rotate=None):
                 pen = QPen()
                 pen.setColor(color)
                 pen.setWidth(2*self.scale)
@@ -233,12 +280,23 @@ class Painter2D(Painter):
                 path = QPainterPath()
                 path.moveTo(start)
                 diffx = abs((start.x()-end.x())/2.)
-                if diffx < 150 * self.scale:
-                    diffx = 150 * self.scale
-                p21 = start.x()+diffx
-                p22 = start.y()
-                p31 = end.x()-diffx
-                p32 = end.y()
+                if diffx < 100 * self.scale:
+                    diffx = 100 * self.scale
+                if rotate == 'input':
+                    p21 = start.x()+diffx
+                    p22 = start.y()
+                    p31 = end.x()
+                    p32 = end.y() - 100
+                elif rotate == 'output':
+                    p21 = start.x()
+                    p22 = start.y() + 100
+                    p31 = end.x()-diffx
+                    p32 = end.y()
+                else:
+                    p21 = start.x()+diffx
+                    p22 = start.y()
+                    p31 = end.x()-diffx
+                    p32 = end.y()
                 path.cubicTo(p21, p22, p31, p32, end.x(), end.y())
                 painter.drawPath(path)
 
@@ -257,6 +315,8 @@ class Painter2D(Painter):
         node.__painter__ = {'position': position}
         node.__pos__ = position
         node.__size__ = (1, len(node.inputs) + len(node.outputs))
+        node.__size__ = (1, node.__size__[1] if not issubclass(type(node), ControlNode) else node.__size__[1]-2)
+
 
         # for inp in node.inputs.values():
         #     color = Painter2D.PINCOLORS[inp.varType]
@@ -287,6 +347,7 @@ class MainWindow(QMainWindow):
         drawWidget.setPalette(p)
         # drawWidget.registerNode(x)
         self.setCentralWidget(drawWidget)
+        self.drawer = drawWidget
 
         # timer = QtCore.QTimer(self)
         # timer.setInterval(20)
@@ -301,6 +362,14 @@ class MainWindow(QMainWindow):
         self.exitAction.setStatusTip('Exit application')
         # self.connect(self.exitAction, QtCore.SIGNAL('triggered()'), self.close)
         self.exitAction.triggered.connect(self.close)
+        import os
+        iconRoot = os.path.realpath(__file__)
+        iconRoot = os.path.join(os.path.dirname(os.path.dirname(iconRoot)), 'icons')
+        self.runAction = QAction(QIcon(os.path.join(iconRoot, 'run.png')), 'RUN', self)
+        self.runAction.setShortcut('Ctrl+R')
+        self.runAction.triggered.connect(self.runCode)
+        self.runAction.setIconVisibleInMenu(True)
+        self.addAction(self.runAction)
 
     def initMenus(self):
         menuBar = self.menuBar()
@@ -309,6 +378,9 @@ class MainWindow(QMainWindow):
 
     def close(self):
         qApp.quit()
+
+    def runCode(self, *args):
+        self.drawer.graph.execute()
 
 # app = QApplication(sys.argv)
 #

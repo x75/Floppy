@@ -7,6 +7,9 @@ NODECLASSES = {}
 class InputNotAvailable(Exception):
     pass
 
+class InputAlreadySet(Exception):
+    pass
+
 
 class Info(object):
     def __init__(self, name, varType, hints=None, default=''):
@@ -31,7 +34,9 @@ class InputInfo(Info):
                 raise InputNotAvailable('Input not set for node.')
 
     def set(self, value):
-        self. value = value
+        if self.valueSet:
+            raise InputAlreadySet('Input \'{}\' is already set.'.format(self.name))
+        self.value = value
         self.valueSet = True
 
 
@@ -206,11 +211,14 @@ class Node(object, metaclass=MetaNode):
     def getOutputID(self, outputName):
         return '{}:O{}'.format(self.ID, outputName)
 
-    def __repr__(self):
+    def save(self):
         inputConns = [self.graph.getConnectionOfInput(inp) for inp in self.inputs.values()]
-        inputConns = [inputConn['outputNode'].getOutputID(inputConn['outputName']) for inputConn in inputConns]
-        outputConns = [self.graph.getConnectionsOfOutput(out) for out in self.outputs.values()]
-        print('xxx', outputConns)
+        print(inputConns)
+        inputConns = {inputConn['inputName']: inputConn['outputNode'].getOutputID(inputConn['outputName']) for inputConn in inputConns if inputConn}
+        outputConns = {out.name: self.graph.getConnectionsOfOutput(out) for out in self.outputs.values()}
+        for key, conns in outputConns.items():
+            conns = [outputConn['inputNode'].getInputID(outputConn['inputName']) for outputConn in conns]
+            outputConns[key] = conns
         return repr({'class': self.__class__.__name__,
                      'position': self.__pos__,
                      'inputs': [(inputName, inp.varType, inp(True), inp.default)
@@ -218,7 +226,26 @@ class Node(object, metaclass=MetaNode):
                      'inputConnections': inputConns,
                      'outputs': [(outputName, out.varType, out.value, out.default)
                                  for outputName, out in self.outputs.items()],
-                     'outputConnections': None})
+                     'outputConnections': outputConns})
+
+
+class ControlNode(Node):
+    """
+    Base class for nodes controlling the program flow e.g. If/Else constructs and loops.
+    Control nodes have an additional control input and a finalize output.
+
+    The control input is a special input that supports multiple input connections. For example a loop node gets
+    notified of a finished iteration over its body by setting the input of the control input. If all iterations are
+    completed, the last set input is passed to the finalize output.
+    An If/Else construct uses the control input to notify the node that the selected branch terminated. When that
+    happens, the value of the control input is set to the finalize output.
+
+    Restricting the option to have multiple connections to ControlNodes only makes sure that the node responsible for
+    branches in the execution tree is also the node responsible for putting the pieces back together.
+    """
+    Input('Start', object)
+    Input('Control', object)
+    Output('Final', object)
 
 
 class Pin(object):

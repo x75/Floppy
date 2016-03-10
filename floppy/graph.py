@@ -1,3 +1,5 @@
+import json
+from floppy.node import ControlNode
 
 def dummy(nodeClass):
     return nodeClass
@@ -27,8 +29,8 @@ class Graph(object):
     def spawnNode(self, nodeClass, connections=None, position=(0, 0)):
         # nodeClass = self.decorator(nodeClass, position)
         newNode = nodeClass(self.newID, self)
-        self.reverseConnections[newNode] = []
-        self.connections[newNode] = []
+        self.reverseConnections[newNode] = set()
+        self.connections[newNode] = set()
         if connections:
             self._spawnConnections(connections, newNode)
         self.painter.registerNode(newNode, position)
@@ -53,9 +55,14 @@ class Graph(object):
                 self.connect(inp[1], inp[2], newNode, inp[0])
 
     def connect(self, outNode, out, inpNode, inp):
+        if type(outNode) == str:
+            outNode = self.nodes[int(outNode)]
+        if type(inpNode) == str:
+            inpNode = self.nodes[int(inpNode)]
         outInfo = outNode.getOutputInfo(out)
         inpInfo = inpNode.getInputInfo(inp)
-        if not outInfo.varType == inpInfo.varType:
+        # if not outInfo.varType == inpInfo.varType:
+        if not issubclass(outInfo.varType, inpInfo.varType):
             raise TypeError('Output \'{}\' of node {} and input \'{}\' of not {} don\'t match.'.format(out,
                                                                                                        str(outNode),
                                                                                                        inp,
@@ -64,13 +71,16 @@ class Graph(object):
                                                                                        out,
                                                                                        str(inpNode),
                                                                                        inp))
-        self.connections[outNode].append({'outputName': out,
-                                          'inputName': inp,
-                                          'inputNode': inpNode})
-        self.reverseConnections[inpNode].append({'outputName': out,
-                                                 'inputName': inp,
-                                                 'outputNode': outNode})
-        self.update()
+        conn = Connection(outNode, out, inpNode, inp)
+        if not issubclass(type(inpNode), ControlNode) or not inp == 'Control':
+            for oldCon in self.reverseConnections[inpNode]:
+                if oldCon['inputName'] == inp:
+                    self.reverseConnections[inpNode].remove(oldCon)
+                    self.connections[oldCon['outputNode']].remove(oldCon)
+                    break
+        self.connections[outNode].add(conn)
+        self.reverseConnections[inpNode].add(conn)
+        # self.update()
 
     def getConnectionsFrom(self, node):
         """
@@ -83,7 +93,6 @@ class Graph(object):
 
     def getConnectionsTo(self, node):
         """
-
         :param node:
         :return:
         """
@@ -95,7 +104,8 @@ class Graph(object):
                 return con
 
     def getConnectionsOfOutput(self, output):
-        return [con for con in self.getConnectionsFrom(self.nodes[int(output.ID.partition(':')[0])]) if con['outputName'] == output.name]
+        node = self.nodes[int(output.ID.partition(':')[0])]
+        return [con for con in self.getConnectionsFrom(node) if con['outputName'] == output.name]
 
 
     def update(self):
@@ -106,7 +116,7 @@ class Graph(object):
         Execute the Graph instance.
 
         First, the execution loop will set itself up to terminate after the first iteration.
-        Next, every node is given the chance to run if all perquisites are met.
+        Next, every node is given the chance to run if all prerequisites are met.
         If a node is executed, the loop termination criterion will be reset to allow an additional iteration over all
         nodes.
         If no node is execute during one iteration, the termination criterion will not be reset and the execution loop
@@ -130,5 +140,25 @@ class Graph(object):
                     else:
                         node.notify()
 
+    def save(self):
+        saveState = {node.ID: node.save() for node in self.nodes.values()}
+        print(json.dumps(saveState))
+
+    def load(self, fileName):
+        pass
+
+
+class Connection(object):
+    def __init__(self, outNode, outName, inpNode, inpName):
+        self.outputNode = outNode
+        self.outputName = outName
+        self.inputNode = inpNode
+        self.inputName = inpName
+
+    def __hash__(self):
+        return hash(''.join([str(i) for i in (self.outputNode, self.outputName, self.inputNode, self.inputName)]))
+
+    def __getitem__(self, item):
+        return self.__getattribute__(item)
 
 
