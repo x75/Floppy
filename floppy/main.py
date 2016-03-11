@@ -1,5 +1,5 @@
 from floppy.graph import Graph
-from floppy.node import TestNode, TestNode2, ControlNode
+from floppy.node import TestNode, TestNode2, ControlNode, SwitchNode, CreateBool
 from floppy.painter import Painter, Painter2D, MainWindow
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow
@@ -16,10 +16,13 @@ def test():
     painter = Painter2D()
     graph = Graph(painter=painter)
     node0 = graph.spawnNode(TestNode, position=(200,0))
-    nodeC = graph.spawnNode(ControlNode, position=(0,200))
+    node5 = graph.spawnNode(TestNode, position=(200,200))
+    nodeC = graph.spawnNode(SwitchNode, position=(0,200))
+    nodeB = graph.spawnNode(CreateBool, position=(-200,200))
     inputPin = node0.getInputPin('strInput')
     node3 = graph.spawnNode(TestNode2, position=(-200,0))
     conns = {'outputs': [('strOutput', node0, 'strInput')], 'inputs': [('strInput', node3, 'strOutput')]}
+    conns = {}
     node1 = graph.spawnNode(TestNode, connections=conns, position=(0,0))
 
     # node0.inProgress = 5

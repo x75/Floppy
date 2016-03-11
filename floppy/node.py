@@ -12,13 +12,14 @@ class InputAlreadySet(Exception):
 
 
 class Info(object):
-    def __init__(self, name, varType, hints=None, default=''):
+    def __init__(self, name, varType, hints=None, default='', select=None):
         self.name = name
         self.varType = varType
         self.hints = hints
         self.default = default
         self.valueSet = False
         self.value = None
+        self.select = select
 
 
 class InputInfo(Info):
@@ -60,20 +61,24 @@ class MetaNode(type):
     def addInput(name: str,
                  varType: object,
                  hints=None,
-                 default=''):
+                 default='',
+                 select=None):
         MetaNode.inputs.append({'name': name,
                                 'varType': varType,
                                 'hints': hints,
-                                'default': default})
+                                'default': default,
+                                'select': select})
 
     def addOutput(name: str,
                   varType: object,
                   hints=None,
-                  default=''):
+                  default='',
+                  select=None):
         MetaNode.outputs.append({'name': name,
                                  'varType': varType,
                                  'hints': hints,
-                                 'default': default})
+                                 'default': default,
+                                 'select': select})
 
     def __new__(cls, name, bases, classdict):
         result = type.__new__(cls, name, bases, classdict)
@@ -192,7 +197,11 @@ class Node(object, metaclass=MetaNode):
             try:
                 return self.inputs[item.lstrip('_')]()
             except KeyError:
-                raise AttributeError('No Input with name {} defined.'.format(item.lstrip('_')))
+                try:
+                    return self.outputs[item.lstrip('_')]
+                except KeyError:
+                    raise AttributeError('No I/O with name {} defined.'.format(item.lstrip('_')))
+                # raise AttributeError('No Input with name {} defined.'.format(item.lstrip('_')))
         else:
             return super(Node, self).__getattr__(item)
 
@@ -246,6 +255,23 @@ class ControlNode(Node):
     Input('Start', object)
     Input('Control', object)
     Output('Final', object)
+
+
+class SwitchNode(ControlNode):
+    Input('Start', object)
+    Input('Control', object)
+    Input('Switch', bool)
+    Output('True', object)
+    Output('False', object)
+    Output('Final', object)
+
+
+class CreateBool(Node):
+    Output('Boolean', bool, select=(True, False))
+
+    def run(self):
+        super(CreateBool, self).run()
+        self._Boolean(True)
 
 
 class Pin(object):

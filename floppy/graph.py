@@ -62,7 +62,7 @@ class Graph(object):
         outInfo = outNode.getOutputInfo(out)
         inpInfo = inpNode.getInputInfo(inp)
         # if not outInfo.varType == inpInfo.varType:
-        if not issubclass(outInfo.varType, inpInfo.varType):
+        if not issubclass(outInfo.varType, inpInfo.varType) and not issubclass(inpInfo.varType, outInfo.varType):
             raise TypeError('Output \'{}\' of node {} and input \'{}\' of not {} don\'t match.'.format(out,
                                                                                                        str(outNode),
                                                                                                        inp,
@@ -133,12 +133,9 @@ class Graph(object):
                 checked = node.check()
                 running = checked if not running else True
                 if checked:
-                    try:
-                        node.run()
-                    except:
-                        RuntimeError('Uncaught exception while executing node {}.'.format(node))
-                    else:
-                        node.notify()
+                    node.run()
+                        # raise RuntimeError('Uncaught exception while executing node {}.'.format(node))
+                    node.notify()
 
     def save(self):
         saveState = {node.ID: node.save() for node in self.nodes.values()}
