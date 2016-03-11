@@ -2,7 +2,8 @@ from floppy.graph import Graph
 from floppy.node import TestNode, TestNode2, ControlNode
 from floppy.painter import Painter, Painter2D, MainWindow
 import sys
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QMainWindow
+import PyQt5.uic as uic
 
 
 def run():
@@ -36,7 +37,8 @@ def testUI(app, painter):
     # class MyWidget(QMainWindow):
     #     def __init__(self):
     #         super(MyWidget, self).__init__()
-    #         uic.loadUi('/home/jens/Floppy/floppy/ressources/test.ui', self)
+    #         uic.loadUi('/home/jens/Floppy/floppy/ressources/mainwindow.ui', self)
+    #         uic.compileUi('/home/jens/Floppy/floppy/ressources/mainwindow.ui', open('/home/jens/Floppy/floppy/ressources/mainwindow.py','w'))
     # app = QApplication(sys.argv)
     # window = MyWidget()
     # window.show()

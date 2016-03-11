@@ -3,6 +3,7 @@
 # from PyQt5 import QtGui
 # from PyQt5 import QtOpenGL
 from floppy.node import InputNotAvailable, ControlNode
+from floppy.mainwindow import Ui_MainWindow
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtGui import *
@@ -316,23 +317,14 @@ class Painter2D(Painter):
         node.__pos__ = position
         node.__size__ = (1, len(node.inputs) + len(node.outputs))
         node.__size__ = (1, node.__size__[1] if not issubclass(type(node), ControlNode) else node.__size__[1]-2)
-
-
-        # for inp in node.inputs.values():
-        #     color = Painter2D.PINCOLORS[inp.varType]
-        #     name = inp.name
-        #     try:
-        #         value = inp()
-        #     except InputNotAvailable:
-        #         value = inp.default
         self.nodes.append(node)
-        # exit()
 
 
-class MainWindow(QMainWindow):
+class MainWindow(QMainWindow, Ui_MainWindow):
 
     def __init__(self, parent=None, painter=None):
         super(MainWindow, self).__init__(parent)
+        self.setupUi(self)
 
         self.resize(900, 700)
         self.setWindowTitle('Node Draw Test')
@@ -345,26 +337,22 @@ class MainWindow(QMainWindow):
         p = self.palette()
         p.setColor(drawWidget.backgroundRole(), QColor(50,50,50))
         drawWidget.setPalette(p)
-        # drawWidget.registerNode(x)
-        self.setCentralWidget(drawWidget)
+        l = QGridLayout()
+        l.addWidget(drawWidget)
+        self.DrawArea.setLayout(l)
         self.drawer = drawWidget
 
-        # timer = QtCore.QTimer(self)
-        # timer.setInterval(20)
-        # # QtCore.QObject.connect(timer, QtCore.SIGNAL('timeout()'), glWidget.spin)
-        # timer.timeout.connect(glWidget.spin)
-        # timer.start()
 
 
     def initActions(self):
         self.exitAction = QAction('Quit', self)
         self.exitAction.setShortcut('Ctrl+Q')
         self.exitAction.setStatusTip('Exit application')
-        # self.connect(self.exitAction, QtCore.SIGNAL('triggered()'), self.close)
         self.exitAction.triggered.connect(self.close)
         import os
         iconRoot = os.path.realpath(__file__)
-        iconRoot = os.path.join(os.path.dirname(os.path.dirname(iconRoot)), 'icons')
+        iconRoot = os.path.join(os.path.dirname(os.path.dirname(iconRoot)), 'floppy')
+        iconRoot = os.path.join(iconRoot, 'ressources')
         self.runAction = QAction(QIcon(os.path.join(iconRoot, 'run.png')), 'RUN', self)
         self.runAction.setShortcut('Ctrl+R')
         self.runAction.triggered.connect(self.runCode)
@@ -372,15 +360,24 @@ class MainWindow(QMainWindow):
         self.addAction(self.runAction)
 
     def initMenus(self):
-        menuBar = self.menuBar()
-        fileMenu = menuBar.addMenu('&File')
+        # self.setMenuBar(QMenuBar())
+        # menuBar = self.menuBar()
+        fileMenu = self.menuBar.addMenu('&File')
         fileMenu.addAction(self.exitAction)
+        fileMenu.addAction(self.runAction)
+        self.mainToolBar.addAction(self.exitAction)
+        self.mainToolBar.addAction(self.runAction)
 
     def close(self):
         qApp.quit()
 
     def runCode(self, *args):
         self.drawer.graph.execute()
+
+    def resizeEvent(self, event):
+        super(MainWindow, self).resizeEvent(event)
+        self.drawer.repaint()
+        self.drawer.update()
 
 # app = QApplication(sys.argv)
 #
