@@ -7,6 +7,7 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from floppy.nodeLib import NodeList, NodeFilter
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -45,10 +46,12 @@ class Ui_MainWindow(object):
         self.gridLayout_3.setObjectName("gridLayout_3")
         self.TopLayout = QtWidgets.QVBoxLayout()
         self.TopLayout.setObjectName("TopLayout")
-        self.FilterEdit = QtWidgets.QLineEdit(self.TopContainer)
+        # self.FilterEdit = QtWidgets.QLineEdit(self.TopContainer)
+        self.FilterEdit = NodeFilter(self.TopContainer)
         self.FilterEdit.setObjectName("FilterEdit")
         self.TopLayout.addWidget(self.FilterEdit)
-        self.NodeListView = QtWidgets.QListView(self.TopContainer)
+        # self.NodeListView = QtWidgets.QListView(self.TopContainer)
+        self.NodeListView = NodeList(self.TopContainer)
         self.NodeListView.setObjectName("NodeListView")
         self.TopLayout.addWidget(self.NodeListView)
         self.gridLayout_3.addLayout(self.TopLayout, 0, 0, 1, 1)

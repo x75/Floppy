@@ -109,7 +109,7 @@ class Graph(object):
 
 
     def update(self):
-        pass
+        self.painter.update()
 
     def execute(self):
         """

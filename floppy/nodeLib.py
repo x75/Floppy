@@ -1,0 +1,236 @@
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt, QPoint, QModelIndex
+from PyQt5.QtGui import *
+from floppy.node import NODECLASSES
+import os
+
+
+class NodeFilter(QLineEdit):
+    """
+    Widget for filtering a list of available nodes by user specified characteristics.
+    """
+    def __init__(self, parent=None):
+        super(NodeFilter, self).__init__(parent)
+        self.textEdited.connect(self.check)
+        self.setStyleSheet("NodeFilter {background-color:rgb(95,95,95) ;border:1px solid rgb(0, 0, 0); "
+                           "border-color:black; }")
+
+    def focusInEvent(self, event):
+        """
+        This is supposed to selected the whole text whenever the widget is focused. Apparently, things don't work that
+        way here.
+        :param event: QFocusEvent.
+        :return: None
+        """
+        super(NodeFilter, self).focusInEvent(event)
+        self.selectAll()
+
+    def check(self, text):
+        """
+        Interpret the text in the LineEdit and send the filtered node list to the registered NodeList widget.
+        :param text: string that is used for filtering the node list.
+        :return: None
+        """
+        text = text.lower()
+        # nodes = [str(node) for node in nodeList if text in str(node).lower()]
+        if not text.startswith('$'):
+            nodes = [node for node in NODECLASSES.keys() if text in node.lower()]
+        else:
+            nodes = set(self.nodeScanner.getHints(text[1:]) + self.nodeScanner.getHints(text[1:], False))
+        model = QStandardItemModel()
+        for node in nodes:
+            item = QStandardItem()
+            item.setText(node)
+            model.appendRow(item)
+        self.listView.setModel(model)
+
+    def registerNodeListLayout(self, layout, widget):
+        """
+        Do I still need this? It doesn't look like it.
+        :param layout:
+        :param widget:
+        :return:
+        """
+        self.check('')
+        # print layout.children()
+
+    def registerListView(self, view):
+        """
+        Establishes a reference to the NodeList instance used for displaying the filtering results.
+        :param view: Reference to a NodeList instance.
+        :return: None
+        """
+        self.listView = view
+        self.check('')
+
+    def getSelectedNode(self):
+        """
+        Do I still need this? It doesn't look like it.
+        """
+        pass
+
+    def keyPressEvent(self, event):
+        """
+        Handling navigation through the nodeLib widgets by key presses.
+        :param event: QKeyEvent.
+        :return: None
+        """
+        super(NodeFilter, self).keyPressEvent(event)
+        if event.key() == Qt.Key_Down:
+            self.listView.setFocus()
+            self.listView.setCurrentIndex(self.listView.model().index(0, 0))
+
+
+class NodeList(QListView):
+    """
+    Widget for displaying the available (and filtered) list of nodes and handling drag&drop spawning of nodes.
+    """
+    def __init__(self,  parent=None):
+        super(NodeList, self).__init__(parent)
+        self.filter = None
+        self.graph = None
+        self.down = False
+        self.selectedClass = None
+        self.setStyleSheet("NodeList {background-color:rgb(75,75,75) ;border:1px solid rgb(0, 0, 0); "
+                           "border-color:black}")
+
+    def setup(self, nodeFilter, graph):
+        self.filter = nodeFilter
+        self.graph = graph
+        self.filter.registerListView(self)
+
+    def mousePressEvent(self, event):
+        """
+        Handling drag&drop of nodes in the list into the diagram.
+        :param event: QMouseEvent
+        :return: None
+        """
+        if not self.down:
+            super(NodeList, self).mousePressEvent(event)
+            self.down = True
+            name = self.filter.listView.selectedIndexes()[0].data()
+            self.selectedClass = NODECLASSES[name]
+            # self.blockSignals(True)
+            # self.selectionChanged()
+
+    def mouseReleaseEvent(self, event):
+        """
+        Handling drag&drop of nodes in the list into the diagram.
+        :param event: QMouseEvent
+        :return: None
+        """
+        super(NodeList, self).mouseReleaseEvent(event)
+        if event.pos().x() < 0:
+            pos = self.mapToParent(event.pos())
+            # pos = self.parent().mapToParent(pos)
+            # pos = self.parent().parent().mapToParent(pos)
+            print(pos)
+            self.graph.spawnNode(self.selectedClass, position=(pos.x()-5, pos.y()-40))
+            self.graph.update()
+        self.down = False
+
+    def mouseMoveEvent(self, event):
+        """
+        Handling drag&drop of nodes in the list into the diagram.
+        :param event: QMouseEvent
+        :return: None
+        """
+        if not self.down:
+            super(NodeList, self).mouseMoveEvent(event)
+
+
+class ContextNodeList(NodeList):
+    """
+    A NodeList widget adapted to work in the context menu created when dragging a connection into open space in the
+    diagram.
+    """
+    def registerDialog(self, dialog):
+        """
+        Establish a reference to the context menu holding the widget.
+        :param dialog: Reference to a NodeDialog instance
+        :return: None
+        """
+        self.dialog = dialog
+
+    def mouseReleaseEvent(self, event):
+        """
+        Handling the selection and spawning of nodes in the list.
+        :param event: QMouseEvent.
+        :return: None
+        """
+        super(NodeList, self).mouseReleaseEvent(event)
+        pos = event.globalPos() - self.diagram.app.mainWindow.pos() - QPoint(50, 150)
+        self.graph.spawnNode(self.selectedClass, (pos.x()-5, pos.y()-40))
+        self.down = False
+        self.dialog.close(True)
+
+    def keyPressEvent(self, event):
+        """
+        Handling the selection and spawning of nodes in the list.
+        :param event: QMouseEvent.
+        :return: None
+        """
+        super(ContextNodeList, self).keyPressEvent(event)
+        if event.key() == Qt.Key_Return:
+            name = self.filter.listView.selectedIndexes()[0].data()
+            self.selectedClass = self.filter.nodeScanner.getClass(name)
+            pos = self.parent().parent().pos() - self.graph.app.mainWindow.pos() - QPoint(50, 150)
+            self.graph.spawnNode(self.selectedClass, (pos.x()-5, pos.y()-40))
+            self.down = False
+            self.dialog.close(True)
+
+
+class ContextNodeFilter(NodeFilter):
+    """
+    A NodeFilter widget adapted to work in the context menu created when dragging a connection into open space in the
+    diagram.
+    """
+    def registerDialog(self, dialog, back=False):
+        """
+        Establish a reference to the context menu holding the widget and specifying whether a connection to an InputPin
+        or an OutputPin is about to be established.
+        :param dialog: Reference to a NodeDialog instance
+        :param back: boolean. True if the newly created node will be connected to the nodes input. False if otherwise.
+        :return: None
+        """
+        self.dialog = dialog
+        self.back = back
+
+    def check(self, text):
+        """
+        Adapted method from base class to do hinting by default.
+        :param text: string interpreted for filtering the node list.
+        :return: None
+        """
+        try:
+            text = text.lower()
+        except AttributeError:
+            text = ''
+        # nodes = [str(node) for node in nodeList if text in str(node).lower()]
+        if self.dialog.cB.checkState():
+            if text:
+                text = '$' + text
+            else:
+                text = '$' + self.dialog.getTypeHint()
+        if not text.startswith('$'):
+            nodes = {node[0] for node in self.nodeScanner.nodeClasses if text in node[0].lower()}
+        else:
+            if not self.back:
+                nodes = set(self.nodeScanner.getHints(text[1:]))
+            else:
+                nodes = set(self.nodeScanner.getHints(text[1:], False))
+        model = QStandardItemModel()
+        for node in nodes:
+            item = QStandardItem()
+            item.setText(node)
+            model.appendRow(item)
+        self.listView.setModel(model)
+
+
+
+
+
+
+
+
+

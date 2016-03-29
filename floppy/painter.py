@@ -413,6 +413,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.DrawArea.setLayout(l)
         self.drawer = drawWidget
 
+        self.setupNodeLib()
+
     def initActions(self):
         self.exitAction = QAction('Quit', self)
         self.exitAction.setShortcut('Ctrl+Q')
@@ -445,6 +447,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.drawer.repaint()
         self.drawer.update()
 
+    def setupNodeLib(self):
+        self.NodeListView.setup(self.FilterEdit, self.drawer.graph)
 
 class DrawItem(object):
     def __init__(self, parent, data):

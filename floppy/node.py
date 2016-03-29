@@ -84,8 +84,14 @@ class MetaNode(type):
         result = type.__new__(cls, name, bases, classdict)
         # result.__dict__['Input'] = result._addInput
         NODECLASSES[name] = result
-        result.__inputs__ = OrderedDict()
-        result.__outputs__ = OrderedDict()
+        try:
+            result.__inputs__ = result.__bases__[0].__inputs__.copy()
+        except AttributeError:
+            result.__inputs__ = OrderedDict()
+        try:
+            result.__outputs__ = result.__bases__[0].__outputs__.copy()
+        except AttributeError:
+            result.__outputs__ = OrderedDict()
         for inp in MetaNode.inputs:
             result._addInput(data=inp, cls=result)
 
@@ -237,6 +243,13 @@ class Node(object, metaclass=MetaNode):
                                  for outputName, out in self.outputs.items()],
                      'outputConnections': outputConns})
 
+    @classmethod
+    def matchHint(cls, text: str):
+        if any([any([hint.startswith(text) for hint in inp.hints])] for inp in cls.__inputs__):
+            return True
+        if any([any([hint.startswith(text) for hint in out.hints])] for out in cls.__outputs__):
+            return True
+
 
 class ControlNode(Node):
     """
@@ -258,12 +271,12 @@ class ControlNode(Node):
 
 
 class SwitchNode(ControlNode):
-    Input('Start', object)
-    Input('Control', object)
+    # Input('Start', object)
+    # Input('Control', object)
     Input('Switch', bool)
     Output('True', object)
     Output('False', object)
-    Output('Final', object)
+    # Output('Final', object)
 
 
 class CreateBool(Node):
