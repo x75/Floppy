@@ -38,7 +38,14 @@ class Painter2D(Painter):
         self.pinPositions = {}
         self.drawItems = []
         self.drawItemsOfNode = {}
+        self.watchingItems = set()
+        self.setMouseTracking(True)
 
+    def registerWatchingItem(self, item):
+        self.watchingItems.add(item)
+
+    def removeWatchingItem(self, item):
+        self.watchingItems.remove(item)
 
     def registerGraph(self, graph):
         self.graph = graph
@@ -61,6 +68,8 @@ class Painter2D(Painter):
         if event.button() == Qt.RightButton:
             self.drag = event.pos()
         if event.button() == Qt.LeftButton:
+            for item in self.watchingItems:
+                item.watchDown(event.pos())
             for drawItem in self.drawItems:
                 if issubclass(type(drawItem), Selector):
                     # print(drawItem.data.name, drawItem._x,drawItem._y, event.pos())
@@ -135,7 +144,10 @@ class Painter2D(Painter):
         self.update()
 
     def mouseMoveEvent(self, event):
+        for drawItem in self.watchingItems:
+            drawItem.watch(event.pos())
         super(Painter2D, self).mouseMoveEvent(event)
+
         if self.drag:
             self.globalOffset += event.pos()-self.drag
             self.drag = event.pos()
@@ -152,6 +164,7 @@ class Painter2D(Painter):
         else:
             self.drawLooseConnection(event.pos())
             self.update()
+
 
     def paintEvent(self, event):
         self.inputPinPositions = []
@@ -232,6 +245,7 @@ class Painter2D(Painter):
                         text = inputPin.name
                     self.drawLineEdit(x, y+drawOffset+8, w, h, text, painter, Qt.AlignLeft)
             # for k, outputPin in enumerate(node.outputPins.values()):
+            finalBuffer = None
             for k, drawItem in enumerate(self.drawItemsOfNode[node]['out']):
                 outputPin = drawItem.data
                 # pen.setColor(QColor(0, 115, 130))
@@ -242,10 +256,12 @@ class Painter2D(Painter):
                     pen.setColor(Qt.red)
                     painter.setPen(pen)
                 if outputPin.name == 'Final':
-                    painter.drawEllipse(x-4+w/2., y+10+drawOffset, 8, 8)
-                    point = QPoint(x+w/2., y+drawOffset+14) * painter.transform()
-                    self.outputPinPositions.append((point, outputPin.ID))
+                    finalBuffer = (k, drawItem)
                     continue
+                    # painter.drawEllipse(x-4+w/2., y+10+drawOffset, 8, 8)
+                    # point = QPoint(x+w/2., y+drawOffset+14) * painter.transform()
+                    # self.outputPinPositions.append((point, outputPin.ID))
+                    # continue
                 else:
                     painter.drawEllipse(x + w-4, y+drawOffset+8, 8, 8)
                     point = QPoint(x + w-4, y+drawOffset+12) * painter.transform()
@@ -259,6 +275,19 @@ class Painter2D(Painter):
                     # self.drawSelector(x, y+drawOffset+8, w, h, text, painter, Qt.AlignRight)
                 drawItem.update(x, y+drawOffset+8, w, h, painter.transform())
                 drawItem.draw(painter)
+            if finalBuffer:
+                k, drawItem = finalBuffer
+                outputPin = drawItem.data
+                pen.setColor(Painter2D.PINCOLORS[outputPin.info.varType])
+                pen.setWidth(2)
+                painter.setPen(pen)
+                if outputPin.ID == self.clickedPin:
+                    pen.setColor(Qt.red)
+                    painter.setPen(pen)
+                painter.drawEllipse(x-4+w/2., y+10+drawOffset, 8, 8)
+                point = QPoint(x+w/2., y+drawOffset+14) * painter.transform()
+                self.outputPinPositions.append((point, outputPin.ID))
+
             # trans = painter.transform()
         self.pinPositions = {value[1]: value[0] for value in self.inputPinPositions+self.outputPinPositions}
         # self.drawConnections(painter)
@@ -370,16 +399,16 @@ class Painter2D(Painter):
         self.drawItemsOfNode[node] = {'inp': [], 'out': []}
         for out in node.outputPins.values():
             if out.info.select:
-                s = Selector(node, out)
+                s = Selector(node, out, self)
             else:
-                s = OutputLabel(node, out)
+                s = OutputLabel(node, out, self)
             self.drawItems.append(s)
             self.drawItemsOfNode[node]['out'].append(s)
         for out in node.inputPins.values():
             if out.info.select:
-                s = Selector(node, out)
+                s = Selector(node, out, self)
             else:
-                s = InputLabel(node, out)
+                s = InputLabel(node, out, self)
             self.drawItems.append(s)
             self.drawItemsOfNode[node]['inp'].append(s)
 
@@ -406,7 +435,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         drawWidget = painter
         drawWidget.setAutoFillBackground(True)
         p = self.palette()
-        p.setColor(drawWidget.backgroundRole(), QColor(50,50,50))
+        p.setColor(drawWidget.backgroundRole(), QColor(70, 70, 70))
         drawWidget.setPalette(p)
         l = QGridLayout()
         l.addWidget(drawWidget)
@@ -440,15 +469,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.addAction(self.saveAction)
 
     def initMenus(self):
-        # self.setMenuBar(QMenuBar())
-        # menuBar = self.menuBar()
         fileMenu = self.menuBar.addMenu('&File')
         fileMenu.addAction(self.exitAction)
         fileMenu.addAction(self.runAction)
         self.mainToolBar.addAction(self.exitAction)
-        self.mainToolBar.addAction(self.runAction)
-        self.mainToolBar.addAction(self.loadAction)
         self.mainToolBar.addAction(self.saveAction)
+        self.mainToolBar.addAction(self.loadAction)
+        self.mainToolBar.addSeparator()
+        self.mainToolBar.addAction(self.runAction)
 
     def close(self):
         qApp.quit()
@@ -470,8 +498,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def setupNodeLib(self):
         self.NodeListView.setup(self.FilterEdit, self.drawer.graph)
 
+
 class DrawItem(object):
-    def __init__(self, parent, data):
+    def __init__(self, parent, data, painter):
+        self.painter = painter
         self.state = False
         self.x = 0
         self.y = 0
@@ -481,6 +511,7 @@ class DrawItem(object):
         self.data = data
 
     def update(self, x, y, w, h, transform):
+        self.transform = transform
         self.x = x
         self.y = y
         self.w = w
@@ -506,12 +537,38 @@ class DrawItem(object):
             return True
 
 
-
 class Selector(DrawItem):
+
+    def __init__(self, *args, **kwargs):
+        super(Selector, self).__init__(*args, **kwargs)
+        self.highlight = 0
+        self.select = None
+
+    def watch(self, pos):
+        for i in range(1, 3):
+            if self._x < pos.x() < self._xx and self._y + 12*i < pos.y() < self._yy + 12*i:
+                self.highlight = i
+                return
+
+    def watchDown(self, pos):
+        self.select = self.highlight
+
+    def collide(self, pos):
+        if self._x < pos.x() < self._xx and self._y < pos.y() < self._yy:
+            self.state = (self.state + 1) % 2
+            self.painter.registerWatchingItem(self)
+        else:
+            if self.state:
+                self.painter.removeWatchingItem(self)
+            self.state = 0
+        return super(Selector, self).collide(pos)
+
     def draw(self, painter):
         if not self.state:
             alignment = Qt.AlignRight
             text = self.data.name
+            if self.select:
+                text = str(self.select)
             pen = QPen(Qt.darkGray)
             painter.setPen(pen)
             painter.setBrush(QColor(40, 40, 40))
@@ -526,6 +583,35 @@ class Selector(DrawItem):
             painter.setBrush(QBrush(Qt.gray))
             points = QPoint(xx+self.w-40, yy+2), QPoint(xx+10-40 + self.w, yy+2), QPoint(xx+5+self.w-40, yy+9)
             painter.drawPolygon(*points)
+        else:
+            alignment = Qt.AlignRight
+            text = self.data.name
+            pen = QPen(Qt.darkGray)
+            painter.setPen(pen)
+            painter.setBrush(QColor(40, 40, 40))
+            xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18 + 12, self.w-25, 12 * 2
+            painter.drawRoundedRect(xx, yy, ww, hh, 2, 20)
+            painter.setFont(QFont('Helvetica', 8))
+            painter.setPen(pen)
+
+            items = ('True', 'False')
+            for i, item in enumerate(items):
+                if i+1 == self.highlight:
+                    pen.setColor(Qt.white)
+                    painter.setPen(pen)
+                else:
+                    pen = QPen(Qt.darkGray)
+                    painter.setPen(pen)
+                painter.drawText(xx-5, yy-3+i*12, ww-20, hh+5, alignment, item)
+            # painter.drawText(xx-5, yy-3+0, ww-20, hh+5, alignment, 'True')
+            # painter.drawText(xx-5, yy-3+12, ww-20, hh+5, alignment, 'False')
+
+            pen = QPen(Qt.darkGray)
+            painter.setPen(pen)
+            painter.setBrush(QColor(60, 60, 60))
+            xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18, self.w-25, 12
+            painter.drawRoundedRect(xx, yy, ww, hh, 2, 20)
+            painter.drawText(xx-5, yy-3, ww-20, hh+5, alignment, text)
 
 
 class InputLabel(DrawItem):

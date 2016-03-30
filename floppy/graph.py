@@ -154,10 +154,21 @@ class Graph(object):
         for id, nodeData in saveState.items():
             id = int(id)
             for inputName, outputID in nodeData['inputConnections'].items():
+                if inputName == 'Control':
+                    continue
                 outputNode, outputName = outputID.split(':O')
                 outputNode = idMap[int(outputNode)]
                 # print(id, nodeData['inputConnections'], outputNode, outputName)
-                self.connect(str(outputNode),outputName,str(idMap[id]), inputName)
+                self.connect(str(outputNode), outputName, str(idMap[id]), inputName)
+
+            for outputName, inputIDs in nodeData['outputConnections'].items():
+                for inputID in inputIDs:
+                    if not 'Control' in inputID:
+                        continue
+                    inputNode, inputName = inputID.split(':I')
+                    inputNode = idMap[int(inputNode)]
+                    # print(id, nodeData['inputConnections'], outputNode, outputName)
+                    self.connect(str(idMap[id]), outputName, str(inputNode), inputName)
 
         self.update()
 
