@@ -7,19 +7,27 @@ NODECLASSES = {}
 class InputNotAvailable(Exception):
     pass
 
+
 class InputAlreadySet(Exception):
     pass
 
 
 class Info(object):
-    def __init__(self, name, varType, hints=None, default='', select=None):
+    def __init__(self, name, varType, hints=None, default='', select=None, owner = False):
         self.name = name
         self.varType = varType
-        self.hints = hints
+        if not hints:
+            self.hints = [varType.__name__]
+        else:
+            self.hints = [varType.__name__] + hints
         self.default = default
         self.valueSet = False
         self.value = None
         self.select = select
+        self.owner = owner
+
+    def setOwner(self, owner):
+        self.owner = owner
 
 
 class InputInfo(Info):
@@ -36,7 +44,8 @@ class InputInfo(Info):
 
     def set(self, value):
         if self.valueSet:
-            raise InputAlreadySet('Input \'{}\' is already set.'.format(self.name))
+            raise InputAlreadySet('Input \'{}\' of node \'{}\' is already set.'.format(self.name,
+                                                                                       str(self.owner)))
         self.value = value
         self.valueSet = True
 
@@ -113,12 +122,10 @@ class Node(object, metaclass=MetaNode):
     To access the value of an input during the Node's 'run' method or 'check' method use
     'myNodeInstance._myStringInput'. An 'InputNotAvailable' Exception is raised is the input is not set yet.
     """
-    # __inputs__ = OrderedDict()
 
     def __init__(self, nodeID, graph):
         self.__pos__ = (0,0)
         self.graph = graph
-        # self.__inputs__ = OrderedDict()
         self.ID = nodeID
         self.inputs = OrderedDict()
         self.outputs = OrderedDict()
@@ -127,6 +134,7 @@ class Node(object, metaclass=MetaNode):
         self.inProgress = 1
         for i, inp in enumerate(self.__inputs__.values()):
             inp = copy(inp)
+            inp.setOwner(self)
             inpID = '{}:I{}'.format(self.ID, inp.name)
             newPin = Pin(inpID, inp, self)
             self.inputPins[inp.name] = newPin
@@ -134,6 +142,7 @@ class Node(object, metaclass=MetaNode):
 
         for i, out in enumerate(self.__outputs__.values()):
             out = copy(out)
+            out.setOwner(self)
             outID = '{}:O{}'.format(self.ID, out.name)
             newPin = Pin(outID, out, self)
             self.outputPins[out.name] = newPin
@@ -245,9 +254,16 @@ class Node(object, metaclass=MetaNode):
 
     @classmethod
     def matchHint(cls, text: str):
-        if any([any([hint.startswith(text) for hint in inp.hints])] for inp in cls.__inputs__):
+        return cls.matchInputHint(text) or cls.matchOutputHint(text)
+
+    @classmethod
+    def matchInputHint(cls, text: str):
+        if any([any([hint.startswith(text) for hint in inp.hints]) for inp in cls.__inputs__.values()]):
             return True
-        if any([any([hint.startswith(text) for hint in out.hints])] for out in cls.__outputs__):
+
+    @classmethod
+    def matchOutputHint(cls, text: str):
+        if any([any([hint.startswith(text) for hint in out.hints]) for out in cls.__outputs__.values()]):
             return True
 
 
@@ -269,14 +285,67 @@ class ControlNode(Node):
     Input('Control', object)
     Output('Final', object)
 
+    def __init__(self, *args, **kwargs):
+        super(ControlNode, self).__init__(*args, **kwargs)
+        self.waiting = False
+
+    def check(self):
+        if self.inProgress:
+            for inp in self.inputs.values():
+                if inp.name == 'Control':
+                    continue
+                if not inp.valueSet:
+                    print('{}: Prerequisites not met.'.format(str(self)))
+                    return False
+            return True
+        elif self.waiting:
+            if self.inputs['Control'].valueSet:
+                return True
+
+
+
+
 
 class SwitchNode(ControlNode):
-    # Input('Start', object)
-    # Input('Control', object)
+    """
+    Node for creating a basic if/else construction.
+    The input 'Switch' accepts a bool. Depending of the value of the input, the 'True' or 'False' outputs are set to
+    the value of the 'Start' input.
+    As soon as the 'Control' input is set by one of the code branches originating from the 'True' and 'False' outputs,
+    the value of the 'Final' output is set to the value of the 'Control' input.
+    """
     Input('Switch', bool)
     Output('True', object)
     Output('False', object)
-    # Output('Final', object)
+
+    def run(self):
+        print('Executing node {}'.format(self))
+        if not self.waiting and self.inProgress:
+            if self._Switch:
+                self._True(self._Start)
+            else:
+                self._False(self._Start)
+        elif self.waiting:
+            self._Final(self._Control)
+
+    def notify(self):
+        self.inProgress = 0
+        if not self.waiting:
+            output = self.outputs['True'] if self._Switch else self.outputs['False']
+            for con in self.graph.getConnectionsOfOutput(output):
+                outputName = con['outputName']
+                nextNode = con['inputNode']
+                nextInput = con['inputName']
+                nextNode.setInput(nextInput, self.outputs[outputName].value)
+            self.waiting = True
+        else:
+            output = self.outputs['Final']
+            for con in self.graph.getConnectionsOfOutput(output):
+                outputName = con['outputName']
+                nextNode = con['inputNode']
+                nextInput = con['inputName']
+                nextNode.setInput(nextInput, self.outputs[outputName].value)
+            self.waiting = False
 
 
 class CreateBool(Node):

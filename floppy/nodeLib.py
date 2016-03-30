@@ -36,7 +36,9 @@ class NodeFilter(QLineEdit):
         if not text.startswith('$'):
             nodes = [node for node in NODECLASSES.keys() if text in node.lower()]
         else:
-            nodes = set(self.nodeScanner.getHints(text[1:]) + self.nodeScanner.getHints(text[1:], False))
+            # nodes = set(self.nodeScanner.getHints(text[1:]) + self.nodeScanner.getHints(text[1:], False))
+            text = text[1:]
+            nodes = set([nodeName for nodeName, node in NODECLASSES.items() if node.matchHint(text)])
         model = QStandardItemModel()
         for node in nodes:
             item = QStandardItem()
