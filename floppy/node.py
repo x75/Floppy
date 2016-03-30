@@ -29,6 +29,9 @@ class Info(object):
     def setOwner(self, owner):
         self.owner = owner
 
+    def __str__(self):
+        return 'INFO'
+
 
 class InputInfo(Info):
     def __call__(self, noException=False):
@@ -44,8 +47,7 @@ class InputInfo(Info):
 
     def set(self, value):
         if self.valueSet:
-            raise InputAlreadySet('Input \'{}\' of node \'{}\' is already set.'.format(self.name,
-                                                                                       str(self.owner)))
+            raise InputAlreadySet('Input \'{}\' of node \'{}\' is already set.'.format(self.name, str(self.owner)))
         self.value = value
         self.valueSet = True
 
@@ -199,6 +201,17 @@ class Node(object, metaclass=MetaNode):
                     return False
             return True
 
+    def prepare(self):
+        """
+        Method for preparing a node for execution.
+        This method is called on each node before the main execution loop of the owning graph instance is started.
+        The methods makes sure that artifacts from previous execution are reset to their original states and default
+        values of inputs that are connected to other nodes' outputs are removed.
+        TODO: Implement this.
+        :return:
+        """
+        pass
+
     def _addInput(*args, data='', cls=None):
         inputInfo = InputInfo(**data)
         cls.__inputs__[data['name']] = inputInfo
@@ -237,20 +250,20 @@ class Node(object, metaclass=MetaNode):
 
     def save(self):
         inputConns = [self.graph.getConnectionOfInput(inp) for inp in self.inputs.values()]
-        print(inputConns)
+        # print(inputConns)
         inputConns = {inputConn['inputName']: inputConn['outputNode'].getOutputID(inputConn['outputName']) for inputConn in inputConns if inputConn}
         outputConns = {out.name: self.graph.getConnectionsOfOutput(out) for out in self.outputs.values()}
         for key, conns in outputConns.items():
             conns = [outputConn['inputNode'].getInputID(outputConn['inputName']) for outputConn in conns]
             outputConns[key] = conns
-        return repr({'class': self.__class__.__name__,
+        return {'class': self.__class__.__name__,
                      'position': self.__pos__,
-                     'inputs': [(inputName, inp.varType, inp(True), inp.default)
+                     'inputs': [(inputName, inp.varType.__name__, inp(True), inp.default)
                                 for inputName, inp in self.inputs.items()],
                      'inputConnections': inputConns,
-                     'outputs': [(outputName, out.varType, out.value, out.default)
+                     'outputs': [(outputName, out.varType.__name__, out.value, out.default)
                                  for outputName, out in self.outputs.items()],
-                     'outputConnections': outputConns})
+                     'outputConnections': outputConns}
 
     @classmethod
     def matchHint(cls, text: str):
@@ -369,9 +382,14 @@ class TestNode(Node):
     Input('strInput', str)
     Output('strOutput', str)
 
+
 class TestNode2(Node):
     Input('strInput', str)
     Input('floatInput', float, default=10.)
     Input('Input', str, default='TestNode')
     Output('strOutput', str)
+
+    def check(self):
+        if self.inProgress:
+            return True
 

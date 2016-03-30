@@ -421,11 +421,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.exitAction.setStatusTip('Exit application')
         self.exitAction.triggered.connect(self.close)
 
-        self.runAction = QAction(QIcon(os.path.join(self.iconRoot, 'run.png')), 'RUN', self)
+        self.runAction = QAction(QIcon(os.path.join(self.iconRoot, 'run.png')), 'Run', self)
         self.runAction.setShortcut('Ctrl+R')
         self.runAction.triggered.connect(self.runCode)
         self.runAction.setIconVisibleInMenu(True)
         self.addAction(self.runAction)
+        
+        self.loadAction = QAction(QIcon(os.path.join(self.iconRoot, 'load.png')), 'load', self)
+        self.loadAction.setShortcut('Ctrl+O')
+        self.loadAction.triggered.connect(self.loadGraph)
+        self.loadAction.setIconVisibleInMenu(True)
+        self.addAction(self.loadAction)
+        
+        self.saveAction = QAction(QIcon(os.path.join(self.iconRoot, 'save.png')), 'save', self)
+        self.saveAction.setShortcut('Ctrl+S')
+        self.saveAction.triggered.connect(self.saveGraph)
+        self.saveAction.setIconVisibleInMenu(True)
+        self.addAction(self.saveAction)
 
     def initMenus(self):
         # self.setMenuBar(QMenuBar())
@@ -435,12 +447,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         fileMenu.addAction(self.runAction)
         self.mainToolBar.addAction(self.exitAction)
         self.mainToolBar.addAction(self.runAction)
+        self.mainToolBar.addAction(self.loadAction)
+        self.mainToolBar.addAction(self.saveAction)
 
     def close(self):
         qApp.quit()
 
     def runCode(self, *args):
         self.drawer.graph.execute()
+
+    def loadGraph(self, *args):
+        self.drawer.graph.load('')
+
+    def saveGraph(self, *args):
+        self.drawer.graph.save()
 
     def resizeEvent(self, event):
         super(MainWindow, self).resizeEvent(event)

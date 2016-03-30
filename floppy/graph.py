@@ -109,6 +109,7 @@ class Graph(object):
 
 
     def update(self):
+        self.painter.repaint()
         self.painter.update()
 
     def execute(self):
@@ -139,10 +140,26 @@ class Graph(object):
 
     def save(self):
         saveState = {node.ID: node.save() for node in self.nodes.values()}
-        print(json.dumps(saveState))
+        with open('save.json', 'w') as fp:
+            fp.write(json.dumps(saveState))
 
     def load(self, fileName):
-        pass
+        from floppy.node import NODECLASSES
+        with open('save.json', 'r') as fp:
+            saveState = json.loads(fp.read())
+        idMap = {}
+        for id, nodeData in saveState.items():
+            restoredNode = self.spawnNode(NODECLASSES[nodeData['class']], position=nodeData['position'])
+            idMap[int(id)] = restoredNode.ID
+        for id, nodeData in saveState.items():
+            id = int(id)
+            for inputName, outputID in nodeData['inputConnections'].items():
+                outputNode, outputName = outputID.split(':O')
+                outputNode = idMap[int(outputNode)]
+                # print(id, nodeData['inputConnections'], outputNode, outputName)
+                self.connect(str(outputNode),outputName,str(idMap[id]), inputName)
+
+        self.update()
 
 
 class Connection(object):
