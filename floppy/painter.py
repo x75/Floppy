@@ -173,6 +173,7 @@ class Painter2D(Painter):
         super(Painter2D, self).paintEvent(event)
         painter = QPainter(self)
         painter.setRenderHint(QPainter.HighQualityAntialiasing)
+        self.drawGrid(painter)
         self.drawConnections(painter)
 
         painter.translate(self.width()/2. + self.globalOffset.x(), self.height()/2. + self.globalOffset.y())
@@ -180,7 +181,7 @@ class Painter2D(Painter):
         painter.scale(self.scale, self.scale)
         #painter.translate(self.width()/2., self.height()/2.)
         painter.setRenderHint(QPainter.HighQualityAntialiasing)
-        painter.drawEllipse(QPoint(0,0),5,5)
+        # painter.drawEllipse(QPoint(0,0),5,5)
         for j, node in enumerate(self.nodes):
             j *= 3
             j += 1
@@ -393,7 +394,10 @@ class Painter2D(Painter):
         points = QPoint(xx+w-40, yy+2), QPoint(xx+10-40 +w, yy+2), QPoint(xx+5+w-40, yy+9)
         painter.drawPolygon(*points)
 
-    def registerNode(self, node, position):
+    def registerNode(self, node, position, silent=False):
+        if not silent:
+            self.parent().parent().parent().parent().statusBar.showMessage('Spawned node of class \'{}\'.'
+                                                                           .format(type(node).__name__), 2000)
         node.__painter__ = {'position': position}
         node.__pos__ = position
         node.__size__ = (1, len(node.inputs) + len(node.outputs))
@@ -414,6 +418,38 @@ class Painter2D(Painter):
                 s = InputLabel(node, out, self)
             self.drawItems.append(s)
             self.drawItemsOfNode[node]['inp'].append(s)
+
+    def drawGrid(self, painter):
+        color = 105
+
+
+        spacing = 100 * self.scale
+        while spacing < 10:
+            spacing *= 9
+            color = 70 + (color-70) / 2
+        if color < 0:
+            return
+
+
+        pen = QPen()
+        pen.setColor(QColor(color, color, color))
+        pen.setStyle(Qt.DashLine)
+        painter.setPen(pen)
+        verticalN = int(self.width() / spacing / 2) + 1
+        horizontalN = int(self.height() / spacing / 2) + 1
+        for i in range(verticalN):
+            # painter.drawLine(self.width()/2 + self.globalOffset.x()+i*spacing, 0, self.width()/2+ self.globalOffset.x() + i*spacing, self.height())
+            painter.drawLine(self.width()/2 +i*spacing, 0, self.width()/2 + i*spacing, self.height())
+            # painter.drawLine(QPoint(self.width()/2 + self.globalOffset.x()-i*spacing, 0), QPoint(self.width()/2+ self.globalOffset.x() - i*spacing, self.height()))
+            painter.drawLine(QPoint(self.width()/2 -i*spacing, 0), QPoint(self.width()/2 - i*spacing, self.height()))
+
+        for i in range(horizontalN):
+            # painter.drawLine(0, self.height()/2+self.globalOffset.y()+i*spacing, self.width(), self.height()/2+self.globalOffset.y()+i*spacing)
+            painter.drawLine(0, self.height()/2+i*spacing, self.width(), self.height()/2+i*spacing)
+            # painter.drawLine(0, self.height()/2+self.globalOffset.y()-i*spacing, self.width(), self.height()/2+self.globalOffset.y()-i*spacing)
+            painter.drawLine(0, self.height()/2-i*spacing, self.width(), self.height()/2-i*spacing)
+
+
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -486,12 +522,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def runCode(self, *args):
         self.drawer.graph.execute()
+        self.statusBar.showMessage('Code execution successful.', 2000)
 
     def loadGraph(self, *args):
         self.drawer.graph.load('')
+        self.statusBar.showMessage('Graph loaded.', 2000)
 
     def saveGraph(self, *args):
         self.drawer.graph.save()
+        self.statusBar.showMessage('Graph saved.', 2000)
 
     def resizeEvent(self, event):
         super(MainWindow, self).resizeEvent(event)

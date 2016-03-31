@@ -26,14 +26,14 @@ class Graph(object):
         else:
             return super(Graph, self).__getattr__(item)
 
-    def spawnNode(self, nodeClass, connections=None, position=(0, 0)):
+    def spawnNode(self, nodeClass, connections=None, position=(0, 0), silent=False):
         # nodeClass = self.decorator(nodeClass, position)
         newNode = nodeClass(self.newID, self)
         self.reverseConnections[newNode] = set()
         self.connections[newNode] = set()
         if connections:
             self._spawnConnections(connections, newNode)
-        self.painter.registerNode(newNode, position)
+        self.painter.registerNode(newNode, position, silent)
         Graph.nodes[newNode.ID] = newNode
 
         return newNode
@@ -149,7 +149,7 @@ class Graph(object):
             saveState = json.loads(fp.read())
         idMap = {}
         for id, nodeData in saveState.items():
-            restoredNode = self.spawnNode(NODECLASSES[nodeData['class']], position=nodeData['position'])
+            restoredNode = self.spawnNode(NODECLASSES[nodeData['class']], position=nodeData['position'], silent=True)
             idMap[int(id)] = restoredNode.ID
             inputs = nodeData['inputs']
             outputs = nodeData['outputs']
