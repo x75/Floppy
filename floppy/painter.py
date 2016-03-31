@@ -543,18 +543,21 @@ class Selector(DrawItem):
         super(Selector, self).__init__(*args, **kwargs)
         self.highlight = 0
         self.select = None
+        self.items = ('True', 'False')
 
     def watch(self, pos):
+        scale = self.painter.scale
         for i in range(1, 3):
-            if self._x < pos.x() < self._xx and self._y + 12*i < pos.y() < self._yy + 12*i:
+            if self._x < pos.x() < self._xx and self._y + 12*i*scale < pos.y() < self._yy + 12*i*scale:
                 self.highlight = i
                 return
 
     def watchDown(self, pos):
-        self.select = self.highlight
+        self.select = self.items[self.highlight-1]
+        self.parent._Boolean.setDefault(self.select)
 
     def collide(self, pos):
-        if self._x < pos.x() < self._xx and self._y < pos.y() < self._yy:
+        if self._x < pos.x() < self._xx+16 and self._y < pos.y() < self._yy:
             self.state = (self.state + 1) % 2
             self.painter.registerWatchingItem(self)
         else:
@@ -594,8 +597,7 @@ class Selector(DrawItem):
             painter.setFont(QFont('Helvetica', 8))
             painter.setPen(pen)
 
-            items = ('True', 'False')
-            for i, item in enumerate(items):
+            for i, item in enumerate(self.items):
                 if i+1 == self.highlight:
                     pen.setColor(Qt.white)
                     painter.setPen(pen)

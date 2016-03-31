@@ -29,6 +29,9 @@ class Info(object):
     def setOwner(self, owner):
         self.owner = owner
 
+    def setDefault(self, value):
+        self.default = value
+
     def __str__(self):
         return 'INFO'
 
@@ -183,12 +186,15 @@ class Node(object, metaclass=MetaNode):
         :return: None
         :rtype: None
         """
-        self.inProgress -= 1
         for con in self.graph.getConnectionsFrom(self):
             outputName = con['outputName']
             nextNode = con['inputNode']
             nextInput = con['inputName']
-            nextNode.setInput(nextInput, self.outputs[outputName].value)
+            if self.outputs[outputName].valueSet:
+                nextNode.setInput(nextInput, self.outputs[outputName].value)
+            else:
+                nextNode.setInput(nextInput, self.outputs[outputName].value)
+        self.inProgress -= 1
 
     def setInput(self, inputName, value):
         self.inputs[inputName].set(value)
@@ -316,9 +322,6 @@ class ControlNode(Node):
                 return True
 
 
-
-
-
 class SwitchNode(ControlNode):
     """
     Node for creating a basic if/else construction.
@@ -366,7 +369,7 @@ class CreateBool(Node):
 
     def run(self):
         super(CreateBool, self).run()
-        self._Boolean(True)
+        # self._Boolean(True)
 
 
 class Pin(object):

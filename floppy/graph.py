@@ -151,6 +151,12 @@ class Graph(object):
         for id, nodeData in saveState.items():
             restoredNode = self.spawnNode(NODECLASSES[nodeData['class']], position=nodeData['position'])
             idMap[int(id)] = restoredNode.ID
+            inputs = nodeData['inputs']
+            outputs = nodeData['outputs']
+            for input in inputs:
+                restoredNode.inputs[input[0]].setDefault(input[-1])
+            for output in outputs:
+                restoredNode.outputs[output[0]].setDefault(output[-1])
         for id, nodeData in saveState.items():
             id = int(id)
             for inputName, outputID in nodeData['inputConnections'].items():
