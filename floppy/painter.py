@@ -176,9 +176,11 @@ class Painter2D(Painter):
         self.drawConnections(painter)
 
         painter.translate(self.width()/2. + self.globalOffset.x(), self.height()/2. + self.globalOffset.y())
+        self.center = QPoint(self.width()/2. + self.globalOffset.x(), self.height()/2. + self.globalOffset.y())
         painter.scale(self.scale, self.scale)
         #painter.translate(self.width()/2., self.height()/2.)
         painter.setRenderHint(QPainter.HighQualityAntialiasing)
+        painter.drawEllipse(QPoint(0,0),5,5)
         for j, node in enumerate(self.nodes):
             j *= 3
             j += 1
@@ -291,6 +293,7 @@ class Painter2D(Painter):
             # trans = painter.transform()
         self.pinPositions = {value[1]: value[0] for value in self.inputPinPositions+self.outputPinPositions}
         # self.drawConnections(painter)
+        self.transform = painter.transform()
 
     def drawConnections(self, painter):
         if not self.graph:
@@ -543,7 +546,17 @@ class Selector(DrawItem):
         super(Selector, self).__init__(*args, **kwargs)
         self.highlight = 0
         self.select = None
-        self.items = ('True', 'False')
+        self.items = self.data.info.select
+        if self.data.info.default is not None:
+            self.select = str(self.data.info.default)
+
+    def update(self, x, y, w, h, transform):
+        super(Selector, self).update(x, y, w, h, transform)
+        if self.select is not None:
+            self.items = self.data.info.select
+            if self.data.info.default is not None:
+                self.select = str(self.data.info.default)
+
 
     def watch(self, pos):
         scale = self.painter.scale
@@ -553,7 +566,7 @@ class Selector(DrawItem):
                 return
 
     def watchDown(self, pos):
-        self.select = self.items[self.highlight-1]
+        self.select = str(self.items[self.highlight-1])
         self.parent._Boolean.setDefault(self.select)
 
     def collide(self, pos):
@@ -598,6 +611,7 @@ class Selector(DrawItem):
             painter.setPen(pen)
 
             for i, item in enumerate(self.items):
+                item = str(item)
                 if i+1 == self.highlight:
                     pen.setColor(Qt.white)
                     painter.setPen(pen)

@@ -123,11 +123,14 @@ class NodeList(QListView):
         """
         super(NodeList, self).mouseReleaseEvent(event)
         if event.pos().x() < 0:
-            pos = self.mapToParent(event.pos())
-            # pos = self.parent().mapToParent(pos)
-            # pos = self.parent().parent().mapToParent(pos)
-            print(pos)
-            self.graph.spawnNode(self.selectedClass, position=(pos.x()-5, pos.y()-40))
+            pos = QCursor.pos()
+            topLeft = self.graph.painter.mapToGlobal(self.graph.painter.pos())
+            pos -= topLeft
+            pos -= self.graph.painter.center
+            pos -= self.graph.painter.center
+            transform = self.graph.painter.transform
+            pos *= transform
+            self.graph.spawnNode(self.selectedClass, position=(pos.x(), pos.y()))
             self.graph.update()
         self.down = False
 
