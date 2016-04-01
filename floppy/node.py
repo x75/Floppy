@@ -30,10 +30,20 @@ class Info(object):
         self.owner = owner
 
     def setDefault(self, value):
-        self.default = value
+        if not self.varType == object:
+            try:
+                self.default = self.varType(value)
+            except ValueError:
+                self.default = ''
+        else:
+            self.default = value
 
     def __str__(self):
         return 'INFO'
+
+    def reset(self):
+        self.valueSet = False
+        self.value = None
 
 
 class InputInfo(Info):
@@ -48,8 +58,8 @@ class InputInfo(Info):
             else:
                 raise InputNotAvailable('Input not set for node.')
 
-    def set(self, value):
-        if self.valueSet:
+    def set(self, value, override=False):
+        if self.valueSet and not override:
             raise InputAlreadySet('Input \'{}\' of node \'{}\' is already set.'.format(self.name, str(self.owner)))
         self.value = value
         self.valueSet = True
@@ -193,11 +203,12 @@ class Node(object, metaclass=MetaNode):
             if self.outputs[outputName].valueSet:
                 nextNode.setInput(nextInput, self.outputs[outputName].value)
             else:
-                nextNode.setInput(nextInput, self.outputs[outputName].value)
+                nextNode.setInput(nextInput, self.outputs[outputName].default)
+        [Info.reset(inp) for inp in self.inputs.values()]
         self.inProgress -= 1
 
-    def setInput(self, inputName, value):
-        self.inputs[inputName].set(value)
+    def setInput(self, inputName, value, override=False):
+        self.inputs[inputName].set(value, override=override)
 
     def check(self) -> bool:
         if self.inProgress:
@@ -216,7 +227,8 @@ class Node(object, metaclass=MetaNode):
         TODO: Implement this.
         :return:
         """
-        pass
+        self.inProgress = 1
+        [InputInfo.reset(inp) for inp in self.inputs.values()]
 
     def _addInput(*args, data='', cls=None):
         inputInfo = InputInfo(**data)
@@ -308,18 +320,7 @@ class ControlNode(Node):
         super(ControlNode, self).__init__(*args, **kwargs)
         self.waiting = False
 
-    def check(self):
-        if self.inProgress:
-            for inp in self.inputs.values():
-                if inp.name == 'Control':
-                    continue
-                if not inp.valueSet:
-                    print('{}: Prerequisites not met.'.format(str(self)))
-                    return False
-            return True
-        elif self.waiting:
-            if self.inputs['Control'].valueSet:
-                return True
+
 
 
 class SwitchNode(ControlNode):
@@ -333,6 +334,19 @@ class SwitchNode(ControlNode):
     Input('Switch', bool)
     Output('True', object)
     Output('False', object)
+
+    def check(self):
+        if self.inProgress:
+            for inp in self.inputs.values():
+                if inp.name == 'Control':
+                    continue
+                if not inp.valueSet:
+                    print('{}: Prerequisites not met.'.format(str(self)))
+                    return False
+            return True
+        elif self.waiting:
+            if self.inputs['Control'].valueSet:
+                return True
 
     def run(self):
         print('Executing node {}'.format(self))
@@ -385,6 +399,9 @@ class TestNode(Node):
     Input('strInput', str)
     Output('strOutput', str)
 
+class FinalTestNode(TestNode):
+    pass
+
 
 class TestNode2(Node):
     Input('strInput', str)
@@ -395,4 +412,65 @@ class TestNode2(Node):
     def check(self):
         if self.inProgress:
             return True
+
+
+class Loop(ControlNode):
+    Input('Iterations', int)
+    Output('LoopBody', object)
+
+    def __init__(self, *args, **kwargs):
+        super(ControlNode, self).__init__(*args, **kwargs)
+        # self.fresh = True
+
+    def check(self):
+        if self.inProgress > 0:
+            if self.inProgress > 1:
+                if self.inputs['Control'].valueSet:
+                    return True
+            else:
+                for inp in self.inputs.values():
+                    if inp.name == 'Control':
+                        continue
+                    if not inp.valueSet:
+                        print('{}: Prerequisites not met.'.format(str(self)))
+                        return False
+                return True
+
+    def run(self):
+        print('Executing node {}'.format(self))
+        try:
+            if self.inProgress > 1:
+                self._LoopBody(self._Control)
+            else:
+                self._Final(self._Control)
+        except InputNotAvailable:
+            self.inProgress = self._Iterations + 1
+            self.fresh = False
+            self._LoopBody(self._Start)
+
+    def notify(self):
+        if self.inProgress > 1:
+            output = self.outputs['LoopBody']
+            for con in self.graph.getConnectionsOfOutput(output):
+                outputName = con['outputName']
+                nextNode = con['inputNode']
+                nextInput = con['inputName']
+                nextNode.prepare()
+                nextNode.setInput(nextInput, self.outputs[outputName].value, override=True)
+
+        else:
+            output = self.outputs['Final']
+            for con in self.graph.getConnectionsOfOutput(output):
+                outputName = con['outputName']
+                nextNode = con['inputNode']
+                nextInput = con['inputName']
+                nextNode.setInput(nextInput, self.outputs[outputName].value)
+        self.inProgress -= 1
+        self.inputs['Control'].reset()
+        # print(self.inProgress)
+        # exit()
+
+
+class CreateInt(Node):
+    Output('Integer', int, select=(1,2,3,4,5))
 

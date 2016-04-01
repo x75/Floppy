@@ -422,11 +422,10 @@ class Painter2D(Painter):
     def drawGrid(self, painter):
         color = 105
 
-
         spacing = 100 * self.scale
-        while spacing < 10:
+        while spacing < 25:
             spacing *= 9
-            color = 70 + (color-70) / 2
+            color = 70 + (color-70) / 2.5
         if color < 0:
             return
 
@@ -448,8 +447,6 @@ class Painter2D(Painter):
             painter.drawLine(0, self.height()/2+i*spacing, self.width(), self.height()/2+i*spacing)
             # painter.drawLine(0, self.height()/2+self.globalOffset.y()-i*spacing, self.width(), self.height()/2+self.globalOffset.y()-i*spacing)
             painter.drawLine(0, self.height()/2-i*spacing, self.width(), self.height()/2-i*spacing)
-
-
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -599,14 +596,15 @@ class Selector(DrawItem):
 
     def watch(self, pos):
         scale = self.painter.scale
-        for i in range(1, 3):
+        for i in range(1, len(self.items)+1):
             if self._x < pos.x() < self._xx and self._y + 12*i*scale < pos.y() < self._yy + 12*i*scale:
                 self.highlight = i
                 return
 
     def watchDown(self, pos):
         self.select = str(self.items[self.highlight-1])
-        self.parent._Boolean.setDefault(self.select)
+        self.parent.outputs[self.data.name].setDefault(self.select)
+        # self.parent._Boolean.setDefault(self.select)
 
     def collide(self, pos):
         if self._x < pos.x() < self._xx+16 and self._y < pos.y() < self._yy:
@@ -644,7 +642,7 @@ class Selector(DrawItem):
             pen = QPen(Qt.darkGray)
             painter.setPen(pen)
             painter.setBrush(QColor(40, 40, 40))
-            xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18 + 12, self.w-25, 12 * 2
+            xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18 + 12, self.w-25, 12 * len(self.items)
             painter.drawRoundedRect(xx, yy, ww, hh, 2, 20)
             painter.setFont(QFont('Helvetica', 8))
             painter.setPen(pen)

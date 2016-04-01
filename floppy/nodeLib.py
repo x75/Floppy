@@ -123,13 +123,17 @@ class NodeList(QListView):
         """
         super(NodeList, self).mouseReleaseEvent(event)
         if event.pos().x() < 0:
+            # transform = self.graph.painter.transform
             pos = QCursor.pos()
             topLeft = self.graph.painter.mapToGlobal(self.graph.painter.pos())
             pos -= topLeft
+
             pos -= self.graph.painter.center
-            pos -= self.graph.painter.center
-            transform = self.graph.painter.transform
-            pos *= transform
+            # pos -= self.graph.painter.center
+            # print(pos, self.graph.painter.center, pos*transform)
+            pos /= self.graph.painter.scale
+            # print(transform)
+
             self.graph.spawnNode(self.selectedClass, position=(pos.x(), pos.y()))
             self.graph.update()
         self.down = False
