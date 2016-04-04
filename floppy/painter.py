@@ -744,11 +744,14 @@ class NodeDialog(QDockWidget):
             pin = self.graph.getPinWithID(self.pin)
             if not self.back:
                 endPin = newNode.getInputofType(pin.info.varType)
+                if endPin:
+                    self.graph.connect(self.graph.getNodeFromPinID(self.pin), self.pin.split(':')[1][1:], newNode, endPin.name)
             else:
                 endPin = newNode.getOutputofType(pin.info.varType)
-            if endPin:
-                pass
-                self.graph.connect(self.graph.getNodeFromPinID(self.pin), self.pin.split(':')[1][1:], newNode, endPin.name)
+                if endPin:
+                    # self.graph.connect(self.graph.getNodeFromPinID(self.pin), self.pin.split(':')[1][1:], newNode, endPin.name)
+                    self.graph.connect(newNode, endPin.name, self.graph.getNodeFromPinID(self.pin), self.pin.split(':')[1][1:])
+
                 # self.painter.app.connectionManager.registerStart(pin, pin.node)
                 # self.painter.app.connectionManager.registerEnd(endPin, newNode)
 

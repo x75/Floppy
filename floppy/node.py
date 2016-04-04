@@ -274,6 +274,11 @@ class Node(object, metaclass=MetaNode):
             if inp.varType == varType:
                 return inp
 
+    def getOutputofType(self, varType):
+        for out in self.outputs.values():
+            if out.varType == varType:
+                return out
+
     def save(self):
         inputConns = [self.graph.getConnectionOfInput(inp) for inp in self.inputs.values()]
         # print(inputConns)
