@@ -161,6 +161,24 @@ class ContextNodeList(NodeList):
         """
         self.dialog = dialog
 
+    def registerGraph(self, graph):
+        self.graph = graph
+
+    def registerPainter(self, painter):
+        self.painter = painter
+        self.down = False
+
+    # def mousePressEvent(self, event):
+    #     """
+    #     Handling drag&drop of nodes in the list into the diagram.
+    #     :param event: QMouseEvent
+    #     :return: None
+    #     """
+    #     # super(NodeList, self).mousePressEvent(event)
+    #     self.down = True
+    #     name = self.filter.listView.selectedIndexes()[0].data()
+    #     self.selectedClass = NODECLASSES[name]
+
     def mouseReleaseEvent(self, event):
         """
         Handling the selection and spawning of nodes in the list.
@@ -168,8 +186,14 @@ class ContextNodeList(NodeList):
         :return: None
         """
         super(NodeList, self).mouseReleaseEvent(event)
-        pos = event.globalPos() - self.diagram.app.mainWindow.pos() - QPoint(50, 150)
-        self.graph.spawnNode(self.selectedClass, (pos.x()-5, pos.y()-40))
+        # pos = QCursor.pos()
+        pos = self.parent().mapToGlobal(self.parent().pos())
+        topLeft = self.graph.painter.mapToGlobal(self.graph.painter.pos())
+        pos -= topLeft
+
+        pos -= self.graph.painter.center
+        pos /= self.graph.painter.scale
+        self.graph.spawnNode(self.selectedClass, position=(pos.x(), pos.y()))
         self.down = False
         self.dialog.close(True)
 
@@ -222,12 +246,10 @@ class ContextNodeFilter(NodeFilter):
             else:
                 text = '$' + self.dialog.getTypeHint()
         if not text.startswith('$'):
-            nodes = {node[0] for node in self.nodeScanner.nodeClasses if text in node[0].lower()}
+            nodes = [node for node in NODECLASSES.keys() if text in node.lower()]
         else:
-            if not self.back:
-                nodes = set(self.nodeScanner.getHints(text[1:]))
-            else:
-                nodes = set(self.nodeScanner.getHints(text[1:], False))
+            text = text[1:]
+            nodes = set([nodeName for nodeName, node in NODECLASSES.items() if node.matchHint(text)])
         model = QStandardItemModel()
         for node in nodes:
             item = QStandardItem()

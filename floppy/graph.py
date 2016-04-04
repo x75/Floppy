@@ -35,6 +35,7 @@ class Graph(object):
             self._spawnConnections(connections, newNode)
         self.painter.registerNode(newNode, position, silent)
         Graph.nodes[newNode.ID] = newNode
+        self.newestNode = newNode
 
         return newNode
 
@@ -177,6 +178,23 @@ class Graph(object):
                     self.connect(str(idMap[id]), outputName, str(inputNode), inputName)
 
         self.update()
+
+    def getPinWithID(self, pinID):
+        nodeID, pinName = pinID.split(':')
+        pinName = pinName[1:]
+        node = self.nodes[int(nodeID)]
+        try:
+            return node.getInputPin(pinName)
+        except KeyError:
+            return node.getOutputPin(pinName)
+
+    def getNodeFromPinID(self, pinID):
+        nodeID, pinName = pinID.split(':')
+        pinName = pinName[1:]
+        return self.nodes[int(nodeID)]
+
+    def getNewestNode(self):
+        return self.newestNode
 
 
 class Connection(object):

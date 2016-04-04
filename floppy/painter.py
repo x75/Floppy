@@ -40,6 +40,7 @@ class Painter2D(Painter):
         self.drawItemsOfNode = {}
         self.watchingItems = set()
         self.setMouseTracking(True)
+        self.contextSensitive = True
 
     def registerWatchingItem(self, item):
         self.watchingItems.add(item)
@@ -136,12 +137,20 @@ class Painter2D(Painter):
                     self.graph.connect(outputNodeID, outputName, inputNodeID, inputName)
                 except TypeError:
                     print('Cannot connect pins of different type')
+            else:
+                print('Do something. NOW!!!')
+                self.openDialog(event)
         self.drag = False
         self.downOverNode = False
         self.looseConnection = False
         self.clickedPin = None
         self.repaint()
         self.update()
+
+    def openDialog(self, event):
+        dialog = NodeDialog(self, event, self.clickedPin, self.graph)
+        self.dialog = dialog
+        dialog.show()
 
     def mouseMoveEvent(self, event):
         for drawItem in self.watchingItems:
@@ -174,7 +183,11 @@ class Painter2D(Painter):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.HighQualityAntialiasing)
         self.drawGrid(painter)
-        self.drawConnections(painter)
+        try:
+            self.drawConnections(painter)
+        except KeyError:
+            pass
+
 
         painter.translate(self.width()/2. + self.globalOffset.x(), self.height()/2. + self.globalOffset.y())
         self.center = QPoint(self.width()/2. + self.globalOffset.x(), self.height()/2. + self.globalOffset.y())
@@ -673,3 +686,81 @@ class InputLabel(DrawItem):
 
 class OutputLabel(DrawItem):
     pass
+
+
+from floppy.nodeLib import ContextNodeFilter, ContextNodeList
+class NodeDialog(QDockWidget):
+    """
+    Container Widget handling the set up of a ContextNodeFilter widget and a ContextNodeList when connections are
+    dragged into open space.
+    """
+    def __init__(self, painter, event, pin, graph, parent=None):
+        self.graph = graph
+        self.painter = painter
+        self.pin = pin
+        super(NodeDialog, self).__init__(parent)
+        self.setTitleBarWidget(QWidget(self))
+        self.setStyleSheet("NodeDialog {background-color:rgb(45,45,45) ;border:1px solid rgb(0, 0, 0); "
+                           "border-color:black}")
+        self.setWindowFlags(Qt.Window | Qt.WindowStaysOnTopHint |Qt.X11BypassWindowManagerHint | Qt.FramelessWindowHint)
+        self.setFeatures(QDockWidget.DockWidgetMovable)
+        self.setFloating(True)
+        pos = event.globalPos()
+        self.setGeometry(pos.x(), pos.y(), 150, 250)
+        dL = QVBoxLayout()
+        cB = QCheckBox('Context sensitive')
+        cB.setChecked(painter.contextSensitive)
+        self.cB = cB
+
+        nFilter = ContextNodeFilter()
+        self.back = True if ':I' in pin else False
+        nFilter.registerDialog(self, back=self.back)
+        nFilter.setFocus()
+        # nodeList = ContextNodeList(nFilter, painter, self)
+        nodeList = ContextNodeList(self)
+        nodeList.registerDialog(self)
+        nodeList.registerGraph(graph)
+        nodeList.registerPainter(painter)
+        nodeList.setup(nFilter, graph)
+        cB.stateChanged.connect(nFilter.check)
+        nFilter.registerListView(nodeList)
+        dL.addWidget(nFilter)
+        dL.addWidget(cB)
+        dL.addWidget(nodeList)
+        # self.cl
+        self.dialogWidget = QWidget()
+        self.dialogWidget.setLayout(dL)
+        self.setWidget(self.dialogWidget)
+
+    def close(self, spawned=False):
+        """
+        Close the dialog and connect a newly connected node if necessary.
+        :param spawned: Boolean defining whether a node was spawned and needs connecting.
+        :return: None
+        """
+        if spawned:
+            self.painter.contextSensitive = self.cB.checkState()
+            newNode = self.graph.getNewestNode()
+            pin = self.graph.getPinWithID(self.pin)
+            if not self.back:
+                endPin = newNode.getInputofType(pin.info.varType)
+            else:
+                endPin = newNode.getOutputofType(pin.info.varType)
+            if endPin:
+                pass
+                self.graph.connect(self.graph.getNodeFromPinID(self.pin), self.pin.split(':')[1][1:], newNode, endPin.name)
+                # self.painter.app.connectionManager.registerStart(pin, pin.node)
+                # self.painter.app.connectionManager.registerEnd(endPin, newNode)
+
+        # painter.contextSensitive = self.cB.checkState()
+        self.painter.update()
+        super(NodeDialog, self).close()
+
+    def getTypeHint(self):
+        """
+        Returns the name of the type of the pin the new node will be connected to.
+        This is used to filter the node list for appropriate nodes.
+        :return: String representing a Hint. In this case a type Hint.
+        """
+        pin = self.graph.getPinWithID(self.pin)
+        return pin.info.varType.__name__

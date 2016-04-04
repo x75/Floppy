@@ -254,6 +254,9 @@ class Node(object, metaclass=MetaNode):
     def getInputPin(self, inputName):
         return self.inputPins[inputName]
 
+    def getOutputPin(self, outputName):
+        return self.outputPins[outputName]
+
     def getInputInfo(self, inputName):
         return self.inputs[inputName]
 
@@ -265,6 +268,11 @@ class Node(object, metaclass=MetaNode):
 
     def getOutputID(self, outputName):
         return '{}:O{}'.format(self.ID, outputName)
+
+    def getInputofType(self, varType):
+        for inp in self.inputs.values():
+            if inp.varType == varType:
+                return inp
 
     def save(self):
         inputConns = [self.graph.getConnectionOfInput(inp) for inp in self.inputs.values()]
