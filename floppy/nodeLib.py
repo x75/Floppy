@@ -40,7 +40,7 @@ class NodeFilter(QLineEdit):
             text = text[1:]
             nodes = set([nodeName for nodeName, node in NODECLASSES.items() if node.matchHint(text)])
         model = QStandardItemModel()
-        for node in nodes:
+        for node in sorted(nodes):
             item = QStandardItem()
             item.setText(node)
             model.appendRow(item)
@@ -251,7 +251,7 @@ class ContextNodeFilter(NodeFilter):
             text = text[1:]
             nodes = set([nodeName for nodeName, node in NODECLASSES.items() if node.matchHint(text)])
         model = QStandardItemModel()
-        for node in nodes:
+        for node in sorted(nodes):
             item = QStandardItem()
             item.setText(node)
             model.appendRow(item)

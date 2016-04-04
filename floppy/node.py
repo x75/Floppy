@@ -271,12 +271,12 @@ class Node(object, metaclass=MetaNode):
 
     def getInputofType(self, varType):
         for inp in self.inputs.values():
-            if inp.varType == varType:
+            if issubclass(varType, inp.varType) or issubclass(inp.varType, varType):
                 return inp
 
     def getOutputofType(self, varType):
         for out in self.outputs.values():
-            if out.varType == varType:
+            if issubclass(varType, out.varType) or issubclass(out.varType, varType):
                 return out
 
     def save(self):
@@ -302,11 +302,15 @@ class Node(object, metaclass=MetaNode):
 
     @classmethod
     def matchInputHint(cls, text: str):
+        if text == 'object':
+            return True
         if any([any([hint.startswith(text) for hint in inp.hints]) for inp in cls.__inputs__.values()]):
             return True
 
     @classmethod
     def matchOutputHint(cls, text: str):
+        if text == 'object':
+            return True
         if any([any([hint.startswith(text) for hint in out.hints]) for out in cls.__outputs__.values()]):
             return True
 
@@ -485,5 +489,30 @@ class Loop(ControlNode):
 
 
 class CreateInt(Node):
-    Output('Integer', int, select=(1,2,3,4,5))
+    Output('Integer', int, select=(1, 2, 3, 4, 5))
+
+
+class WaitAll(Node):
+    Input('1', object)
+    Input('2', object)
+    Output('out', object)
+
+
+class WaitAny(WaitAll):
+
+    def check(self):
+        if self.inProgress:
+            for inp in self.inputs.values():
+                if inp.valueSet:
+                    print('{}: Prerequisites not met.'.format(str(self)))
+                    return True
+
+    def run(self):
+        super(WaitAny, self).run()
+        for inp in self.inputs.values():
+            if inp.valueSet:
+                self._out(inp.value)
+
+
+
 
