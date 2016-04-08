@@ -8,7 +8,7 @@ The runner will report its status to the editor and the editor is able to send c
 from threading import Thread, Lock
 import time
 from queue import Queue
-from socket import AF_INET, SOCK_STREAM, socket, SHUT_RDWR
+from socket import AF_INET, SOCK_STREAM, socket, SHUT_RDWR, timeout
 import random
 
 host = '127.0.0.1'
@@ -145,6 +145,9 @@ class CommandProcessor(Thread):
                     self.socket.send('Runner is updating.'.encode())
                     self.master.updateGraph('')
                     break
+                else:
+                    self.socket.send('Command \'{}\' not understood.'.format(message).encode())
+                    break
 
 
 
@@ -164,6 +167,7 @@ def terminate(clientSocket):
 def sendCommand(cmd):
     # global clientSocket
     clientSocket = socket(AF_INET, SOCK_STREAM)
+    clientSocket.settimeout(5.)
 
     host = '127.0.0.1'
     port = 7236
@@ -172,9 +176,13 @@ def sendCommand(cmd):
     clientSocket.send(cmd.encode())
     print('Sent {} command'.format(cmd))
     # terminate(clientSocket)
-    answer = clientSocket.recv(1024).decode()
+    try:
+        answer = clientSocket.recv(1024).decode()
+        print(answer)
+    except timeout:
+        print('Runner did not answer command \'{}\''.format(cmd))
 
-    print(answer)
+
     clientSocket.close()
 
 if __name__ == '__main__':
