@@ -199,6 +199,7 @@ class Painter2D(Painter):
             j *= 3
             j += 1
             pen = QPen()
+            pen.setWidth(2)
             if self.clickedNode == node:
                 pen.setColor(Qt.green)
                 painter.setBrush(QColor(75, 75, 75))
