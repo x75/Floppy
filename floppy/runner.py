@@ -10,9 +10,13 @@ import time
 from queue import Queue
 from socket import AF_INET, SOCK_STREAM, socket, SHUT_RDWR, timeout
 import random
+import json
+
 
 host = '127.0.0.1'
 port = 7236
+
+updatePort = 7237
 
 xLock = Lock()
 
@@ -20,13 +24,39 @@ xLock = Lock()
 class Runner(object):
 
     def __init__(self):
-        self.graph = list(range(10))
+        self.graph = {}
         self.cmdQueue = Queue(1)
         self.listener = Listener(self)
         self.executionThread = ExecutionThread(self.cmdQueue, self)
 
-    def updateGraph(self, fileName):
-        self.graph= list(range(int(random.randrange(1,10))))
+        self.updateSocket = socket(AF_INET, SOCK_STREAM)
+        self.updateSocket.bind((host, updatePort))
+        self.updateSocket.listen(1)
+
+    def recvall(self, sock, n):
+        # Helper function to recv n bytes or return None if EOF is hit
+        data = b''
+        while len(data) < n:
+            packet = sock.recv(n - len(data))
+            if not packet:
+                return None
+            data += packet
+
+        return data
+
+    def updateGraph(self, _):
+        conn, address = self.updateSocket.accept()
+        import struct
+
+        raw_msglen = self.recvall(conn, 4)
+        if not raw_msglen:
+            return None
+        msglen = struct.unpack('>I', raw_msglen)[0]
+        # Read the message data
+        data = self.recvall(conn, msglen).decode('utf-8')
+        data = json.loads(data)
+
+        self.graph = data
         xLock.acquire()
         if not self.cmdQueue.empty():
             self.cmdQueue.get()
@@ -77,11 +107,12 @@ class ExecutionThread(Thread):
                 cmd(self)
             if self.paused:
                 print('Sleeping')
-                time.sleep(.1)
+                time.sleep(5)
                 continue
-            print('Doing stuff.')
-            print(self.graph)
-            time.sleep(.5)
+            if self.alive:
+                print('Doing stuff.')
+                print(self.graph)
+                time.sleep(.5)
         print('That\'s it. I\'m dead.')
 
     def pause(self):
@@ -94,7 +125,13 @@ class ExecutionThread(Thread):
         self.alive = False
 
     def updateGraph(self):
-        self.graph = self.master.graph[:]
+        from floppy.graph import Graph
+        self.graph = Graph()
+        print(type(self.master.graph))
+        print(self.master.graph)
+        self.graph.loadDict(self.master.graph)
+
+
 
 
 
@@ -185,6 +222,9 @@ def sendCommand(cmd):
 
     clientSocket.close()
 
+def spawnRunner():
+    pass
+
 if __name__ == '__main__':
     r = Runner()
     # input()
@@ -204,4 +244,9 @@ if __name__ == '__main__':
     #     sendCommand('KILL')
     #     break
     while True:
-        sendCommand(str(input()))
+        cmd = str(input())
+        print(cmd)
+        if cmd == 'x':
+            sendCommand('KILL')
+            exit()
+        sendCommand(cmd)

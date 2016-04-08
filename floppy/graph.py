@@ -1,5 +1,11 @@
 import json
+import zlib
+import io
 from floppy.node import ControlNode
+from floppy.runner import Runner, sendCommand
+from socket import AF_INET, SOCK_STREAM, socket, SHUT_RDWR, timeout
+from floppy.node import NODECLASSES
+
 
 def dummy(nodeClass):
     return nodeClass
@@ -33,7 +39,10 @@ class Graph(object):
         self.connections[newNode] = set()
         if connections:
             self._spawnConnections(connections, newNode)
-        self.painter.registerNode(newNode, position, silent)
+        try:
+            self.painter.registerNode(newNode, position, silent)
+        except AttributeError:
+            pass
         Graph.nodes[newNode.ID] = newNode
         self.newestNode = newNode
 
@@ -110,8 +119,11 @@ class Graph(object):
 
 
     def update(self):
-        self.painter.repaint()
-        self.painter.update()
+        try:
+            self.painter.repaint()
+            self.painter.update()
+        except AttributeError:
+            pass
 
     def execute(self):
         """
@@ -125,6 +137,7 @@ class Graph(object):
         terminates.
         :return:
         """
+        return self.testRun()
         running = True
         i = 0
         while running:
@@ -136,18 +149,99 @@ class Graph(object):
                 running = checked if not running else True
                 if checked:
                     node.run()
-                        # raise RuntimeError('Uncaught exception while executing node {}.'.format(node))
+                    # raise RuntimeError('Uncaught exception while executing node {}.'.format(node))
                     node.notify()
 
+    def testRun(self):
+        r = Runner()
+        #sendCommand('PAUSE')
+        data = self.serialize()
+        self.sendUpdate(data)
+        sendCommand('UPDATE')
+        return
+
+        import time
+        time.sleep(2)
+        sendCommand('PAUSE')
+        time.sleep(1)
+        sendCommand('KILL')
+        del r
+
+    def serialize(self):
+        data = self.toJson()
+        return data
+        return zlib.compress(data.encode('utf-8'))
+
+    def convert_to_bytes(self, no):
+        """
+        Returns a 4 byte large representation of an integer.
+        :param no: Integer
+        :return: bytearray representation of input Integer.
+        """
+        result = bytearray()
+        result.append(no & 255)
+        for i in range(3):
+            no >>= 8
+            result.append(no & 255)
+        return result
+
+    def connect(self):
+        self.clientSocket = socket(AF_INET, SOCK_STREAM)
+        host = '127.0.0.1'
+        port = 7237
+        self.clientSocket.settimeout(3)
+        self.clientSocket.connect((host, port))
+
+    def sendUpdate(self, message):
+        """
+        Sends a message to the error server specified in the INI file.
+        :param message: String representation of the message
+        :param config: Reference to a plugin manager instance.
+        :return: None
+        """
+        self.connect()
+        import struct
+        # Prefix each message with a 4-byte length (network byte order)
+        msg = struct.pack('>I', len(message)) + message.encode('utf-8')
+        self.clientSocket.sendall(msg)
+        return
+        #message = message.encode('utf-8')
+        #self.clientSocket.sendall(message)
+        ##return
+
+        message = message.encode('utf-8')
+        bs = self.convert_to_bytes(len(message))
+        message = io.TextIOWrapper(io.BytesIO(message))
+        self.clientSocket.send(bs)
+        chunk = message.read(1024)
+        while chunk:
+            print(chunk)
+            self.clientSocket.send(chunk)
+            chunk = message.read(1024)
+        # printer('Report sent')
+        _ = self.clientSocket.recv(1024).decode()
+        # printer(answer)
+        self.clientSocket.close()
+
+
+
     def save(self):
-        saveState = {node.ID: node.save() for node in self.nodes.values()}
+        saveState = self.toJson()
         with open('save.json', 'w') as fp:
-            fp.write(json.dumps(saveState))
+            fp.write(saveState)
+
+    def toJson(self):
+        return json.dumps({node.ID: node.save() for node in self.nodes.values()})
+
+
 
     def load(self, fileName):
-        from floppy.node import NODECLASSES
+
         with open('save.json', 'r') as fp:
             saveState = json.loads(fp.read())
+        self.loadDict(saveState)
+
+    def loadDict(self, saveState):
         idMap = {}
         for id, nodeData in saveState.items():
             restoredNode = self.spawnNode(NODECLASSES[nodeData['class']], position=nodeData['position'], silent=True)
