@@ -13,6 +13,7 @@ import random
 import json
 
 
+
 host = '127.0.0.1'
 port = 7236
 
@@ -24,6 +25,9 @@ xLock = Lock()
 class Runner(object):
 
     def __init__(self):
+        self.nextNodePointer = None
+        self.currentNodePointer = None
+        self.lastNodePointer = None
         self.graph = {}
         self.cmdQueue = Queue(1)
         self.listener = Listener(self)
@@ -32,6 +36,14 @@ class Runner(object):
         self.updateSocket = socket(AF_INET, SOCK_STREAM)
         self.updateSocket.bind((host, updatePort))
         self.updateSocket.listen(1)
+
+
+
+
+    def resetPointers(self):
+        self.nextNodePointer = None
+        self.currentNodePointer = None
+        self.lastNodePointer = None
 
     def recvall(self, sock, n):
         # Helper function to recv n bytes or return None if EOF is hit
@@ -95,6 +107,7 @@ class ExecutionThread(Thread):
         self.updateGraph()
         self.start()
 
+
     def run(self):
         while self.alive:
             xLock.acquire()
@@ -110,9 +123,9 @@ class ExecutionThread(Thread):
                 time.sleep(5)
                 continue
             if self.alive:
-                print('Doing stuff.')
-                print(self.graph)
-                time.sleep(.5)
+                #print('Doing stuff.')
+                self.executeGraphStep()
+                #time.sleep(.5)
         print('That\'s it. I\'m dead.')
 
     def pause(self):
@@ -130,6 +143,54 @@ class ExecutionThread(Thread):
         print(type(self.master.graph))
         print(self.master.graph)
         self.graph.loadDict(self.master.graph)
+        #self.resetPointers()
+
+    def executeGraphStep(self):
+        if self.master.nextNodePointer:
+            nextNode = self.graph.nodes[self.master.nextNodePointer]
+            self.master.nextNodePointer = None
+            if nextNode.check():
+                nextNode.run()
+                nextNode.notify()
+        else:
+            running = False
+            for node in self.graph.nodes.values():
+                checked = node.check()
+                running = checked if not running else True
+                if checked:
+                    node.run()
+                    # raise RuntimeError('Uncaught exception while executing node {}.'.format(node))
+                    node.notify()
+            if not running:
+                print('Nothing to do here @ {}'.format(time.time()))
+                time.sleep(.5)
+
+    def execute(self):
+        """
+        Execute the Graph instance.
+
+        First, the execution loop will set itself up to terminate after the first iteration.
+        Next, every node is given the chance to run if all prerequisites are met.
+        If a node is executed, the loop termination criterion will be reset to allow an additional iteration over all
+        nodes.
+        If no node is execute during one iteration, the termination criterion will not be reset and the execution loop
+        terminates.
+        :return:
+        """
+        return self.testRun()
+        running = True
+        i = 0
+        while running:
+            i += 1
+            print('\nExecuting iteration {}.'.format(i))
+            running = False
+            for node in self.nodes.values():
+                checked = node.check()
+                running = checked if not running else True
+                if checked:
+                    node.run()
+                    # raise RuntimeError('Uncaught exception while executing node {}.'.format(node))
+                    node.notify()
 
 
 

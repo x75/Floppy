@@ -518,10 +518,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.saveAction.setIconVisibleInMenu(True)
         self.addAction(self.saveAction)
 
+        self.connectAction = QAction(QIcon(os.path.join(self.iconRoot, 'save.png')), 'Connect', self)
+        self.connectAction.setShortcut('Ctrl+Q')
+        self.connectAction.triggered.connect(self.saveGraph)
+        self.connectAction.setIconVisibleInMenu(True)
+        self.addAction(self.connectAction)
+
     def initMenus(self):
         fileMenu = self.menuBar.addMenu('&File')
         fileMenu.addAction(self.exitAction)
         fileMenu.addAction(self.runAction)
+
+        advancedMenu = self.menuBar.addMenu('&Advanced')
+        advancedMenu.addAction(self.connectAction)
+        
         self.mainToolBar.addAction(self.exitAction)
         self.mainToolBar.addAction(self.saveAction)
         self.mainToolBar.addAction(self.loadAction)
@@ -529,6 +539,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mainToolBar.addAction(self.runAction)
 
     def close(self):
+        self.painter.graph.killRunner()
         qApp.quit()
 
     def runCode(self, *args):

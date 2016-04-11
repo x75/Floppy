@@ -1,6 +1,7 @@
 import json
 import zlib
 import io
+import time
 from floppy.node import ControlNode
 from floppy.runner import Runner, sendCommand
 from socket import AF_INET, SOCK_STREAM, socket, SHUT_RDWR, timeout
@@ -17,6 +18,7 @@ class Graph(object):
 
     def __init__(self, painter=None):
         self.connections = {}
+        self.runner = None
         self.reverseConnections = {}
         if painter:
             self.painter = painter
@@ -153,11 +155,15 @@ class Graph(object):
                     node.notify()
 
     def testRun(self):
-        r = Runner()
-        #sendCommand('PAUSE')
+        if not self.runner:
+            self.runner = Runner()
+        sendCommand('PAUSE')
         data = self.serialize()
         self.sendUpdate(data)
         sendCommand('UPDATE')
+        import time
+        time.sleep(.5)
+        sendCommand('UNPAUSE')
         return
 
         import time
@@ -185,7 +191,7 @@ class Graph(object):
             result.append(no & 255)
         return result
 
-    def connect(self):
+    def connect2Runner(self):
         self.clientSocket = socket(AF_INET, SOCK_STREAM)
         host = '127.0.0.1'
         port = 7237
@@ -199,7 +205,7 @@ class Graph(object):
         :param config: Reference to a plugin manager instance.
         :return: None
         """
-        self.connect()
+        self.connect2Runner()
         import struct
         # Prefix each message with a 4-byte length (network byte order)
         msg = struct.pack('>I', len(message)) + message.encode('utf-8')
@@ -215,7 +221,6 @@ class Graph(object):
         self.clientSocket.send(bs)
         chunk = message.read(1024)
         while chunk:
-            print(chunk)
             self.clientSocket.send(chunk)
             chunk = message.read(1024)
         # printer('Report sent')
@@ -233,7 +238,9 @@ class Graph(object):
     def toJson(self):
         return json.dumps({node.ID: node.save() for node in self.nodes.values()})
 
-
+    def killRunner(self):
+        sendCommand('KILL')
+        del self.runner
 
     def load(self, fileName):
 
