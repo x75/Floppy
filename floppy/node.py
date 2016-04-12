@@ -49,9 +49,15 @@ class Info(object):
 class InputInfo(Info):
     def __call__(self, noException=False):
         if self.valueSet:
-            return self.value
+            if not self.varType == object:
+                return self.varType(self.value)
+            else:
+                return self.value
         elif self.default:
-            return self.default
+            if not self.varType == object:
+                return self.varType(self.default)
+            else:
+                return self.default
         else:
             if noException:
                 return None

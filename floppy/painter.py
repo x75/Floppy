@@ -520,9 +520,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.connectAction = QAction(QIcon(os.path.join(self.iconRoot, 'save.png')), 'Connect', self)
         self.connectAction.setShortcut('Ctrl+Q')
-        self.connectAction.triggered.connect(self.saveGraph)
+        self.connectAction.triggered.connect(self.killRunner)
         self.connectAction.setIconVisibleInMenu(True)
         self.addAction(self.connectAction)
+        
+        
+        self.killRunnerAction = QAction('Kill', self)
+        self.killRunnerAction.setShortcut('Ctrl+Q')
+        self.killRunnerAction.triggered.connect(self.killRunner)
+        self.killRunnerAction.setIconVisibleInMenu(True)
+        self.addAction(self.killRunnerAction)
 
     def initMenus(self):
         fileMenu = self.menuBar.addMenu('&File')
@@ -537,10 +544,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mainToolBar.addAction(self.loadAction)
         self.mainToolBar.addSeparator()
         self.mainToolBar.addAction(self.runAction)
+        self.mainToolBar.addAction(self.killRunnerAction)
 
     def close(self):
-        self.painter.graph.killRunner()
+        try:
+            self.drawer.graph.killRunner()
+        except:
+            print('No runner to kill.')
         qApp.quit()
+
+    def killRunner(self):
+        self.drawer.graph.killRunner()
 
     def runCode(self, *args):
         self.drawer.graph.execute()

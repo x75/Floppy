@@ -8,7 +8,7 @@ The runner will report its status to the editor and the editor is able to send c
 from threading import Thread, Lock
 import time
 from queue import Queue
-from socket import AF_INET, SOCK_STREAM, socket, SHUT_RDWR, timeout
+from socket import AF_INET, SOCK_STREAM, socket, SHUT_RDWR, timeout, SHUT_RDWR, SO_REUSEADDR, SOL_SOCKET
 import random
 import json
 
@@ -34,6 +34,7 @@ class Runner(object):
         self.executionThread = ExecutionThread(self.cmdQueue, self)
 
         self.updateSocket = socket(AF_INET, SOCK_STREAM)
+        self.updateSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         self.updateSocket.bind((host, updatePort))
         self.updateSocket.listen(1)
 
@@ -83,12 +84,13 @@ class Runner(object):
         xLock.release()
 
     def kill(self):
+        self.updateSocket.close()
         xLock.acquire()
         if not self.cmdQueue.empty():
             self.cmdQueue.get()
         self.cmdQueue.put(ExecutionThread.kill)
         xLock.release()
-        self.updateSocket.close()
+
 
     def unpause(self):
         xLock.acquire()
@@ -204,51 +206,65 @@ class ExecutionThread(Thread):
 class Listener(Thread):
     def __init__(self, master):
         Thread.__init__(self)
+        self.alive = True
         self.listenSocket = socket(AF_INET, SOCK_STREAM)
+        self.listenSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         self.listenSocket.bind((host, port))
         self.listenSocket.listen(5)
         self.master = master
         self.daemon = True
         self.start()
 
+    def kill(self):
+        self.alive = False
+        time.sleep(.1)
+        self.listenSocket.shutdown(SHUT_RDWR)
+
+
     def run(self):
-        while True:
-            cSocket, address = self.listenSocket.accept()
+        while self.alive:
+            try:
+                cSocket, address = self.listenSocket.accept()
+            except OSError:
+                continue
             if str(address[0]) == '127.0.0.1':
-                CommandProcessor(cSocket, address, self.master)
+                CommandProcessor(cSocket, address, self.master, self)
+
 
 
 class CommandProcessor(Thread):
-    def __init__(self, Socket, Adress, master):
+    def __init__(self, cSocket, Adress, master, listener):
         super(CommandProcessor, self).__init__()
         self.master = master
-        self.socket = Socket
+        self.cSocket = cSocket
+        self.listener = listener
         self.daemon = True
         self.start()
 
     def run(self):
         while True:
-            message = self.socket.recv(1024).decode()
+            message = self.cSocket.recv(1024).decode()
             if message:
                 if message == 'KILL':
                     # print('Killing myself')
-                    self.socket.send('Runner is terminating.'.encode())
+                    self.cSocket.send('Runner is terminating.'.encode())
+                    self.listener.kill()
                     self.master.kill()
                     break
                 elif message == 'PAUSE':
-                    self.socket.send('Runner is pausing.'.encode())
+                    self.cSocket.send('Runner is pausing.'.encode())
                     self.master.pause()
                     break
                 elif message == 'UNPAUSE':
-                    self.socket.send('Runner is unpausing.'.encode())
+                    self.cSocket.send('Runner is unpausing.'.encode())
                     self.master.unpause()
                     break
                 elif message == 'UPDATE':
-                    self.socket.send('Runner is updating.'.encode())
+                    self.cSocket.send('Runner is updating.'.encode())
                     self.master.updateGraph('')
                     break
                 else:
-                    self.socket.send('Command \'{}\' not understood.'.format(message).encode())
+                    self.cSocket.send('Command \'{}\' not understood.'.format(message).encode())
                     break
 
 

@@ -4,7 +4,7 @@ import io
 import time
 from floppy.node import ControlNode
 from floppy.runner import Runner, sendCommand
-from socket import AF_INET, SOCK_STREAM, socket, SHUT_RDWR, timeout
+from socket import AF_INET, SOCK_STREAM, socket, SHUT_RDWR, timeout, SHUT_RDWR
 from floppy.node import NODECLASSES
 
 
@@ -241,7 +241,8 @@ class Graph(object):
 
     def killRunner(self):
         sendCommand('KILL')
-        del self.runner
+        self.clientSocket.close()
+        self.runner = None
 
     def load(self, fileName):
 
