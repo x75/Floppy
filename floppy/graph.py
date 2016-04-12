@@ -17,6 +17,7 @@ class Graph(object):
     nodes = {}
 
     def __init__(self, painter=None):
+        self.nodes = {}
         self.connections = {}
         self.runner = None
         self.reverseConnections = {}
@@ -45,7 +46,7 @@ class Graph(object):
             self.painter.registerNode(newNode, position, silent)
         except AttributeError:
             pass
-        Graph.nodes[newNode.ID] = newNode
+        self.nodes[newNode.ID] = newNode
         self.newestNode = newNode
 
         return newNode

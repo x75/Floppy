@@ -28,7 +28,7 @@ class Runner(object):
         self.nextNodePointer = None
         self.currentNodePointer = None
         self.lastNodePointer = None
-        self.graph = {}
+        self.graphData = {}
         self.cmdQueue = Queue(1)
         self.listener = Listener(self)
         self.executionThread = ExecutionThread(self.cmdQueue, self)
@@ -68,7 +68,7 @@ class Runner(object):
         data = self.recvall(conn, msglen).decode('utf-8')
         data = json.loads(data)
 
-        self.graph = data
+        self.graphData = data
         xLock.acquire()
         if not self.cmdQueue.empty():
             self.cmdQueue.get()
@@ -88,6 +88,7 @@ class Runner(object):
             self.cmdQueue.get()
         self.cmdQueue.put(ExecutionThread.kill)
         xLock.release()
+        self.updateSocket.close()
 
     def unpause(self):
         xLock.acquire()
@@ -99,12 +100,13 @@ class Runner(object):
 
 class ExecutionThread(Thread):
     def __init__(self, cmdQueue, master):
+        self.graph = None
         self.master = master
         self.paused = False
         self.alive = True
         self.cmdQueue = cmdQueue
         super(ExecutionThread, self).__init__()
-        self.updateGraph()
+        # self.updateGraph()
         self.start()
 
 
@@ -122,10 +124,13 @@ class ExecutionThread(Thread):
                 print('Sleeping')
                 time.sleep(5)
                 continue
-            if self.alive:
+            if self.alive and self.graph:
+
+                # print(self.graph.nodes)
                 #print('Doing stuff.')
                 self.executeGraphStep()
-                #time.sleep(.5)
+            else:
+                time.sleep(.5)
         print('That\'s it. I\'m dead.')
 
     def pause(self):
@@ -140,9 +145,8 @@ class ExecutionThread(Thread):
     def updateGraph(self):
         from floppy.graph import Graph
         self.graph = Graph()
-        print(type(self.master.graph))
-        print(self.master.graph)
-        self.graph.loadDict(self.master.graph)
+        # print(type(self.master.graph))
+        self.graph.loadDict(self.master.graphData)
         #self.resetPointers()
 
     def executeGraphStep(self):
