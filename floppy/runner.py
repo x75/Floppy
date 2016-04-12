@@ -91,12 +91,21 @@ class Runner(object):
         self.cmdQueue.put(ExecutionThread.kill)
         xLock.release()
 
-
     def unpause(self):
         xLock.acquire()
         if not self.cmdQueue.empty():
             self.cmdQueue.get()
         self.cmdQueue.put(ExecutionThread.unpause)
+        xLock.release()
+
+    def goto(self, nextID):
+        self.nextNodePointer = nextID
+
+    def step(self):
+        xLock.acquire()
+        if not self.cmdQueue.empty():
+            self.cmdQueue.get()
+        self.cmdQueue.put(ExecutionThread.step)
         xLock.release()
 
 
@@ -144,6 +153,10 @@ class ExecutionThread(Thread):
     def kill(self):
         self.alive = False
 
+    def step(self):
+        print('Stepping up.')
+        self.executeGraphStep()
+
     def updateGraph(self):
         from floppy.graph import Graph
         self.graph = Graph()
@@ -153,6 +166,7 @@ class ExecutionThread(Thread):
 
     def executeGraphStep(self):
         if self.master.nextNodePointer:
+            print(self.master.nextNodePointer, self.graph.nodes.keys())
             nextNode = self.graph.nodes[self.master.nextNodePointer]
             self.master.nextNodePointer = None
             if nextNode.check():
@@ -167,6 +181,7 @@ class ExecutionThread(Thread):
                     node.run()
                     # raise RuntimeError('Uncaught exception while executing node {}.'.format(node))
                     node.notify()
+                    break
             if not running:
                 print('Nothing to do here @ {}'.format(time.time()))
                 time.sleep(.5)
@@ -263,6 +278,13 @@ class CommandProcessor(Thread):
                     self.cSocket.send('Runner is updating.'.encode())
                     self.master.updateGraph('')
                     break
+                elif message.startswith('GOTO'):
+                    nextID = int(message[4:])
+                    self.cSocket.send('Runner jumping to node {}.'.format(nextID).encode())
+                    self.master.goto(nextID)
+                elif message == 'STEP':
+                    self.cSocket.send('Runner is performing one step.'.encode())
+                    self.master.step()
                 else:
                     self.cSocket.send('Command \'{}\' not understood.'.format(message).encode())
                     break

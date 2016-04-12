@@ -17,6 +17,7 @@ class Graph(object):
     nodes = {}
 
     def __init__(self, painter=None):
+        self.nextFreeNodeID = 0
         self.nodes = {}
         self.connections = {}
         self.runner = None
@@ -29,8 +30,8 @@ class Graph(object):
 
     def __getattr__(self, item):
         if item == 'newID':
-            newID = Graph.nextFreeNodeID
-            Graph.nextFreeNodeID += 1
+            newID = self.nextFreeNodeID
+            self.nextFreeNodeID += 1
             return newID
         else:
             return super(Graph, self).__getattr__(item)
@@ -243,6 +244,18 @@ class Graph(object):
         sendCommand('KILL')
         self.clientSocket.close()
         self.runner = None
+
+    def pauseRunner(self):
+        sendCommand('PAUSE')
+
+    def unpauseRunner(self):
+        sendCommand('UNPAUSE')
+
+    def stepRunner(self):
+        sendCommand('STEP')
+
+    def gotoRunner(self, nextID):
+        sendCommand('GOTO{}'.format(nextID))
 
     def load(self, fileName):
 

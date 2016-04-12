@@ -531,6 +531,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.killRunnerAction.setIconVisibleInMenu(True)
         self.addAction(self.killRunnerAction)
 
+        self.pauseRunnerAction = QAction('Pause', self)
+        self.pauseRunnerAction.setShortcut('Ctrl+Q')
+        self.pauseRunnerAction.triggered.connect(self.pauseRunner)
+        self.pauseRunnerAction.setIconVisibleInMenu(True)
+        self.addAction(self.pauseRunnerAction)
+        
+        self.unpauseRunnerAction = QAction('Unpause', self)
+        self.unpauseRunnerAction.setShortcut('Ctrl+Q')
+        self.unpauseRunnerAction.triggered.connect(self.unpauseRunner)
+        self.unpauseRunnerAction.setIconVisibleInMenu(True)
+        self.addAction(self.unpauseRunnerAction)
+        
+        self.stepRunnerAction = QAction('Step', self)
+        self.stepRunnerAction.setShortcut('Ctrl+Q')
+        self.stepRunnerAction.triggered.connect(self.stepRunner)
+        self.stepRunnerAction.setIconVisibleInMenu(True)
+        self.addAction(self.stepRunnerAction)
+        
+        self.gotoRunnerAction = QAction('GoTo', self)
+        self.gotoRunnerAction.setShortcut('Ctrl+Q')
+        self.gotoRunnerAction.triggered.connect(self.gotoRunner)
+        self.gotoRunnerAction.setIconVisibleInMenu(True)
+        self.addAction(self.gotoRunnerAction)
+
     def initMenus(self):
         fileMenu = self.menuBar.addMenu('&File')
         fileMenu.addAction(self.exitAction)
@@ -545,6 +569,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mainToolBar.addSeparator()
         self.mainToolBar.addAction(self.runAction)
         self.mainToolBar.addAction(self.killRunnerAction)
+        self.mainToolBar.addAction(self.pauseRunnerAction)
+        self.mainToolBar.addAction(self.unpauseRunnerAction)
+        self.mainToolBar.addAction(self.stepRunnerAction)
+        self.mainToolBar.addAction(self.gotoRunnerAction)
 
     def close(self):
         try:
@@ -555,6 +583,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def killRunner(self):
         self.drawer.graph.killRunner()
+
+    def stepRunner(self):
+        self.drawer.graph.stepRunner()
+
+    def gotoRunner(self):
+        self.drawer.graph.gotoRunner(1)
+
+    def pauseRunner(self):
+        self.drawer.graph.pauseRunner()
+
+    def unpauseRunner(self):
+        self.drawer.graph.unpauseRunner()
 
     def runCode(self, *args):
         self.drawer.graph.execute()
