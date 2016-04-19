@@ -25,6 +25,8 @@ xLock = Lock()
 class Runner(object):
 
     def __init__(self):
+        self.conn = None
+        self.idMap = None
         self.nextNodePointer = None
         self.currentNodePointer = None
         self.lastNodePointer = None
@@ -58,15 +60,15 @@ class Runner(object):
         return data
 
     def updateGraph(self, _):
-        conn, address = self.updateSocket.accept()
+        self.conn , address = self.updateSocket.accept()
         import struct
 
-        raw_msglen = self.recvall(conn, 4)
+        raw_msglen = self.recvall(self.conn, 4)
         if not raw_msglen:
             return None
         msglen = struct.unpack('>I', raw_msglen)[0]
         # Read the message data
-        data = self.recvall(conn, msglen).decode('utf-8')
+        data = self.recvall(self.conn, msglen).decode('utf-8')
         data = json.loads(data)
 
         self.graphData = data
@@ -108,12 +110,16 @@ class Runner(object):
         self.cmdQueue.put(ExecutionThread.step)
         xLock.release()
 
+    def sendStatus(self, nodeID):
+        nodeID = self.idMap[nodeID]
+        self.conn.send(str(nodeID).encode('utf-8'))
+
 
 class ExecutionThread(Thread):
     def __init__(self, cmdQueue, master):
         self.graph = None
         self.master = master
-        self.paused = False
+        self.paused = True
         self.alive = True
         self.cmdQueue = cmdQueue
         super(ExecutionThread, self).__init__()
@@ -133,7 +139,7 @@ class ExecutionThread(Thread):
                 cmd(self)
             if self.paused:
                 print('Sleeping')
-                time.sleep(5)
+                time.sleep(1)
                 continue
             if self.alive and self.graph:
 
@@ -161,7 +167,8 @@ class ExecutionThread(Thread):
         from floppy.graph import Graph
         self.graph = Graph()
         # print(type(self.master.graph))
-        self.graph.loadDict(self.master.graphData)
+        idMap = self.graph.loadDict(self.master.graphData)
+        self.master.idMap = {value:key for key, value in idMap.items()}
         #self.resetPointers()
 
     def executeGraphStep(self):
@@ -172,6 +179,7 @@ class ExecutionThread(Thread):
             if nextNode.check():
                 nextNode.run()
                 nextNode.notify()
+                self.master.sendStatus(nextNode.ID)
         else:
             running = False
             for node in self.graph.nodes.values():
@@ -181,6 +189,7 @@ class ExecutionThread(Thread):
                     node.run()
                     # raise RuntimeError('Uncaught exception while executing node {}.'.format(node))
                     node.notify()
+                    self.master.sendStatus(node.ID)
                     break
             if not running:
                 print('Nothing to do here @ {}'.format(time.time()))

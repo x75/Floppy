@@ -44,7 +44,11 @@ def testUI(app, painter):
 
     win = MainWindow(painter=painter)
     win.show()
-    sys.exit(app.exec_())
+    try:
+        sys.exit(app.exec_())
+    except KeyboardInterrupt:
+        print('Keyboard Interrupt. Shutting down gracefully.')
+        win.killRunner()
 
 
 

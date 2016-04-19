@@ -203,6 +203,9 @@ class Painter2D(Painter):
             if self.clickedNode == node:
                 pen.setColor(Qt.green)
                 painter.setBrush(QColor(75, 75, 75))
+            elif node.ID in self.graph.executedBuffer:
+                pen.setColor(Qt.green)
+                painter.setBrush(QColor(175, 75, 75))
             else:
                 pen.setColor(Qt.black)
                 painter.setBrush(QColor(55, 55, 55))
@@ -493,6 +496,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.drawer = drawWidget
 
         self.setupNodeLib()
+        self.drawer.graph.clientSetup()
 
     def initActions(self):
         self.exitAction = QAction('Quit', self)
@@ -554,6 +558,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.gotoRunnerAction.triggered.connect(self.gotoRunner)
         self.gotoRunnerAction.setIconVisibleInMenu(True)
         self.addAction(self.gotoRunnerAction)
+        
+        self.updateRunnerAction = QAction('Update', self)
+        self.updateRunnerAction.setShortcut('Ctrl+Q')
+        self.updateRunnerAction.triggered.connect(self.updateRunner)
+        self.updateRunnerAction.setIconVisibleInMenu(True)
+        self.addAction(self.updateRunnerAction)
 
     def initMenus(self):
         fileMenu = self.menuBar.addMenu('&File')
@@ -573,6 +583,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mainToolBar.addAction(self.unpauseRunnerAction)
         self.mainToolBar.addAction(self.stepRunnerAction)
         self.mainToolBar.addAction(self.gotoRunnerAction)
+        self.mainToolBar.addAction(self.updateRunnerAction)
 
     def close(self):
         try:
@@ -589,6 +600,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def gotoRunner(self):
         self.drawer.graph.gotoRunner(1)
+
+    def updateRunner(self):
+        self.drawer.graph.updateRunner()
 
     def pauseRunner(self):
         self.drawer.graph.pauseRunner()

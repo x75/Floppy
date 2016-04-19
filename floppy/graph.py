@@ -4,8 +4,10 @@ import io
 import time
 from floppy.node import ControlNode
 from floppy.runner import Runner, sendCommand
-from socket import AF_INET, SOCK_STREAM, socket, SHUT_RDWR, timeout, SHUT_RDWR
+from socket import AF_INET, SOCK_STREAM, socket, SHUT_RDWR, timeout, SHUT_RDWR, SO_REUSEADDR, SOL_SOCKET
 from floppy.node import NODECLASSES
+from threading import Thread, Lock
+from queue import Queue
 
 
 def dummy(nodeClass):
@@ -17,6 +19,8 @@ class Graph(object):
     nodes = {}
 
     def __init__(self, painter=None):
+        self.executedBuffer = []
+        self.connected = False
         self.nextFreeNodeID = 0
         self.nodes = {}
         self.connections = {}
@@ -27,6 +31,14 @@ class Graph(object):
             painter.registerGraph(self)
         else:
             self.painter = dummy
+
+    def clientSetup(self):
+        if not self.runner:
+            self.runner = Runner()
+        self.connect2Runner()
+        self.statusLock = Lock()
+        self.statusQueue = Queue(100)
+        self.statusListener = StatusListener(self, self.clientSocket, self.statusQueue, self.statusLock)
 
     def __getattr__(self, item):
         if item == 'newID':
@@ -175,6 +187,12 @@ class Graph(object):
         sendCommand('KILL')
         del r
 
+    def updateRunner(self):
+        sendCommand('PAUSE')
+        data = self.serialize()
+        self.sendUpdate(data)
+        sendCommand('UPDATE')
+
     def serialize(self):
         data = self.toJson()
         return data
@@ -195,10 +213,18 @@ class Graph(object):
 
     def connect2Runner(self):
         self.clientSocket = socket(AF_INET, SOCK_STREAM)
+        self.clientSocket
         host = '127.0.0.1'
         port = 7237
         self.clientSocket.settimeout(3)
         self.clientSocket.connect((host, port))
+        # self.clientSocket.listen(1)
+        self.connected = True
+
+    def receiveStatus(self):
+        if not self.connected:
+            self.connect2Runner()
+        pass
 
     def sendUpdate(self, message):
         """
@@ -207,7 +233,8 @@ class Graph(object):
         :param config: Reference to a plugin manager instance.
         :return: None
         """
-        self.connect2Runner()
+        if not self.connected:
+            self.connect2Runner()
         import struct
         # Prefix each message with a 4-byte length (network byte order)
         msg = struct.pack('>I', len(message)) + message.encode('utf-8')
@@ -228,7 +255,7 @@ class Graph(object):
         # printer('Report sent')
         _ = self.clientSocket.recv(1024).decode()
         # printer(answer)
-        self.clientSocket.close()
+        # self.clientSocket.close()
 
 
 
@@ -294,6 +321,7 @@ class Graph(object):
                     self.connect(str(idMap[id]), outputName, str(inputNode), inputName)
 
         self.update()
+        return idMap
 
     def getPinWithID(self, pinID):
         nodeID, pinName = pinID.split(':')
@@ -325,5 +353,36 @@ class Connection(object):
 
     def __getitem__(self, item):
         return self.__getattribute__(item)
+
+
+class StatusListener(Thread):
+    def __init__(self, master, socket, statusQueue, statusLock):
+        Thread.__init__(self)
+        self.alive = True
+        self.connection = socket
+        self.master = master
+        self.daemon = True
+        self.statusQueue = statusQueue
+        self.statusLock = statusLock
+        self.start()
+
+    # def kill(self):
+    #     self.alive = False
+    #     time.sleep(.1)
+    #     self.listenSocket.shutdown(SHUT_RDWR)
+
+
+    def run(self):
+        while self.alive:
+            try:
+                message = self.connection.recv(1024).decode()
+            except:
+                pass
+            else:
+                # print(message)
+                self.master.executedBuffer.append(int(message))
+                self.master.update()
+
+
 
 

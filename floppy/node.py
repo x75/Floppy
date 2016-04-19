@@ -206,10 +206,12 @@ class Node(object, metaclass=MetaNode):
             outputName = con['outputName']
             nextNode = con['inputNode']
             nextInput = con['inputName']
+            nextNode.prepare()
             if self.outputs[outputName].valueSet:
-                nextNode.setInput(nextInput, self.outputs[outputName].value)
+                nextNode.setInput(nextInput, self.outputs[outputName].value, override=True)
             else:
-                nextNode.setInput(nextInput, self.outputs[outputName].default)
+                nextNode.setInput(nextInput, self.outputs[outputName].default, override=True)
+
         [Info.reset(inp) for inp in self.inputs.values()]
         self.inProgress -= 1
 
@@ -220,7 +222,7 @@ class Node(object, metaclass=MetaNode):
         if self.inProgress:
             for inp in self.inputs.values():
                 if not inp.valueSet:
-                    print('{}: Prerequisites not met.'.format(str(self)))
+                    print('        {}: Prerequisites not met.'.format(str(self)))
                     return False
             return True
 
@@ -364,7 +366,7 @@ class SwitchNode(ControlNode):
                 if inp.name == 'Control':
                     continue
                 if not inp.valueSet:
-                    print('{}: Prerequisites not met.'.format(str(self)))
+                    print('        {}: Prerequisites not met.'.format(str(self)))
                     return False
             return True
         elif self.waiting:
@@ -445,6 +447,9 @@ class Loop(ControlNode):
         super(ControlNode, self).__init__(*args, **kwargs)
         # self.fresh = True
 
+    def prepare(self):
+        pass
+
     def check(self):
         if self.inProgress > 0:
             if self.inProgress > 1:
@@ -455,7 +460,7 @@ class Loop(ControlNode):
                     if inp.name == 'Control':
                         continue
                     if not inp.valueSet:
-                        print('{}: Prerequisites not met.'.format(str(self)))
+                        print('        {}: Prerequisites not met.'.format(str(self)))
                         return False
                 return True
 
@@ -510,7 +515,7 @@ class WaitAny(WaitAll):
         if self.inProgress:
             for inp in self.inputs.values():
                 if inp.valueSet:
-                    print('{}: Prerequisites not met.'.format(str(self)))
+                    print('        {}: Prerequisites not met.'.format(str(self)))
                     return True
 
     def run(self):
