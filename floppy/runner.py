@@ -112,7 +112,7 @@ class Runner(object):
 
     def sendStatus(self, nodeID):
         nodeID = self.idMap[nodeID]
-        self.conn.send(str(nodeID).encode('utf-8'))
+        self.conn.send(('#'+str(nodeID)).encode('utf-8'))
 
 
 class ExecutionThread(Thread):

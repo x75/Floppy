@@ -104,6 +104,7 @@ class Graph(object):
                     self.reverseConnections[inpNode].remove(oldCon)
                     self.connections[oldCon['outputNode']].remove(oldCon)
                     break
+        inpInfo.setConnected(True)
         self.connections[outNode].add(conn)
         self.reverseConnections[inpNode].add(conn)
         # self.update()
@@ -188,6 +189,7 @@ class Graph(object):
         del r
 
     def updateRunner(self):
+        self.executedBuffer = []
         sendCommand('PAUSE')
         data = self.serialize()
         self.sendUpdate(data)
@@ -371,7 +373,6 @@ class StatusListener(Thread):
     #     time.sleep(.1)
     #     self.listenSocket.shutdown(SHUT_RDWR)
 
-
     def run(self):
         while self.alive:
             try:
@@ -379,8 +380,8 @@ class StatusListener(Thread):
             except:
                 pass
             else:
-                # print(message)
-                self.master.executedBuffer.append(int(message))
+                for ID in [i for i in message.split('#')if i]:
+                    self.master.executedBuffer.append(int(ID))
                 self.master.update()
 
 

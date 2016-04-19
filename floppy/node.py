@@ -15,6 +15,7 @@ class InputAlreadySet(Exception):
 class Info(object):
     def __init__(self, name, varType, hints=None, default='', select=None, owner = False):
         self.name = name
+        self.connected = False
         self.varType = varType
         if not hints:
             self.hints = [varType.__name__]
@@ -53,7 +54,7 @@ class InputInfo(Info):
                 return self.varType(self.value)
             else:
                 return self.value
-        elif self.default:
+        elif self.default and not self.connected:
             if not self.varType == object:
                 return self.varType(self.default)
             else:
@@ -69,6 +70,16 @@ class InputInfo(Info):
             raise InputAlreadySet('Input \'{}\' of node \'{}\' is already set.'.format(self.name, str(self.owner)))
         self.value = value
         self.valueSet = True
+
+    def setConnected(self, value: bool):
+        self.connected = value
+
+    def isAvailable(self):
+        if self.valueSet:
+            return True
+        elif self.default and not self.connected:
+            return True
+        return False
 
 
 class OutputInfo(Info):
@@ -221,7 +232,7 @@ class Node(object, metaclass=MetaNode):
     def check(self) -> bool:
         if self.inProgress:
             for inp in self.inputs.values():
-                if not inp.valueSet:
+                if not inp.isAvailable():
                     print('        {}: Prerequisites not met.'.format(str(self)))
                     return False
             return True
@@ -527,3 +538,11 @@ class WaitAny(WaitAll):
 
 
 
+class Test(Node):
+    Input('Test', bool)
+    Output('T', bool)
+
+    def run(self):
+        super(Test, self).run()
+        print(self._Test)
+        self._T(self._Test)
