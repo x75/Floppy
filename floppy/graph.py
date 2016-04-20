@@ -20,6 +20,7 @@ class Graph(object):
 
     def __init__(self, painter=None):
         self.executedBuffer = []
+        self.statusLock = None
         self.connected = False
         self.nextFreeNodeID = 0
         self.nodes = {}
@@ -141,6 +142,13 @@ class Graph(object):
             self.painter.update()
         except AttributeError:
             pass
+
+    def getExecutionHistory(self):
+        self.statusLock.acquire()
+        history = self.executedBuffer[:]
+        self.statusLock.release()
+        return history
+
 
     def execute(self):
         """
@@ -380,9 +388,12 @@ class StatusListener(Thread):
             except:
                 pass
             else:
+                self.statusLock.acquire()
                 for ID in [i for i in message.split('#')if i]:
                     self.master.executedBuffer.append(int(ID))
-                self.master.update()
+                self.statusLock.release()
+                # self.master.update()
+
 
 
 

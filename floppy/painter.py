@@ -8,6 +8,7 @@ from floppy.mainwindow import Ui_MainWindow
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtGui import *
+from PyQt5.Qt import QTimer
 
 
 class Painter(QWidget):
@@ -41,6 +42,9 @@ class Painter2D(Painter):
         self.watchingItems = set()
         self.setMouseTracking(True)
         self.contextSensitive = True
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.repaint)
+        self.timer.start(500)
 
     def registerWatchingItem(self, item):
         self.watchingItems.add(item)
@@ -195,6 +199,7 @@ class Painter2D(Painter):
         #painter.translate(self.width()/2., self.height()/2.)
         painter.setRenderHint(QPainter.HighQualityAntialiasing)
         # painter.drawEllipse(QPoint(0,0),5,5)
+        history = self.graph.getExecutionHistory()
         for j, node in enumerate(self.nodes):
             j *= 3
             j += 1
@@ -203,7 +208,7 @@ class Painter2D(Painter):
             if self.clickedNode == node:
                 pen.setColor(Qt.green)
                 painter.setBrush(QColor(75, 75, 75))
-            elif node.ID in self.graph.executedBuffer:
+            elif node.ID in history:
                 pen.setColor(Qt.green)
                 painter.setBrush(QColor(175, 75, 75))
             else:
