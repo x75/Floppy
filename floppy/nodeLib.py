@@ -122,6 +122,7 @@ class NodeList(QListView):
         :return: None
         """
         super(NodeList, self).mouseReleaseEvent(event)
+        self.down = False
         if event.pos().x() < 0:
             # transform = self.graph.painter.transform
             pos = QCursor.pos()
@@ -136,7 +137,7 @@ class NodeList(QListView):
 
             self.graph.spawnNode(self.selectedClass, position=(pos.x(), pos.y()))
             self.graph.update()
-        self.down = False
+
 
     def mouseMoveEvent(self, event):
         """

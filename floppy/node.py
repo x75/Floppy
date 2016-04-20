@@ -156,7 +156,7 @@ class Node(object, metaclass=MetaNode):
     """
 
     def __init__(self, nodeID, graph):
-        self.__pos__ = (0,0)
+        self.__pos__ = (0, 0)
         self.graph = graph
         self.ID = nodeID
         self.inputs = OrderedDict()
@@ -179,6 +179,8 @@ class Node(object, metaclass=MetaNode):
             newPin = Pin(outID, out, self)
             self.outputPins[out.name] = newPin
             self.outputs[out.name] = out
+        if not self.inputs.keys():
+            raise AttributeError('Nodes without any input are not valid.')
 
     def __str__(self):
         return '{}-{}'.format(self.__class__.__name__, self.ID)
@@ -225,6 +227,7 @@ class Node(object, metaclass=MetaNode):
 
         [Info.reset(inp) for inp in self.inputs.values()]
         self.inProgress -= 1
+
 
     def setInput(self, inputName, value, override=False):
         self.inputs[inputName].set(value, override=override)
@@ -511,7 +514,11 @@ class Loop(ControlNode):
 
 
 class CreateInt(Node):
-    Output('Integer', int, select=(1, 2, 3, 4, 5))
+    Input('Value', int, select=(1, 2, 3, 4, 5))
+    Output('Integer', int)
+    def run(self):
+        super(CreateInt, self).run()
+        self._Integer(self._Value)
 
 
 class WaitAll(Node):

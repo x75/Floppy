@@ -209,15 +209,20 @@ class Painter2D(Painter):
             j += 1
             pen = QPen()
             pen.setWidth(2)
+            painter.setBrush(QColor(55, 55, 55))
             if self.clickedNode == node:
-                pen.setColor(Qt.green)
+                # pen.setColor(Qt.green)
                 painter.setBrush(QColor(75, 75, 75))
             elif node.ID in history:
-                pen.setColor(Qt.green)
-                painter.setBrush(QColor(175, 75, 75))
+                if node.ID == history[-1]:
+                    pen.setColor(QColor(175,175,175))
+                    # painter.setBrush(QColor(255, 75, 75))
+                else:
+                    pen.setColor(QColor(125, 125, 125))
+                    # painter.setBrush(QColor(175, 75, 75))
             else:
                 pen.setColor(Qt.black)
-                painter.setBrush(QColor(55, 55, 55))
+
 
             font = QFont('Helvetica', 12)
             painter.setFont(font)
@@ -232,7 +237,7 @@ class Painter2D(Painter):
 
             path.addRoundedRect(x, y, w, h, 50, 5)
             self.nodePoints.append((QPoint(x, y)*painter.transform(), QPoint(x+w, y+h)*painter.transform(), node))
-            pen.setColor(Qt.black)
+            # pen.setColor(Qt.black)
             painter.setPen(pen)
 
             painter.fillPath(path, QColor(55,55,55))
@@ -268,11 +273,18 @@ class Painter2D(Painter):
                     text = inputPin.name
                     self.drawLabel(x, y+drawOffset+8, w, h, text, painter, Qt.AlignLeft)
                 else:
-                    try:
-                        text = inputPin.info()
-                    except InputNotAvailable:
-                        text = inputPin.name
-                    self.drawLineEdit(x, y+drawOffset+8, w, h, text, painter, Qt.AlignLeft)
+
+
+                    # try:
+                    #     text = inputPin.info()
+                    # except InputNotAvailable:
+                    #     text = inputPin.name
+                    # self.drawLineEdit(x, y+drawOffset+8, w, h, text, painter, Qt.AlignLeft)
+                    drawItem.update(x, y+drawOffset+8, w, h, painter.transform())
+                    drawItem.draw(painter)
+
+
+
             # for k, outputPin in enumerate(node.outputPins.values()):
             finalBuffer = None
             for k, drawItem in enumerate(self.drawItemsOfNode[node]['out']):
@@ -437,11 +449,11 @@ class Painter2D(Painter):
                 s = OutputLabel(node, out, self)
             self.drawItems.append(s)
             self.drawItemsOfNode[node]['out'].append(s)
-        for out in node.inputPins.values():
-            if out.info.select:
-                s = Selector(node, out, self)
+        for inp in node.inputPins.values():
+            if inp.info.select:
+                s = Selector(node, inp, self)
             else:
-                s = InputLabel(node, out, self)
+                s = InputLabel(node, inp, self)
             self.drawItems.append(s)
             self.drawItemsOfNode[node]['inp'].append(s)
 
@@ -641,6 +653,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
 class DrawItem(object):
+    alignment = Qt.AlignRight
     def __init__(self, parent, data, painter):
         self.painter = painter
         self.state = False
@@ -665,7 +678,15 @@ class DrawItem(object):
         self._yy = point.y()
 
     def draw(self, painter):
-        pass
+        alignment = self.__class__.alignment
+        text = self.data.name
+        pen = QPen(Qt.darkGray)
+        painter.setPen(pen)
+        painter.setBrush(QColor(40, 40, 40))
+        xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18, self.w-18, 12
+        painter.setFont(QFont('Helvetica', 8))
+        painter.setPen(pen)
+        painter.drawText(xx+5, yy-3, ww-10, hh+5, alignment, text)
 
     def run(self):
         pass
@@ -699,13 +720,13 @@ class Selector(DrawItem):
     def watch(self, pos):
         scale = self.painter.scale
         for i in range(1, len(self.items)+1):
-            if self._x < pos.x() < self._xx and self._y + 12*i*scale < pos.y() < self._yy + 12*i*scale:
+            if self._x < pos.x() < self._xx and self._y + 12*i*scale < pos.y() + 15*scale < self._yy + 12*i*scale:
                 self.highlight = i
                 return
 
     def watchDown(self, pos):
         self.select = str(self.items[self.highlight-1])
-        self.parent.outputs[self.data.name].setDefault(self.select)
+        self.parent.inputs[self.data.name].setDefault(self.select)
         # self.parent._Boolean.setDefault(self.select)
 
     def collide(self, pos):
@@ -770,7 +791,7 @@ class Selector(DrawItem):
 
 
 class InputLabel(DrawItem):
-    pass
+    alignment = Qt.AlignLeft
 
 
 class OutputLabel(DrawItem):
