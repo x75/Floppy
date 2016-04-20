@@ -19,6 +19,7 @@ class Graph(object):
     nodes = {}
 
     def __init__(self, painter=None):
+        self._requestUpdate = False
         self.executedBuffer = []
         self.statusLock = None
         self.connected = False
@@ -48,6 +49,14 @@ class Graph(object):
             return newID
         else:
             return super(Graph, self).__getattr__(item)
+
+    def requestUpdate(self):
+        self._requestUpdate = True
+
+    def needsUpdate(self):
+        if self._requestUpdate:
+            self._requestUpdate = False
+            return True
 
     def spawnNode(self, nodeClass, connections=None, position=(0, 0), silent=False):
         # nodeClass = self.decorator(nodeClass, position)
@@ -392,7 +401,7 @@ class StatusListener(Thread):
                 for ID in [i for i in message.split('#')if i]:
                     self.master.executedBuffer.append(int(ID))
                 self.statusLock.release()
-                # self.master.update()
+                self.master.requestUpdate()
 
 
 

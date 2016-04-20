@@ -43,8 +43,12 @@ class Painter2D(Painter):
         self.setMouseTracking(True)
         self.contextSensitive = True
         self.timer = QTimer()
-        self.timer.timeout.connect(self.repaint)
+        self.timer.timeout.connect(self.checkGraph)
         self.timer.start(500)
+
+    def checkGraph(self):
+        if self.graph.needsUpdate():
+            self.update()
 
     def registerWatchingItem(self, item):
         self.watchingItems.add(item)
