@@ -334,6 +334,16 @@ class Node(object, metaclass=MetaNode):
             return True
 
 
+
+
+class Pin(object):
+    def __init__(self, pinID, info, node):
+        self.ID = pinID
+        self.name = info.name
+        self.info = info
+        info.ID = pinID
+        self.node = node
+
 class ControlNode(Node):
     """
     Base class for nodes controlling the program flow e.g. If/Else constructs and loops.
@@ -371,37 +381,44 @@ class SwitchNode(ControlNode):
     Output('True', object)
     Output('False', object)
 
+    def __init__(self, *args, **kwargs):
+        super(SwitchNode, self).__init__(*args, **kwargs)
+        self.fresh = True
+
     def check(self):
-        for inp in self.inputs.values():
-            if inp.name == 'Control':
-                continue
-            if not inp.valueSet:
-                print('        {}: Prerequisites not met.'.format(str(self)))
-                return False
-        return True
-        if self.waiting:
+        if self.fresh:
+            for inp in self.inputs.values():
+                if inp.name == 'Control':
+                    continue
+                if not inp.valueSet:
+                    print('        {}: Prerequisites not met.'.format(str(self)))
+                    return False
+            return True
+        else:
             if self.inputs['Control'].valueSet:
                 return True
 
     def run(self):
         print('Executing node {}'.format(self))
-        if not self.waiting:
+        if self.fresh:
             if self._Switch:
                 self._True(self._Start)
             else:
                 self._False(self._Start)
-        elif self.waiting:
+        else:
             self._Final(self._Control)
 
     def notify(self):
-        if not self.waiting:
+        if self.fresh:
             output = self.outputs['True'] if self._Switch else self.outputs['False']
             for con in self.graph.getConnectionsOfOutput(output):
                 outputName = con['outputName']
                 nextNode = con['inputNode']
                 nextInput = con['inputName']
                 nextNode.setInput(nextInput, self.outputs[outputName].value)
-            self.waiting = True
+            self.fresh = False
+            self.inputs['Start'].reset()
+            self.inputs['Switch'].reset()
         else:
             output = self.outputs['Final']
             for con in self.graph.getConnectionsOfOutput(output):
@@ -409,47 +426,14 @@ class SwitchNode(ControlNode):
                 nextNode = con['inputNode']
                 nextInput = con['inputName']
                 nextNode.setInput(nextInput, self.outputs[outputName].value)
-            self.waiting = False
+            self.fresh = True
+        self.inputs['Control'].reset()
 
 
-class CreateBool(Node):
-    Input('Value', bool, select=(True, False))
-    Output('Boolean', bool)
-
-    def run(self):
-        super(CreateBool, self).run()
-        self._Boolean(self._Value)
-
-class CreateInt(Node):
-    Input('Value', int, select=(1, 2, 3, 4, 5))
-    Output('Integer', int)
-    def run(self):
-        super(CreateInt, self).run()
-        self._Integer(self._Value)
 
 
-class Pin(object):
-    def __init__(self, pinID, info, node):
-        self.ID = pinID
-        self.name = info.name
-        self.info = info
-        info.ID = pinID
-        self.node = node
 
 
-class TestNode(Node):
-    Input('strInput', str)
-    Output('strOutput', str)
-
-class FinalTestNode(TestNode):
-    pass
-
-
-class TestNode2(Node):
-    Input('strInput', str)
-    Input('floatInput', float, default=10.)
-    Input('Input', str, default='TestNode')
-    Output('strOutput', str)
 
 
 
@@ -468,11 +452,9 @@ class Loop(ControlNode):
     def check(self):
         if self.fresh:
             for inp in self.inputs.values():
-                print('--------------',inp.name, inp.value, inp.valueSet, inp.default)
                 if inp.name == 'Control':
                     continue
                 if not inp.valueSet:
-                    print(inp.name)
                     print('        {}: Prerequisites not met.'.format(str(self)))
                     return False
             return True
@@ -554,4 +536,34 @@ class Test(Node):
         print(self._Test)
         self._T(self._Test)
 
+class TestNode(Node):
+    Input('strInput', str)
+    Output('strOutput', str)
+
+class FinalTestNode(TestNode):
+    pass
+
+
+class TestNode2(Node):
+    Input('strInput', str)
+    Input('floatInput', float, default=10.)
+    Input('Input', str, default='TestNode')
+    Output('strOutput', str)
+
+
+
+class CreateBool(Node):
+    Input('Value', bool, select=(True, False))
+    Output('Boolean', bool)
+
+    def run(self):
+        super(CreateBool, self).run()
+        self._Boolean(self._Value)
+
+class CreateInt(Node):
+    Input('Value', int, select=(1, 2, 3, 4, 5))
+    Output('Integer', int)
+    def run(self):
+        super(CreateInt, self).run()
+        self._Integer(self._Value)
 # TODO Cleanup this mess. Prepare method and probably a lot of other stuff is no longer needed. Fix SwitchNode.
