@@ -36,6 +36,14 @@ class Info(object):
                 self.default = self.varType(value)
             except ValueError:
                 self.default = ''
+            if self.varType == bool:
+                try:
+                    if value.upper() == 'TRUE':
+                        self.default = True
+                    else:
+                        self.default = False
+                except:
+                    self.default = value
         else:
             self.default = value
 
@@ -55,7 +63,7 @@ class InputInfo(Info):
                 return self.varType(self.value)
             else:
                 return self.value
-        elif self.default and not self.connected:
+        elif self.default != None and not self.connected:
             if not self.varType == object:
                 return self.varType(self.default)
             else:
@@ -78,7 +86,7 @@ class InputInfo(Info):
     def isAvailable(self):
         if self.valueSet:
             return True
-        elif self.default and not self.connected:
+        elif self.default != None and not self.connected:
             return True
         return False
 
@@ -390,12 +398,12 @@ class SwitchNode(ControlNode):
             for inp in self.inputs.values():
                 if inp.name == 'Control':
                     continue
-                if not inp.valueSet:
+                if not inp.isAvailable():
                     print('        {}: Prerequisites not met.'.format(str(self)))
                     return False
             return True
         else:
-            if self.inputs['Control'].valueSet:
+            if self.inputs['Control'].isAvailable():
                 return True
 
     def run(self):
@@ -454,12 +462,12 @@ class Loop(ControlNode):
             for inp in self.inputs.values():
                 if inp.name == 'Control':
                     continue
-                if not inp.valueSet:
+                if not inp.isAvailable():
                     print('        {}: Prerequisites not met.'.format(str(self)))
                     return False
             return True
         if self.counter > 0:
-            if self.inputs['Control'].valueSet:
+            if self.inputs['Control'].isAvailable():
                 return True
 
     def run(self):
@@ -566,4 +574,4 @@ class CreateInt(Node):
     def run(self):
         super(CreateInt, self).run()
         self._Integer(self._Value)
-# TODO Cleanup this mess. Prepare method and probably a lot of other stuff is no longer needed. Fix SwitchNode.
+# TODO Cleanup this mess. Prepare method and probably a lot of other stuff is no longer needed.
