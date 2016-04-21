@@ -517,7 +517,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.drawer = drawWidget
 
         self.setupNodeLib()
-        self.drawer.graph.clientSetup()
+        self.drawer.graph.spawnAndConnect()
 
     def initActions(self):
         self.exitAction = QAction('Quit', self)
@@ -585,6 +585,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.updateRunnerAction.triggered.connect(self.updateRunner)
         self.updateRunnerAction.setIconVisibleInMenu(True)
         self.addAction(self.updateRunnerAction)
+        
+        self.spawnRunnerAction = QAction('Spawn', self)
+        self.spawnRunnerAction.setShortcut('Ctrl+Q')
+        self.spawnRunnerAction.triggered.connect(self.spawnRunner)
+        self.spawnRunnerAction.setIconVisibleInMenu(True)
+        self.addAction(self.spawnRunnerAction)
 
     def initMenus(self):
         fileMenu = self.menuBar.addMenu('&File')
@@ -605,6 +611,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mainToolBar.addAction(self.stepRunnerAction)
         self.mainToolBar.addAction(self.gotoRunnerAction)
         self.mainToolBar.addAction(self.updateRunnerAction)
+        self.mainToolBar.addAction(self.spawnRunnerAction)
 
     def close(self):
         try:
@@ -630,6 +637,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def unpauseRunner(self):
         self.drawer.graph.unpauseRunner()
+
+    def spawnRunner(self):
+        print('Spawning new Runner.')
+        self.statusBar.showMessage('New Remote Interpreter spawned.', 2000)
+        self.drawer.graph.spawnAndConnect()
 
     def runCode(self, *args):
         self.drawer.graph.execute()

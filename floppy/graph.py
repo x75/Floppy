@@ -34,7 +34,7 @@ class Graph(object):
         else:
             self.painter = dummy
 
-    def clientSetup(self):
+    def spawnAndConnect(self):
         if not self.runner:
             self.runner = Runner()
         self.connect2Runner()

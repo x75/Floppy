@@ -39,6 +39,7 @@ class Runner(object):
         self.updateSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         self.updateSocket.bind((host, updatePort))
         self.updateSocket.listen(1)
+        self.conn, self.clientAddress = None, None
 
 
 
@@ -60,7 +61,8 @@ class Runner(object):
         return data
 
     def updateGraph(self, _):
-        self.conn , address = self.updateSocket.accept()
+        if not self.conn:
+            self.conn , address = self.updateSocket.accept()
         import struct
 
         raw_msglen = self.recvall(self.conn, 4)
