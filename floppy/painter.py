@@ -663,6 +663,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def setupNodeLib(self):
         self.NodeListView.setup(self.FilterEdit, self.drawer.graph)
 
+    def closeEvent(self, event):
+        self.killRunner()
+        super(MainWindow, self).closeEvent(event)
+
 
 class DrawItem(object):
     alignment = Qt.AlignRight
