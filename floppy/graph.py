@@ -359,6 +359,28 @@ class Graph(object):
     def getNewestNode(self):
         return self.newestNode
 
+    def removeConnection(self, pinID):
+        node = self.getNodeFromPinID(pinID)
+        pinName = self.getPinWithID(pinID).name
+        thisConn = None
+        for conn in self.reverseConnections[node]:
+            if any([conn.inputName == pinName, conn.outputName == pinName]):
+                thisConn = conn
+                break
+        if thisConn:
+            self.reverseConnections[node].remove(thisConn)
+            self.connections[conn.outputNode].remove(thisConn)
+            return
+
+        thisConn = None
+        for conn in self.connections[node]:
+            if any([conn.inputName == pinName, conn.outputName == pinName]):
+                thisConn = conn
+                break
+        if thisConn:
+            self.connections[node].remove(thisConn)
+            self.reverseConnections[conn.inputNode].remove(thisConn)
+
 
 class Connection(object):
     def __init__(self, outNode, outName, inpNode, inpName):

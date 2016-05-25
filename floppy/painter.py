@@ -35,6 +35,7 @@ class Painter2D(Painter):
     def __init__(self, parent=None):
         super(Painter2D, self).__init__(parent)
         self.graph = None
+        self.shiftDown = False
         self.looseConnection = None
         self.pinPositions = {}
         self.drawItems = []
@@ -58,6 +59,16 @@ class Painter2D(Painter):
 
     def registerGraph(self, graph):
         self.graph = graph
+
+    def keyPressEvent(self, event):
+        super(Painter2D, self).keyPressEvent(event)
+        if event.key() == 16777248:
+            self.shiftDown = True
+
+    def keyReleaseEvent(self, event):
+        super(Painter2D, self).keyReleaseEvent(event)
+        if event.key() == 16777248:
+            self.shiftDown = False
 
     def wheelEvent(self, event):
         # self.scale += event.deltaX()
@@ -90,6 +101,8 @@ class Painter2D(Painter):
                 # print(event.pos(), point, i)
                 if abs(event.pos().x() - point.x()) < 7 * self.scale and abs(event.pos().y() - point.y()) < 7 * self.scale:
                     self.clickedPin = i
+                    if self.shiftDown:
+                        self.graph.removeConnection(i)
                     self.update()
                     return
             for point, i in self.outputPinPositions:
@@ -97,6 +110,8 @@ class Painter2D(Painter):
                 # w = node.__size__[0]*100
                 if abs(event.pos().x() - point.x()) < 7 * self.scale and abs(event.pos().y() - point.y()) < 7 * self.scale:
                     self.clickedPin = i
+                    if self.shiftDown:
+                        self.graph.removeConnection(i)
                     self.update()
                     return
             for nodePoints in self.nodePoints:
@@ -146,8 +161,9 @@ class Painter2D(Painter):
                 except TypeError:
                     print('Cannot connect pins of different type')
             else:
-                print('Do something. NOW!!!')
-                self.openDialog(event)
+                if not self.shiftDown:
+                    # print('Do something. NOW!!!')
+                    self.openDialog(event)
         self.drag = False
         self.downOverNode = False
         self.looseConnection = False
@@ -666,6 +682,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def closeEvent(self, event):
         self.killRunner()
         super(MainWindow, self).closeEvent(event)
+
+    def keyPressEvent(self, event):
+        super(MainWindow, self).keyPressEvent(event)
+        if event.key() == 16777248:
+            self.drawer.keyPressEvent(event)
+
+    def keyReleaseEvent(self, event):
+        super(MainWindow, self).keyReleaseEvent(event)
+        if event.key() == 16777248:
+            self.drawer.keyReleaseEvent(event)
 
 
 class DrawItem(object):

@@ -78,6 +78,7 @@ class NodeFilter(QLineEdit):
         :return: None
         """
         super(NodeFilter, self).keyPressEvent(event)
+        self.parent().keyPressEvent(event)
         if event.key() == Qt.Key_Down:
             self.listView.setFocus()
             self.listView.setCurrentIndex(self.listView.model().index(0, 0))
