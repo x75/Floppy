@@ -686,12 +686,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.statusBar.showMessage('Code execution successful.', 2000)
 
     def loadGraph(self, *args):
-        self.drawer.graph.load('')
-        self.statusBar.showMessage('Graph loaded.', 2000)
+        fileName = QFileDialog.getOpenFileName(self, 'Open File', '~/',
+                                               filter='VLS Files (*.ppy);; Any (*.*)')[0]
+        if fileName:
+            self.drawer.graph.load(fileName)
+            self.statusBar.showMessage('Graph loaded from {}.'.format(fileName), 2000)
 
     def saveGraph(self, *args):
-        self.drawer.graph.save()
-        self.statusBar.showMessage('Graph saved.', 2000)
+        """
+        Callback for the 'SaveAction'.
+        :param args: throwaway arguments.
+        :return: None
+        """
+        fileName = QFileDialog.getSaveFileName(self, 'Save File', '~/')[0]
+        if not fileName:
+            return
+        if not fileName.endswith('.ppy'):
+             fileName += '.ppy'
+        self.drawer.graph.save(fileName)
+        self.statusBar.showMessage('Graph saved as {}.'.format(fileName), 2000)
 
     def resizeEvent(self, event):
         super(MainWindow, self).resizeEvent(event)

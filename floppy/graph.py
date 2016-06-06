@@ -278,9 +278,9 @@ class Graph(object):
 
 
 
-    def save(self):
+    def save(self, fileName):
         saveState = self.toJson()
-        with open('save.json', 'w') as fp:
+        with open(fileName, 'w') as fp:
             fp.write(saveState)
 
     def toJson(self):
@@ -304,8 +304,7 @@ class Graph(object):
         sendCommand('GOTO{}'.format(nextID))
 
     def load(self, fileName):
-
-        with open('save.json', 'r') as fp:
+        with open(fileName, 'r') as fp:
             saveState = json.loads(fp.read())
         self.loadDict(saveState)
 
