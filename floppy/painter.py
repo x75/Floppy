@@ -46,6 +46,8 @@ class Painter2D(Painter):
         self.timer = QTimer()
         self.timer.timeout.connect(self.checkGraph)
         self.timer.start(500)
+        self.mouseDownPos = None
+        self.dialog = None
 
     def checkGraph(self):
         if self.graph.needsUpdate():
@@ -85,6 +87,10 @@ class Painter2D(Painter):
 
 
     def mousePressEvent(self, event):
+        if self.dialog:
+            self.dialog.close()
+            self.dialog = None
+        self.mouseDownPos = event.pos()
         if event.button() == Qt.RightButton:
             self.drag = event.pos()
         if event.button() == Qt.LeftButton:
@@ -161,7 +167,8 @@ class Painter2D(Painter):
                 except TypeError:
                     print('Cannot connect pins of different type')
             else:
-                if not self.shiftDown:
+                if not self.shiftDown and (abs((event.pos()-self.mouseDownPos).x()) > 10 or
+                    abs((event.pos()-self.mouseDownPos).y()) > 10):
                     # print('Do something. NOW!!!')
                     self.openDialog(event)
         self.drag = False
@@ -687,7 +694,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def loadGraph(self, *args):
         fileName = QFileDialog.getOpenFileName(self, 'Open File', '~/',
-                                               filter='VLS Files (*.ppy);; Any (*.*)')[0]
+                                               filter='Floppy Files (*.ppy);; Any (*.*)')[0]
         if fileName:
             self.drawer.graph.load(fileName)
             self.statusBar.showMessage('Graph loaded from {}.'.format(fileName), 2000)
