@@ -380,6 +380,14 @@ class Graph(object):
             self.connections[node].remove(thisConn)
             self.reverseConnections[conn.inputNode].remove(thisConn)
 
+    def deleteNode(self, node):
+        for inp in node.inputs.values():
+            self.removeConnection(inp.ID)
+        for out in node.outputs.values():
+            self.removeConnection(out.ID)
+        del self.nodes[node.ID]
+
+
 
 class Connection(object):
     def __init__(self, outNode, outName, inpNode, inpName):

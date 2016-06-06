@@ -176,6 +176,8 @@ class Painter2D(Painter):
         self.dialog = dialog
         dialog.show()
 
+
+
     def mouseMoveEvent(self, event):
         for drawItem in self.watchingItems:
             drawItem.watch(event.pos())
@@ -198,6 +200,8 @@ class Painter2D(Painter):
             self.drawLooseConnection(event.pos())
             self.update()
 
+    def getSelectedNode(self):
+        return self.clickedNode
 
     def paintEvent(self, event):
         self.inputPinPositions = []
@@ -473,6 +477,10 @@ class Painter2D(Painter):
             self.drawItems.append(s)
             self.drawItemsOfNode[node]['inp'].append(s)
 
+    def unregisterNode(self, node):
+        self.nodes.remove(node)
+        del self.drawItemsOfNode[node]
+
     def drawGrid(self, painter):
         color = 105
 
@@ -607,6 +615,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.spawnRunnerAction.triggered.connect(self.spawnRunner)
         self.spawnRunnerAction.setIconVisibleInMenu(True)
         self.addAction(self.spawnRunnerAction)
+        
+        self.deleteNodeAction = QAction('Delete', self)
+        self.deleteNodeAction.setShortcut('Ctrl+D')
+        self.deleteNodeAction.triggered.connect(self.deleteNode)
+        self.deleteNodeAction.setIconVisibleInMenu(True)
+        self.addAction(self.deleteNodeAction)
 
     def initMenus(self):
         fileMenu = self.menuBar.addMenu('&File')
@@ -628,6 +642,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mainToolBar.addAction(self.gotoRunnerAction)
         self.mainToolBar.addAction(self.updateRunnerAction)
         self.mainToolBar.addAction(self.spawnRunnerAction)
+        self.mainToolBar.addAction(self.deleteNodeAction)
 
     def close(self):
         try:
@@ -638,6 +653,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def killRunner(self):
         self.drawer.graph.killRunner()
+
+    def deleteNode(self):
+        node = self.drawer.getSelectedNode()
+        if node:
+            self.drawer.graph.deleteNode(self.drawer.getSelectedNode())
+            self.drawer.unregisterNode(node)
+            self.drawer.repaint()
 
     def stepRunner(self):
         self.drawer.graph.stepRunner()
