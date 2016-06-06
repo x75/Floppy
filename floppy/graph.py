@@ -371,7 +371,6 @@ class Graph(object):
             self.reverseConnections[node].remove(thisConn)
             self.connections[conn.outputNode].remove(thisConn)
             return
-
         thisConn = None
         for conn in self.connections[node]:
             if any([conn.inputName == pinName, conn.outputName == pinName]):

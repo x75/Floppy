@@ -504,7 +504,8 @@ class Loop(ControlNode):
             self.prepare()
             self.fresh = True
             for inp in self.inputs.values():
-                inp.reset()
+                if not inp.name == 'Iterations':
+                    inp.reset()
         # print(self.inProgress)
         # exit()
 
