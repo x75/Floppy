@@ -308,6 +308,7 @@ class Painter2D(Painter):
                 # self.pinPositions.append((point, i+j))
                 self.inputPinPositions.append((point, inputPin.ID))
                 drawOffset += 16
+                drawItem.update(x, y+drawOffset+8, w, h, painter.transform())
                 if self.graph.getConnectionOfInput(inputPin):
                     text = inputPin.name
                     self.drawLabel(x, y+drawOffset+8, w, h, text, painter, Qt.AlignLeft)
@@ -319,7 +320,7 @@ class Painter2D(Painter):
                     # except InputNotAvailable:
                     #     text = inputPin.name
                     # self.drawLineEdit(x, y+drawOffset+8, w, h, text, painter, Qt.AlignLeft)
-                    drawItem.update(x, y+drawOffset+8, w, h, painter.transform())
+
                     drawItem.draw(painter)
 
 
@@ -491,6 +492,8 @@ class Painter2D(Painter):
         for inp in node.inputPins.values():
             if inp.info.select:
                 s = Selector(node, inp, self)
+            elif inp.info.name == 'Control':
+                s = InputLabel(node, inp, self)
             else:
                 s = LineEdit(node, inp, self)
             self.drawItems.append(s)
@@ -901,7 +904,8 @@ class LineEdit(DrawItem):
         self.text = ''
 
     def collide(self, pos):
-        if self._x < pos.x() < self._xx+16 and self._y < pos.y() < self._yy:
+        collides = super(LineEdit, self).collide(pos)
+        if collides:
             self.state = (self.state + 1) % 2
             self.painter.registerWatchingItem(self)
             self.painter.relayInputEventsTo(self)
@@ -910,7 +914,7 @@ class LineEdit(DrawItem):
             if self.state:
                 self.painter.removeWatchingItem(self)
             self.state = 0
-        return super(LineEdit, self).collide(pos)
+        return collides
 
     def draw(self, painter):
         if not self.text:
