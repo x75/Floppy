@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from copy import copy
+from floppy.types import Type
 
 NODECLASSES = {}
 
@@ -13,7 +14,7 @@ class InputAlreadySet(Exception):
 
 
 class Info(object):
-    def __init__(self, name, varType, hints=None, default='', select=None, owner = False):
+    def __init__(self, name, varType, hints=None, default='', select=None, owner=False, list=False):
         self.name = name
         self.connected = False
         self.varType = varType
@@ -26,12 +27,14 @@ class Info(object):
         self.value = None
         self.select = select
         self.owner = owner
+        self.list = list
 
     def setOwner(self, owner):
         self.owner = owner
 
     def setDefault(self, value):
-        if not self.varType == object:
+        print(self.varType, value)
+        if not self.varType == object and not issubclass(self.varType, Type):
             try:
                 self.default = self.varType(value)
             except ValueError:
@@ -112,23 +115,27 @@ class MetaNode(type):
                  varType: object,
                  hints=None,
                  default='',
-                 select=None):
+                 select=None,
+                 list=False):
         MetaNode.inputs.append({'name': name,
                                 'varType': varType,
                                 'hints': hints,
                                 'default': default,
-                                'select': select})
+                                'select': select,
+                                'list': list})
 
     def addOutput(name: str,
                   varType: object,
                   hints=None,
                   default='',
-                  select=None):
+                  select=None,
+                  list=False):
         MetaNode.outputs.append({'name': name,
                                  'varType': varType,
                                  'hints': hints,
                                  'default': default,
-                                 'select': select})
+                                 'select': select,
+                                 'list': list})
 
     def __new__(cls, name, bases, classdict):
         result = type.__new__(cls, name, bases, classdict)
@@ -594,4 +601,63 @@ class ReadNode(Node):
             self.raiseError('IOError', 'No file named {}.'.format(fileName))
             return 1
         self._Content(c)
+
+
+class ForEach(ControlNode):
+    Input('Start', object, list=True)
+    Output('ListElement', object)
+
+    def __init__(self, *args, **kwargs):
+        super(ForEach, self).__init__(*args, **kwargs)
+        self.fresh = True
+        self.counter = 0
+        self.done = False
+
+    def check(self):
+        if self.fresh:
+            for inp in self.inputs.values():
+                if inp.name == 'Control':
+                    continue
+                if not inp.isAvailable():
+                    print('        {}: Prerequisites not met.'.format(str(self)))
+                    return False
+            return True
+        else:
+            if self.inputs['Control'].isAvailable():
+                return True
+
+    def run(self):
+        super(ForEach, self).run()
+        self.fresh = False
+        try:
+            self._ListElement(self._Start[self.counter])
+        except IndexError:
+            self._Final(self._Start)
+            self.done = True
+        self.counter += 1
+
+    def notify(self):
+        if not self.done:
+            output = self.outputs['ListElement']
+            for con in self.graph.getConnectionsOfOutput(output):
+                outputName = con['outputName']
+                nextNode = con['inputNode']
+                nextInput = con['inputName']
+                nextNode.prepare()
+                nextNode.setInput(nextInput, self.outputs[outputName].value, override=True)
+            self.inputs['Control'].reset()
+
+        else:
+            output = self.outputs['Final']
+            for con in self.graph.getConnectionsOfOutput(output):
+                outputName = con['outputName']
+                nextNode = con['inputNode']
+                nextInput = con['inputName']
+                nextNode.setInput(nextInput, self.outputs[outputName].value)
+            self.prepare()
+            self.fresh = True
+            for inp in self.inputs.values():
+                if not inp.name == 'Iterations':
+                    inp.reset()
+
 # TODO Cleanup this mess. Prepare method and probably a lot of other stuff is no longer needed.

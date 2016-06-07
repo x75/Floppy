@@ -303,7 +303,10 @@ class Painter2D(Painter):
                     self.inputPinPositions.append((point, inputPin.ID))
                     continue
                 else:
-                    painter.drawEllipse(x-4, y+drawOffset+8, 8, 8)
+                    if inputPin.info.list:
+                        painter.drawRect(x-4, y+drawOffset+8, 8, 8)
+                    else:
+                        painter.drawEllipse(x-4, y+drawOffset+8, 8, 8)
                     point = QPoint(x, y+drawOffset+12) * painter.transform()
                 # self.pinPositions.append((point, i+j))
                 self.inputPinPositions.append((point, inputPin.ID))
@@ -330,7 +333,10 @@ class Painter2D(Painter):
             for k, drawItem in enumerate(self.drawItemsOfNode[node]['out']):
                 outputPin = drawItem.data
                 # pen.setColor(QColor(0, 115, 130))
-                pen.setColor(Painter2D.PINCOLORS[outputPin.info.varType])
+                try:
+                    pen.setColor(Painter2D.PINCOLORS[outputPin.info.varType])
+                except KeyError:
+                    pen.setColor(QColor(*outputPin.info.varType.color))
                 pen.setWidth(2)
                 painter.setPen(pen)
                 if outputPin.ID == self.clickedPin:
@@ -344,7 +350,10 @@ class Painter2D(Painter):
                     # self.outputPinPositions.append((point, outputPin.ID))
                     # continue
                 else:
-                    painter.drawEllipse(x + w-4, y+drawOffset+8, 8, 8)
+                    if outputPin.info.list:
+                        painter.drawRect(x + w-4, y+drawOffset+8, 8, 8)
+                    else:
+                        painter.drawEllipse(x + w-4, y+drawOffset+8, 8, 8)
                     point = QPoint(x + w-4, y+drawOffset+12) * painter.transform()
                 drawOffset += 16
                 self.outputPinPositions.append((point, outputPin.ID))
@@ -397,10 +406,15 @@ class Painter2D(Painter):
                 varType = outputNode.getOutputInfo(info['outputName']).varType
                 start = self.pinPositions[outputID]
                 end = self.pinPositions[inputID]
-                color = Painter2D.PINCOLORS[varType]
+                try:
+                    color = Painter2D.PINCOLORS[varType]
+                except KeyError:
+                    color = QColor(*varType.color)
                 rotate = None
                 if issubclass(type(info['inputNode']), ControlNode) and info['inputName'] == 'Control':
                     rotate = 'input'
+                    if issubclass(type(info['outputNode']), ControlNode) and info['outputName'] == 'Final':
+                        rotate = 'both'
                 elif issubclass(type(info['outputNode']), ControlNode) and info['outputName'] == 'Final':
                     rotate = 'output'
                 self.drawBezier(start, end, color, painter, rotate)
@@ -428,6 +442,11 @@ class Painter2D(Painter):
                     p22 = start.y() + 100 * self.scale
                     p31 = end.x()-diffx
                     p32 = end.y()
+                elif rotate == 'both':
+                    p21 = start.x()
+                    p22 = start.y() + 100 * self.scale
+                    p31 = end.x()
+                    p32 = end.y() - 100*self.scale
                 else:
                     p21 = start.x()+diffx
                     p22 = start.y()
@@ -917,10 +936,10 @@ class LineEdit(DrawItem):
         return collides
 
     def draw(self, painter):
-        if not self.text:
+        if not self.text and not self.data.info.default:
             text = self.data.name
         else:
-            text = self.text
+            text = self.data.info.default
         if not self.state:
             alignment = self.__class__.alignment
             pen = QPen(Qt.darkGray)
