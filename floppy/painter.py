@@ -48,10 +48,19 @@ class Painter2D(Painter):
         self.timer.start(500)
         self.mouseDownPos = None
         self.dialog = None
+        self.relayTo = None
+        self.setFocusPolicy(Qt.ClickFocus)
 
     def checkGraph(self):
         if self.graph.needsUpdate():
             self.update()
+
+    def relayInputEventsTo(self, drawItem):
+        self.relayTo = drawItem
+
+    def stopInputRelayingTo(self, drawItem):
+        if self.relayTo == drawItem:
+            self.relayTo = None
 
     def registerWatchingItem(self, item):
         self.watchingItems.add(item)
@@ -64,6 +73,8 @@ class Painter2D(Painter):
 
     def keyPressEvent(self, event):
         super(Painter2D, self).keyPressEvent(event)
+        if self.relayTo:
+            self.relayTo.keyPressEvent(event)
         if event.key() == 16777248:
             self.shiftDown = True
 
@@ -97,7 +108,7 @@ class Painter2D(Painter):
             for item in self.watchingItems:
                 item.watchDown(event.pos())
             for drawItem in self.drawItems:
-                if issubclass(type(drawItem), Selector):
+                if issubclass(type(drawItem), Selector) or issubclass(type(drawItem), LineEdit):
                     # print(drawItem.data.name, drawItem._x,drawItem._y, event.pos())
                     # print(drawItem.data.name, drawItem._xx,drawItem._yy)
                     if drawItem.collide(event.pos()):
@@ -211,7 +222,7 @@ class Painter2D(Painter):
         return self.clickedNode
 
     def paintEvent(self, event):
-        
+
         self.inputPinPositions = []
         self.outputPinPositions = []
         self.nodePoints = []
@@ -481,7 +492,7 @@ class Painter2D(Painter):
             if inp.info.select:
                 s = Selector(node, inp, self)
             else:
-                s = InputLabel(node, inp, self)
+                s = LineEdit(node, inp, self)
             self.drawItems.append(s)
             self.drawItemsOfNode[node]['inp'].append(s)
 
@@ -783,9 +794,17 @@ class DrawItem(object):
         if self._x < pos.x() < self._xx and self._y < pos.y() < self._yy:
             return True
 
+    def watch(self, pos):
+         pass
+
+    def watchDown(self, pos):
+         pass
+
+    def keyPressEvent(self, event):
+        pass
+
 
 class Selector(DrawItem):
-
     def __init__(self, *args, **kwargs):
         super(Selector, self).__init__(*args, **kwargs)
         self.highlight = 0
@@ -800,7 +819,6 @@ class Selector(DrawItem):
             self.items = self.data.info.select
             if self.data.info.default is not None:
                 self.select = str(self.data.info.default)
-
 
     def watch(self, pos):
         scale = self.painter.scale
@@ -873,6 +891,61 @@ class Selector(DrawItem):
             xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18, self.w-25, 12
             painter.drawRoundedRect(xx, yy, ww, hh, 2, 20)
             painter.drawText(xx-5, yy-3, ww-20, hh+5, alignment, text)
+
+
+class LineEdit(DrawItem):
+    alignment = Qt.AlignLeft
+
+    def __init__(self, parent, data, painter):
+        super(LineEdit, self).__init__(parent, data, painter)
+        self.text = ''
+
+    def collide(self, pos):
+        if self._x < pos.x() < self._xx+16 and self._y < pos.y() < self._yy:
+            self.state = (self.state + 1) % 2
+            self.painter.registerWatchingItem(self)
+            self.painter.relayInputEventsTo(self)
+        else:
+            self.painter.stopInputRelayingTo(self)
+            if self.state:
+                self.painter.removeWatchingItem(self)
+            self.state = 0
+        return super(LineEdit, self).collide(pos)
+
+    def draw(self, painter):
+        if not self.text:
+            text = self.data.name
+        else:
+            text = self.text
+        if not self.state:
+            alignment = self.__class__.alignment
+            pen = QPen(Qt.darkGray)
+            painter.setPen(pen)
+            painter.setBrush(QColor(40, 40, 40))
+            xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18, self.w-18, 12
+            painter.drawRoundedRect(xx, yy, ww, hh, 2, 20)
+            painter.setFont(QFont('Helvetica', 8))
+            painter.setPen(pen)
+            painter.drawText(xx+5, yy-3, ww-10, hh+5, alignment, text)
+        else:
+            alignment = self.__class__.alignment
+            pen = QPen(Qt.darkGray)
+            painter.setPen(pen)
+            painter.setBrush(QColor(10, 10, 10))
+            xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18, self.w-18, 12
+            painter.drawRoundedRect(xx, yy, ww, hh, 2, 20)
+            painter.setFont(QFont('Helvetica', 8))
+            painter.setPen(pen)
+            painter.drawText(xx+5, yy-3, ww-10, hh+5, alignment, text)
+
+    def keyPressEvent(self, event):
+        if event.key() == 16777219:
+            self.text = self.text[:-1]
+        else:
+            self.text += event.text()
+        self.painter.update()
+        self.parent.inputs[self.data.name].setDefault(self.text)
+        # print(event.key())
 
 
 class InputLabel(DrawItem):

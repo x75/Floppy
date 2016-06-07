@@ -570,7 +570,7 @@ class CreateBool(Node):
         self._Boolean(self._Value)
 
 class CreateInt(Node):
-    Input('Value', int, select=(1, 2, 3, 4, 5))
+    Input('Value', int, )
     Output('Integer', int)
     def run(self):
         super(CreateInt, self).run()
