@@ -211,6 +211,7 @@ class Painter2D(Painter):
         return self.clickedNode
 
     def paintEvent(self, event):
+        
         self.inputPinPositions = []
         self.outputPinPositions = []
         self.nodePoints = []

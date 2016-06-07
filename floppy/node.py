@@ -575,4 +575,23 @@ class CreateInt(Node):
     def run(self):
         super(CreateInt, self).run()
         self._Integer(self._Value)
+
+
+class ReadNode(Node):
+    """
+    Node for reading a string from a file.
+    """
+    Input('Name', str)
+    Output('Content', str)
+
+    def run(self):
+        super(ReadNode, self).run()
+        fileName = self._Name
+        try:
+            with open(fileName, 'r') as fp:
+                c = fp.read()
+        except IOError:
+            self.raiseError('IOError', 'No file named {}.'.format(fileName))
+            return 1
+        self._Content(c)
 # TODO Cleanup this mess. Prepare method and probably a lot of other stuff is no longer needed.
