@@ -112,7 +112,8 @@ class Painter2D(Painter):
                     # print(drawItem.data.name, drawItem._x,drawItem._y, event.pos())
                     # print(drawItem.data.name, drawItem._xx,drawItem._yy)
                     if drawItem.collide(event.pos()):
-                        print(drawItem)
+                        # print(drawItem)
+                        pass
 
             for point, i in self.inputPinPositions:
                 # print(event.pos(), point, i)
@@ -291,7 +292,10 @@ class Painter2D(Painter):
             for i, drawItem in enumerate(self.drawItemsOfNode[node]['inp']):
                 inputPin = drawItem.data
                 # pen.setColor(QColor(255, 190, 0))
-                pen.setColor(Painter2D.PINCOLORS[inputPin.info.varType])
+                try:
+                    pen.setColor(Painter2D.PINCOLORS[inputPin.info.varType])
+                except KeyError:
+                    pen.setColor(QColor(*inputPin.info.varType.color))
                 pen.setWidth(2)
                 painter.setPen(pen)
                 if inputPin.ID == self.clickedPin:
@@ -940,6 +944,7 @@ class LineEdit(DrawItem):
             text = self.data.name
         else:
             text = self.data.info.default
+        text = str(text)
         if not self.state:
             alignment = self.__class__.alignment
             pen = QPen(Qt.darkGray)

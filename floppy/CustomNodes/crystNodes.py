@@ -15,3 +15,17 @@ class ReadAtoms(Node):
         loader.create(self._FileName)
         mol = loader.load('quickloadedMolecule')
         self._Atoms(mol.atoms)
+
+
+class BreakAtom(Node):
+    Input('Atom', Atom)
+    Output('Name', str)
+    Output('Element', str)
+    Output('frac', float, list=True)
+    Output('cart', float, list=True)
+    Output('ADP',float, list=True)
+
+    def run(self):
+        super(BreakAtom, self).run()
+        self._ADP((1,2,3))
+        self._Name('test')

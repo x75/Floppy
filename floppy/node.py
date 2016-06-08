@@ -33,7 +33,6 @@ class Info(object):
         self.owner = owner
 
     def setDefault(self, value):
-        print(self.varType, value)
         if not self.varType == object and not issubclass(self.varType, Type):
             try:
                 self.default = self.varType(value)
@@ -525,6 +524,10 @@ class WaitAll(Node):
     Input('2', object)
     Output('out', object)
 
+    def notify(self):
+        super(WaitAll, self).notify()
+        [inp.reset() for inp in self.inputs.values()]
+
 
 class WaitAny(WaitAll):
 
@@ -659,5 +662,8 @@ class ForEach(ControlNode):
             for inp in self.inputs.values():
                 if not inp.name == 'Iterations':
                     inp.reset()
+            self.counter = 0
+            self.fresh = True
+            self.done = False
 
 # TODO Cleanup this mess. Prepare method and probably a lot of other stuff is no longer needed.

@@ -12,6 +12,9 @@ class MetaType(type):
 class Type(object, metaclass=MetaType):
     color = (255, 255, 255)
 
+    # def breakObject(self):
+    #     pass
+
 
 # class FInt(Type):
 #     color = (0, 115, 130)
