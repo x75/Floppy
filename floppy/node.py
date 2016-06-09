@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from copy import copy
-from floppy.types import Type
+from floppy.types import Type, MetaType
 
 NODECLASSES = {}
 
@@ -62,7 +62,14 @@ class InputInfo(Info):
     def __call__(self, noException=False):
         if self.valueSet:
             if not self.varType == object:
-                return self.varType(self.value)
+                if isinstance(self.varType, MetaType):
+                    if self.list:
+                        return [self.varType.checkType(i) for i in self.value]
+                    return self.varType.checkType(self.value)
+                else:
+                    if self.list:
+                        return [self.varType(i) for i in self.value]
+                    return self.varType(self.value)
             else:
                 return self.value
         elif self.default != None and not self.connected:

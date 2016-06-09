@@ -25,3 +25,7 @@ class Type(object, metaclass=MetaType):
 
 class Atom(Type):
     color = (204, 0, 204)
+
+    @staticmethod
+    def checkType(instance):
+        return instance
