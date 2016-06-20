@@ -1,7 +1,10 @@
-from floppy.node import Node
+from floppy.node import Node, abstractNode
 
+@abstractNode
+class MathNode(Node):
+    Tag('Math')
 
-class CrossProduct(Node):
+class CrossProduct(MathNode):
     Input('Vector1', float, list=True)
     Input('Vector2', float, list=True)
     Output('XProduct', float, list=True)
@@ -13,7 +16,7 @@ class CrossProduct(Node):
         self._XProduct(v1[1]*v2[2]-v1[2]*v2[1], v1[2]*v2[0]-v1[0]*v2[2], v1[0]*v2[1]-v1[1]*v2[0])
 
 
-class DotProduct(Node):
+class DotProduct(MathNode):
     Input('Vector1', float, list=True)
     Input('Vector2', float, list=True)
     Output('DotProduct', float, list=True)
@@ -25,7 +28,7 @@ class DotProduct(Node):
         self._DotProduct(v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2])
 
 
-class Distance(Node):
+class Distance(MathNode):
     Input('Position1', float, list=True)
     Input('Position2', float, list=True)
     Output('Distance', float, list=True)
@@ -38,7 +41,7 @@ class Distance(Node):
         self._Distance(d**.5)
 
 
-class Difference(Node):
+class Difference(MathNode):
     Input('Vector1', float, list=True)
     Input('Vector2', float, list=True)
     Output('Difference', float, list=True)
@@ -50,10 +53,10 @@ class Difference(Node):
         self._Difference((v1[0]-v2[0])**2, (v1[1]-v2[1])**2, (v1[2]-v2[2]))
 
 
-class Normalize(Node):
+class Normalize(MathNode):
     Input('Vector', float, list=True)
     Input('NVector', float, list=True)
-    Tag('Vector', 'Math')
+    Tag('Vector')
 
     def run(self):
         super(Normalize, self).run()

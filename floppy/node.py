@@ -12,6 +12,9 @@ class InputNotAvailable(Exception):
 class InputAlreadySet(Exception):
     pass
 
+def abstractNode(cls):
+    del NODECLASSES[cls.__name__]
+    return cls
 
 class Info(object):
     def __init__(self, name, varType, hints=None, default='', select=None, owner=False, list=False):
@@ -116,8 +119,11 @@ class MetaNode(type):
         MetaNode.outputs = []
         MetaNode.tags = []
         return {'Input': MetaNode.addInput,
+                'input': MetaNode.addInput,
                 'Output': MetaNode.addOutput,
-                'Tag': MetaNode.addTag}
+                'output': MetaNode.addOutput,
+                'Tag': MetaNode.addTag,
+                'tag': MetaNode.addTag}
 
     def addTag(*args):
         for arg in args:
@@ -178,7 +184,7 @@ class MetaNode(type):
             result._addTag(tag)
         return result
 
-
+@abstractNode
 class Node(object, metaclass=MetaNode):
     """
     Base class for Nodes.
@@ -360,7 +366,11 @@ class Node(object, metaclass=MetaNode):
 
     @classmethod
     def matchHint(cls, text: str):
-        return cls.matchInputHint(text) or cls.matchOutputHint(text)
+        return cls.matchInputHint(text) or cls.matchOutputHint(text) or cls.matchClassTag(text)
+
+    @classmethod
+    def matchClassTag(cls, text: str):
+        return any([tag.lower().startswith(text) for tag in cls.__tags__])
 
     @classmethod
     def matchInputHint(cls, text: str):
@@ -387,6 +397,8 @@ class Pin(object):
         info.ID = pinID
         self.node = node
 
+
+@abstractNode
 class ControlNode(Node):
     """
     Base class for nodes controlling the program flow e.g. If/Else constructs and loops.
@@ -694,5 +706,7 @@ class ForEach(ControlNode):
             self.counter = 0
             self.fresh = True
             self.done = False
+
+
 
 # TODO Cleanup this mess. Prepare method and probably a lot of other stuff is no longer needed.
