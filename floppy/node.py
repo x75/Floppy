@@ -114,8 +114,15 @@ class MetaNode(type):
     def __prepare__(metacls, name, bases):
         MetaNode.inputs = []
         MetaNode.outputs = []
+        MetaNode.tags = []
         return {'Input': MetaNode.addInput,
-                'Output': MetaNode.addOutput}
+                'Output': MetaNode.addOutput,
+                'Tag': MetaNode.addTag}
+
+    def addTag(*args):
+        for arg in args:
+            MetaNode.tags.append(arg)
+
 
     def addInput(name: str,
                  varType: object,
@@ -155,11 +162,20 @@ class MetaNode(type):
             result.__outputs__ = result.__bases__[0].__outputs__.copy()
         except AttributeError:
             result.__outputs__ = OrderedDict()
+
+        try:
+            result.__tags__ = result.__bases__[0].__tags__.copy()
+        except AttributeError:
+            result.__tags__ = []
+
         for inp in MetaNode.inputs:
             result._addInput(data=inp, cls=result)
 
         for out in MetaNode.outputs:
             result._addOutput(data=out, cls=result)
+
+        for tag in MetaNode.tags:
+            result._addTag(tag)
         return result
 
 
@@ -176,6 +192,7 @@ class Node(object, metaclass=MetaNode):
     To access the value of an input during the Node's 'run' method or 'check' method use
     'myNodeInstance._myStringInput'. An 'InputNotAvailable' Exception is raised is the input is not set yet.
     """
+    Tag('Node')
 
     def __init__(self, nodeID, graph):
         self.__pos__ = (0, 0)
@@ -277,6 +294,11 @@ class Node(object, metaclass=MetaNode):
     def _addOutput(*args, data='', cls=None):
         outputInfo = OutputInfo(**data)
         cls.__outputs__[data['name']] = outputInfo
+
+    @classmethod
+    def _addTag(cls, tag='Node'):
+        cls.__tags__.append(tag)
+
         
     def __getattr__(self, item):
         if item.startswith('_') and not item.startswith('__'):

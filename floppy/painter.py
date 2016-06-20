@@ -1,10 +1,7 @@
 import os
-# import sys
-# from PyQt5 import QtCore
-# from PyQt5 import QtGui
-# from PyQt5 import QtOpenGL
 from floppy.node import InputNotAvailable, ControlNode
 from floppy.mainwindow import Ui_MainWindow
+from floppy.nodeLib import ContextNodeFilter, ContextNodeList
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtGui import *
@@ -94,9 +91,6 @@ class Painter2D(Painter):
         self.repaint()  # Dirty trick to make sure the connection beziers are drawn at the same zoom level as the nodes.
         self.update()
 
-
-
-
     def mousePressEvent(self, event):
         if self.dialog:
             self.dialog.close()
@@ -180,7 +174,7 @@ class Painter2D(Painter):
                     print('Cannot connect pins of different type')
             else:
                 if not self.shiftDown and (abs((event.pos()-self.mouseDownPos).x()) > 10 or
-                    abs((event.pos()-self.mouseDownPos).y()) > 10):
+                                                   abs((event.pos()-self.mouseDownPos).y()) > 10):
                     # print('Do something. NOW!!!')
                     self.openDialog(event)
         self.drag = False
@@ -194,8 +188,6 @@ class Painter2D(Painter):
         dialog = NodeDialog(self, event, self.clickedPin, self.graph)
         self.dialog = dialog
         dialog.show()
-
-
 
     def mouseMoveEvent(self, event):
         for drawItem in self.watchingItems:
@@ -223,7 +215,6 @@ class Painter2D(Painter):
         return self.clickedNode
 
     def paintEvent(self, event):
-
         self.inputPinPositions = []
         self.outputPinPositions = []
         self.nodePoints = []
@@ -235,7 +226,6 @@ class Painter2D(Painter):
             self.drawConnections(painter)
         except KeyError:
             pass
-
 
         painter.translate(self.width()/2. + self.globalOffset.x(), self.height()/2. + self.globalOffset.y())
         self.center = QPoint(self.width()/2. + self.globalOffset.x(), self.height()/2. + self.globalOffset.y())
@@ -262,7 +252,6 @@ class Painter2D(Painter):
                     # painter.setBrush(QColor(175, 75, 75))
             else:
                 pen.setColor(Qt.black)
-
 
             font = QFont('Helvetica', 12)
             painter.setFont(font)
@@ -320,17 +309,7 @@ class Painter2D(Painter):
                     text = inputPin.name
                     self.drawLabel(x, y+drawOffset+8, w, h, text, painter, Qt.AlignLeft)
                 else:
-
-
-                    # try:
-                    #     text = inputPin.info()
-                    # except InputNotAvailable:
-                    #     text = inputPin.name
-                    # self.drawLineEdit(x, y+drawOffset+8, w, h, text, painter, Qt.AlignLeft)
-
                     drawItem.draw(painter)
-
-
 
             # for k, outputPin in enumerate(node.outputPins.values()):
             finalBuffer = None
@@ -984,7 +963,6 @@ class OutputLabel(DrawItem):
     pass
 
 
-from floppy.nodeLib import ContextNodeFilter, ContextNodeList
 class NodeDialog(QDockWidget):
     """
     Container Widget handling the set up of a ContextNodeFilter widget and a ContextNodeList when connections are
