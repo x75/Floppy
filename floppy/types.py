@@ -17,13 +17,6 @@ class Type(object, metaclass=MetaType):
         raise AttributeError
 
 
-# class FInt(Type):
-#     color = (0, 115, 130)
-#
-#
-# class FList(Type):
-#     color = (0, 115, 130)
-
 class Atom(Type):
     color = (204, 0, 204)
 
@@ -33,6 +26,6 @@ class Atom(Type):
 
     @staticmethod
     def debugInfoGetter(obj):
-        return obj.get_cart
+        return obj.get_name
 
 

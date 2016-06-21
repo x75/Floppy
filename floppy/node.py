@@ -12,11 +12,23 @@ class InputNotAvailable(Exception):
 class InputAlreadySet(Exception):
     pass
 
+
 def abstractNode(cls):
+    """
+    Removes a Node class from the NODECLASSES dictionary and then returns the class object.
+    Use this as a decorator to stop a not fully implemented Node class from being available in the editor.
+    :param cls: Node class object.
+    :return: Unmodified node class object.
+    :rtype: Node
+    """
     del NODECLASSES[cls.__name__]
     return cls
 
+
 class Info(object):
+    """
+    Class for handling all information related to both inputs and outputs.
+    """
     def __init__(self, name, varType, hints=None, default='', select=None, owner=False, list=False):
         self.name = name
         self.connected = False
@@ -114,6 +126,10 @@ class OutputInfo(Info):
 
 
 class MetaNode(type):
+    """
+    Meta class for the Node class. Makes node declaration objects available in the class's scope and registers each
+    Node object to have a convenient way of accessing all subclasses of Node.
+    """
     inputs = []
     outputs = []
 
@@ -193,11 +209,11 @@ class Node(object, metaclass=MetaNode):
     """
     Base class for Nodes.
 
-    To add Inputs to a custom Node class call 'Input(name, varType, hints, default)' in the class's
+    To add Inputs to a custom Node class call 'Input(name, varType, hints, list)' in the class's
     body e.g.:
 
         class MyNode(Node):
-            Input('myStringInput', str, default='Hello World')
+            Input('myStringInput', str, list=True)
 
     To access the value of an input during the Node's 'run' method or 'check' method use
     'myNodeInstance._myStringInput'. An 'InputNotAvailable' Exception is raised is the input is not set yet.
@@ -236,23 +252,9 @@ class Node(object, metaclass=MetaNode):
     def __hash__(self):
         return hash(str(self))
 
-    def next(self):
-        """
-
-        :rtype: Node
-        """
-        pass
-
-    def previous(self):
-        """
-
-        :rtype: Node
-        """
-        pass
-
     def run(self) -> None:
         """
-
+        Execute the node. Override this to implement logic.
         :rtype: None
         """
         print('Executing node {}'.format(self))
@@ -267,7 +269,7 @@ class Node(object, metaclass=MetaNode):
             outputName = con['outputName']
             nextNode = con['inputNode']
             nextInput = con['inputName']
-            nextNode.prepare()
+            # nextNode.prepare()
             if self.outputs[outputName].valueSet:
                 nextNode.setInput(nextInput, self.outputs[outputName].value, override=True)
             else:
@@ -276,41 +278,78 @@ class Node(object, metaclass=MetaNode):
         [Info.reset(inp) for inp in self.inputs.values()]
 
     def setInput(self, inputName, value, override=False):
+        """
+        Sets the value of an input.
+        :param inputName: str representing the name of the input.
+        :param value: object of the appropriate type for that input.
+        :param override: boolean specifying whether the input should be overridden if it was set already.
+        :return: None
+        """
         self.inputs[inputName].set(value, override=override)
 
     def check(self) -> bool:
+        """
+        Checks whether all prerequisites for executing the node instance are met.
+        Override this to implement custom behavior.
+        By default the methods returns True if all inputs have been set. False otherwise.
+        :return: Boolean; True if ready, False if not ready.
+        :rtype: bool
+        """
         for inp in self.inputs.values():
             if not inp.isAvailable():
                 print('        {}: Prerequisites not met.'.format(str(self)))
                 return False
         return True
 
-    def prepare(self):
-        """
-        Method for preparing a node for execution.
-        This method is called on each node before the main execution loop of the owning graph instance is started.
-        The methods makes sure that artifacts from previous execution are reset to their original states and default
-        values of inputs that are connected to other nodes' outputs are removed.
-        TODO: Implement this.
-        :return:
-        """
-        return
-        [InputInfo.reset(inp) for inp in self.inputs.values()]
+    # def prepare(self):
+    #     """
+    #     Method for preparing a node for execution.
+    #     This method is called on each node before the main execution loop of the owning graph instance is started.
+    #     The methods makes sure that artifacts from previous execution are reset to their original states and default
+    #     values of inputs that are connected to other nodes' outputs are removed.
+    #     :return:
+    #     """
+    #     return
+    #     [InputInfo.reset(inp) for inp in self.inputs.values()]
 
     def _addInput(*args, data='', cls=None):
+        """
+        This should be a classmethod.
+        :param args:
+        :param data:
+        :param cls:
+        :return:
+        """
         inputInfo = InputInfo(**data)
         cls.__inputs__[data['name']] = inputInfo
 
     def _addOutput(*args, data='', cls=None):
+        """
+        This should be a classmethod.
+        :param args:
+        :param data:
+        :param cls:
+        :return:
+        """
         outputInfo = OutputInfo(**data)
         cls.__outputs__[data['name']] = outputInfo
 
     @classmethod
     def _addTag(cls, tag='Node'):
+        """
+        Adds a Tag to a Node class object.
+        :param tag:
+        :return:
+        """
         cls.__tags__.append(tag)
 
-        
     def __getattr__(self, item):
+        """
+        Catches self._<Input/Ouptput> accesses and calls the appropriate methods.
+        :param item: str; Attribute name.
+        :return: object; Attribute
+        :rtype: object
+        """
         if item.startswith('_') and not item.startswith('__'):
             try:
                 return self.inputs[item.lstrip('_')]()
@@ -324,6 +363,12 @@ class Node(object, metaclass=MetaNode):
             return super(Node, self).__getattr__(item)
 
     def getInputPin(self, inputName):
+        """
+        Returns a reference to the Pin instance associated with the input with the given name.
+        :param inputName: str; Name of the input.
+        :return: Pin instance
+        :rtype: Pin
+        """
         return self.inputPins[inputName]
 
     def getOutputPin(self, outputName):
@@ -352,6 +397,12 @@ class Node(object, metaclass=MetaNode):
                 return out
 
     def save(self):
+        """
+        Returns a dictionary containing all data necessary to reinstanciate the Node instance with the same properties
+        it currently has. A list of the dictionaries of each node instance in a graph is all the data necessary to
+        reinstanciate the whole graph.
+        :return:
+        """
         inputConns = [self.graph.getConnectionOfInput(inp) for inp in self.inputs.values()]
         # print(inputConns)
         inputConns = {inputConn['inputName']: inputConn['outputNode'].getOutputID(inputConn['outputName']) for inputConn in inputConns if inputConn}
@@ -391,9 +442,10 @@ class Node(object, metaclass=MetaNode):
             return True
 
 
-
-
 class Pin(object):
+    """
+    Class for storing all information required to represent a input/output pin.
+    """
     def __init__(self, pinID, info, node):
         self.ID = pinID
         self.name = info.name
@@ -489,14 +541,10 @@ class SwitchNode(ControlNode):
         self.inputs['Control'].reset()
 
 
-
-
-
-
-
-
-
 class Loop(ControlNode):
+    """
+    Generic loop node that iterates over a range(x: int)-like expression.
+    """
     Input('Iterations', int)
     Output('LoopBody', object)
 
@@ -541,7 +589,7 @@ class Loop(ControlNode):
                 outputName = con['outputName']
                 nextNode = con['inputNode']
                 nextInput = con['inputName']
-                nextNode.prepare()
+                # nextNode.prepare()
                 nextNode.setInput(nextInput, self.outputs[outputName].value, override=True)
             self.inputs['Control'].reset()
 
@@ -552,7 +600,7 @@ class Loop(ControlNode):
                 nextNode = con['inputNode']
                 nextInput = con['inputName']
                 nextNode.setInput(nextInput, self.outputs[outputName].value)
-            self.prepare()
+            # self.prepare()
             self.fresh = True
             for inp in self.inputs.values():
                 if not inp.name == 'Iterations':
@@ -561,10 +609,10 @@ class Loop(ControlNode):
         # exit()
 
 
-
-
-
 class WaitAll(Node):
+    """
+    Watis for all inputs to be set before executing further nodes.
+    """
     Input('1', object)
     Input('2', object)
     Output('out', object)
@@ -575,6 +623,9 @@ class WaitAll(Node):
 
 
 class WaitAny(WaitAll):
+    """
+    Waits for any inputs to be set. This doesn't make much sense, does it?
+    """
 
     def check(self):
         for inp in self.inputs.values():
@@ -589,8 +640,6 @@ class WaitAny(WaitAll):
                 self._out(inp.value)
 
 
-
-
 class Test(Node):
     Input('Test', bool)
     Output('T', bool)
@@ -600,9 +649,11 @@ class Test(Node):
         print(self._Test)
         self._T(self._Test)
 
+
 class TestNode(Node):
     Input('strInput', str)
     Output('strOutput', str)
+
 
 class FinalTestNode(TestNode):
     pass
@@ -615,8 +666,10 @@ class TestNode2(Node):
     Output('strOutput', str)
 
 
-
 class CreateBool(Node):
+    """
+    Creates a Boolean.
+    """
     Input('Value', bool, select=(True, False))
     Output('Boolean', bool)
 
@@ -624,7 +677,11 @@ class CreateBool(Node):
         super(CreateBool, self).run()
         self._Boolean(self._Value)
 
+
 class CreateInt(Node):
+    """
+    Creates an Integer.
+    """
     Input('Value', int, )
     Output('Integer', int)
     def run(self):
@@ -652,6 +709,9 @@ class ReadNode(Node):
 
 
 class ForEach(ControlNode):
+    """
+    Generic loop node that iterates over all elements in a list.
+    """
     Input('Start', object, list=True)
     Output('ListElement', object)
 
@@ -691,7 +751,7 @@ class ForEach(ControlNode):
                 outputName = con['outputName']
                 nextNode = con['inputNode']
                 nextInput = con['inputName']
-                nextNode.prepare()
+                # nextNode.prepare()
                 nextNode.setInput(nextInput, self.outputs[outputName].value, override=True)
             self.inputs['Control'].reset()
 
@@ -702,7 +762,7 @@ class ForEach(ControlNode):
                 nextNode = con['inputNode']
                 nextInput = con['inputName']
                 nextNode.setInput(nextInput, self.outputs[outputName].value)
-            self.prepare()
+            # self.prepare()
             self.fresh = True
             for inp in self.inputs.values():
                 if not inp.name == 'Iterations':
@@ -713,6 +773,9 @@ class ForEach(ControlNode):
 
 
 class IsEqual(Node):
+    """
+    Sets output to object1 == object2.
+    """
     Input('object1', object)
     Input('object2', object)
     Output('Equal', bool)
@@ -723,6 +786,9 @@ class IsEqual(Node):
 
 
 class CreateString(Node):
+    """
+    Creates a string object.
+    """
     Input('Str', str)
     Output('String', str)
 
@@ -733,6 +799,9 @@ class CreateString(Node):
 
 @abstractNode
 class DebugNode(Node):
+    """
+    Subclass this node for creating custom nodes related to debugging a graph.
+    """
     Tag('Debug')
 
     def print(self, *args):
@@ -741,6 +810,11 @@ class DebugNode(Node):
 
 
 class DebugPrint(DebugNode):
+    """
+    Prints node instance specific debugging information to the cmd line. The input is than passed on straight to
+    the output without manipulating the object.
+    Custom debug information can be specified in an objects corresponding floppy.types.Type subclass.
+    """
     Input('Object', object)
     Output('Out', object)
 
