@@ -2,11 +2,15 @@
 # from lauescript.laueio import loader
 from lauescript.cryst.transformations import frac2cart
 from lauescript.types.adp import ADPDataError
-from floppy.node import Node
+from floppy.node import Node, abstractNode
 from floppy.types import Atom
 
+@abstractNode
+class CrystNode(Node):
+    Tag('Crystallography')
 
-class ReadAtoms(Node):
+
+class ReadAtoms(CrystNode):
     Input('FileName', str)
     Output('Atoms', Atom, list=True)
 
@@ -19,7 +23,7 @@ class ReadAtoms(Node):
         self._Atoms(mol.atoms)
 
 
-class BreakAtom(Node):
+class BreakAtom(CrystNode):
     Input('Atom', Atom)
     Output('Name', str)
     Output('Element', str)
@@ -46,7 +50,7 @@ class BreakAtom(Node):
         self._Cell(atom.molecule.get_cell(degree=True))
 
 
-class Frac2Cart(Node):
+class Frac2Cart(CrystNode):
     Input('Position', float, list=True)
     Input('Cell', float, list=True)
     Output('Cart', float, list=True)
@@ -54,4 +58,15 @@ class Frac2Cart(Node):
     def run(self):
         super(Frac2Cart, self).run()
         self._Cart(frac2cart(self._Position, self._Cell))
+
+
+class SelectAtom(CrystNode):
+    Input('AtomList', Atom, list=True)
+    Input('AtomName', str)
+    Output('Atom', Atom)
+
+    def run(self):
+        super(SelectAtom, self).run()
+        name = self._AtomName
+        self._Atom([atom for atom in self._AtomList if atom.get_name() == name][0])
 

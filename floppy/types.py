@@ -12,8 +12,9 @@ class MetaType(type):
 class Type(object, metaclass=MetaType):
     color = (255, 255, 255)
 
-    # def breakObject(self):
-    #     pass
+    @staticmethod
+    def debugInfoGetter(obj):
+        raise AttributeError
 
 
 # class FInt(Type):
@@ -29,3 +30,9 @@ class Atom(Type):
     @staticmethod
     def checkType(instance):
         return instance
+
+    @staticmethod
+    def debugInfoGetter(obj):
+        return obj.get_cart
+
+

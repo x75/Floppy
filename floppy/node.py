@@ -105,6 +105,10 @@ class InputInfo(Info):
 
 class OutputInfo(Info):
     def __call__(self, value):
+        try:
+            value.__FloppyType__ = self.varType
+        except AttributeError:
+            pass
         self.value = value
         self.valueSet = True
 
@@ -706,6 +710,50 @@ class ForEach(ControlNode):
             self.counter = 0
             self.fresh = True
             self.done = False
+
+
+class IsEqual(Node):
+    Input('object1', object)
+    Input('object2', object)
+    Output('Equal', bool)
+
+    def run(self):
+        super(IsEqual, self).run()
+        self._Equal(self._object1 == self._object2)
+
+
+class CreateString(Node):
+    Input('Str', str)
+    Output('String', str)
+
+    def run(self):
+        super(CreateString, self).run()
+        self._String(self._Str)
+
+
+@abstractNode
+class DebugNode(Node):
+    Tag('Debug')
+
+    def print(self, *args):
+        string = ' '.join(args)
+        print('[DEBUG]', string)
+
+
+class DebugPrint(DebugNode):
+    Input('Object', object)
+    Output('Out', object)
+
+    def run(self):
+        super(DebugPrint, self).run()
+        obj = self._Object
+        try:
+            self.print(str(obj.__FloppyType__.debugInfoGetter(obj)()))
+        except AttributeError:
+            self.print(str(obj))
+        self._Out(obj)
+
+
 
 
 
