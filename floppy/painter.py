@@ -565,7 +565,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.drawer = drawWidget
 
         self.setupNodeLib()
-        self.drawer.graph.spawnAndConnect()
+        # self.drawer.graph.spawnAndConnect()
 
     def initActions(self):
         self.exitAction = QAction('Quit', self)
@@ -645,6 +645,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.deleteNodeAction.triggered.connect(self.deleteNode)
         self.deleteNodeAction.setIconVisibleInMenu(True)
         self.addAction(self.deleteNodeAction)
+        
+        self.connectAction = QAction('Connect', self)
+        self.connectAction.setShortcut('Ctrl+R')
+        self.connectAction.triggered.connect(self.connect)
+        self.connectAction.setIconVisibleInMenu(True)
+        self.addAction(self.connectAction)
 
     def initMenus(self):
         fileMenu = self.menuBar.addMenu('&File')
@@ -667,6 +673,33 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mainToolBar.addAction(self.updateRunnerAction)
         self.mainToolBar.addAction(self.spawnRunnerAction)
         self.mainToolBar.addAction(self.deleteNodeAction)
+        self.mainToolBar.addAction(self.connectAction)
+
+    def connect(self):
+        text = ''
+        while not text:
+            text, ok = QInputDialog.getItem(self, 'Connect to remote Interpreter',
+                                            'IP Address/Port: (xxx.xxx.xxx:Port)',
+                                            ['127.0.0.1:7237'])
+            if not ok:
+                return
+        if not ':' in text:
+            ip = text
+            port = ''
+            while not port:
+                port, ok = QInputDialog.getText(self, 'Port number is missing',
+                                                'Port:')
+                if not ok:
+                    return
+        else:
+            ip, port = text.split(':')
+        try:
+            self.drawer.graph.connect2RemoteRunner(ip, port)
+        except ConnectionRefusedError:
+            err = QErrorMessage(self)
+            err.showMessage('Connection to {} on port {} refused.'.format(ip, port))
+        else:
+            self.statusBar.showMessage('Connection to {} on port {} established.'.format(ip, port), 2000)
 
     def close(self):
         try:
@@ -676,7 +709,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         qApp.quit()
 
     def killRunner(self):
-        self.drawer.graph.killRunner()
+        try:
+            self.drawer.graph.killRunner()
+        except ConnectionRefusedError:
+            pass
 
     def deleteNode(self):
         node = self.drawer.getSelectedNode()

@@ -41,23 +41,24 @@ class Runner(object):
         self.updateSocket.listen(1)
         self.conn, self.clientAddress = None, None
 
-
-
-
     def resetPointers(self):
         self.nextNodePointer = None
         self.currentNodePointer = None
         self.lastNodePointer = None
 
-    def recvall(self, sock, n):
+    def recvall(self, sock, n, retry=5):
         # Helper function to recv n bytes or return None if EOF is hit
         data = b''
         while len(data) < n:
             packet = sock.recv(n - len(data))
             if not packet:
-                return None
+                if retry>0:
+                    time.sleep(.1)
+                    self.recvall(sock, n, retry-1)
+                else:
+                    self.conn , address = self.updateSocket.accept()
+                    return self.updateGraph('')
             data += packet
-
         return data
 
     def updateGraph(self, _):
@@ -65,7 +66,7 @@ class Runner(object):
             self.conn , address = self.updateSocket.accept()
         import struct
 
-        raw_msglen = self.recvall(self.conn, 4)
+        raw_msglen = self.recvall(self.conn, 4, 5)
         if not raw_msglen:
             return None
         msglen = struct.unpack('>I', raw_msglen)[0]
@@ -249,13 +250,13 @@ class Listener(Thread):
 
     def run(self):
         while self.alive:
+            print('++++++++++Waiting for client.')
             try:
                 cSocket, address = self.listenSocket.accept()
             except OSError:
                 continue
             if str(address[0]) == '127.0.0.1':
                 CommandProcessor(cSocket, address, self.master, self)
-
 
 
 class CommandProcessor(Thread):
@@ -333,34 +334,20 @@ def sendCommand(cmd):
     except timeout:
         print('Runner did not answer command \'{}\''.format(cmd))
 
-
     clientSocket.close()
+
 
 def spawnRunner():
     pass
 
 if __name__ == '__main__':
+    import os
+    from importlib.machinery import SourceFileLoader
+    customNodesPath = os.path.join(os.path.realpath(__file__)[:-10], 'CustomNodes')
+    for i, path in enumerate(os.listdir(customNodesPath)):
+        if path.endswith('py'):
+            try:
+                SourceFileLoader(str(i), os.path.join(customNodesPath, path)).load_module()
+            except Exception as e:
+                print('Warning: error in custom node:\n{}'.format(str(e)))
     r = Runner()
-    # input()
-    # r.pause()
-    # input()
-    # r.unpause()
-    # input()
-    # r.updateGraph('')
-    # input()
-    # r.kill()
-    # input()
-    # sendCommand()
-
-
-    # while True:
-    #     time.sleep(1)
-    #     sendCommand('KILL')
-    #     break
-    while True:
-        cmd = str(input())
-        print(cmd)
-        if cmd == 'x':
-            sendCommand('KILL')
-            exit()
-        sendCommand(cmd)

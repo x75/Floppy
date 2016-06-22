@@ -25,6 +25,7 @@ class Graph(object):
     nodes = {}
 
     def __init__(self, painter=None):
+        self.slave = False
         self._requestUpdate = False
         self.executedBuffer = []
         self.statusLock = None
@@ -34,6 +35,7 @@ class Graph(object):
         self.connections = {}
         self.runner = None
         self.reverseConnections = {}
+        self.statusLock = Lock()
         if painter:
             self.painter = painter
             painter.registerGraph(self)
@@ -47,7 +49,12 @@ class Graph(object):
         """
         if not self.runner:
             self.runner = Runner()
-        self.connect2Runner()
+        self.connect2RemoteRunner(host='127.0.0.1', port=7237)
+        self.slave = True
+
+    def connect2RemoteRunner(self, host='127.0.0.1', port=7237):
+        self.slave = False
+        self.connect2Runner(host, port)
         self.statusLock = Lock()
         self.statusQueue = Queue(100)
         self.statusListener = StatusListener(self, self.clientSocket, self.statusQueue, self.statusLock)
@@ -299,15 +306,14 @@ class Graph(object):
             result.append(no & 255)
         return result
 
-    def connect2Runner(self):
+    def connect2Runner(self, host='127.0.0.1', port=7237):
         """
         Connect to the graph interpreter in order to send a graph update.
         :return:
         """
+        port = int(port)
         self.clientSocket = socket(AF_INET, SOCK_STREAM)
         self.clientSocket
-        host = '127.0.0.1'
-        port = 7237
         self.clientSocket.settimeout(3)
         self.clientSocket.connect((host, port))
         # self.clientSocket.listen(1)
@@ -372,6 +378,8 @@ class Graph(object):
         Send KILL command to the graph interpreter telling it to terminate itself.
         :return:
         """
+        if not self.slave:
+            return
         sendCommand('KILL')
         self.clientSocket.close()
         self.runner = None
