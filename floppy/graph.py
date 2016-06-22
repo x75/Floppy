@@ -53,6 +53,8 @@ class Graph(object):
         self.slave = True
 
     def connect2RemoteRunner(self, host='127.0.0.1', port=7237):
+        self.cmdHost = host
+        self.cmdPort = int(port)
         self.slave = False
         self.connect2Runner(host, port)
         self.statusLock = Lock()
@@ -279,10 +281,10 @@ class Graph(object):
         :return:
         """
         self.executedBuffer = []
-        sendCommand('PAUSE')
+        sendCommand('PAUSE', self.cmdHost, self.cmdPort)
         data = self.serialize()
         self.sendUpdate(data)
-        sendCommand('UPDATE')
+        sendCommand('UPDATE', self.cmdHost, self.cmdPort)
 
     def serialize(self):
         """
@@ -380,7 +382,7 @@ class Graph(object):
         """
         if not self.slave:
             return
-        sendCommand('KILL')
+        sendCommand('KILL', self.cmdHost, self.cmdPort)
         self.clientSocket.close()
         self.runner = None
 
@@ -389,21 +391,21 @@ class Graph(object):
         Send PAUSE command to the graph interpreter.
         :return:
         """
-        sendCommand('PAUSE')
+        sendCommand('PAUSE', self.cmdHost, self.cmdPort)
 
     def unpauseRunner(self):
         """
         Send UNPAUSE command to the graph interpreter.
         :return:
         """
-        sendCommand('UNPAUSE')
+        sendCommand('UNPAUSE', self.cmdHost, self.cmdPort)
 
     def stepRunner(self):
         """
         Send Step command to the graph interpreter causing it to execute one node and then reenter the PAUSED state.
         :return:
         """
-        sendCommand('STEP')
+        sendCommand('STEP', self.cmdHost, self.cmdPort)
 
     def gotoRunner(self, nextID):
         """
@@ -411,7 +413,7 @@ class Graph(object):
         :param nextID:
         :return:
         """
-        sendCommand('GOTO{}'.format(nextID))
+        sendCommand('GOTO{}'.format(nextID), self.cmdHost, self.cmdPort)
 
     def load(self, fileName):
         with open(fileName, 'r') as fp:

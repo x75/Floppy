@@ -14,7 +14,9 @@ import json
 
 
 
-host = '127.0.0.1'
+# host = '127.0.0.1'
+# host = '10.76.64.86'
+host = ''
 port = 7236
 
 updatePort = 7237
@@ -247,16 +249,16 @@ class Listener(Thread):
         time.sleep(.1)
         self.listenSocket.shutdown(SHUT_RDWR)
 
-
     def run(self):
         while self.alive:
-            print('++++++++++Waiting for client.')
+            # print('++++++++++Waiting for client.')
             try:
                 cSocket, address = self.listenSocket.accept()
-            except OSError:
+                # print('++++++++++client accepted.')
+            except OSError as x:
                 continue
-            if str(address[0]) == '127.0.0.1':
-                CommandProcessor(cSocket, address, self.master, self)
+            # if str(address[0]) == '127.0.0.1':
+            CommandProcessor(cSocket, address, self.master, self)
 
 
 class CommandProcessor(Thread):
@@ -316,13 +318,14 @@ def terminate(clientSocket):
     print(answer)
 
 
-def sendCommand(cmd):
+def sendCommand(cmd, host, port):
+    port -= 1
     # global clientSocket
     clientSocket = socket(AF_INET, SOCK_STREAM)
     clientSocket.settimeout(5.)
-
-    host = '127.0.0.1'
-    port = 7236
+    print(host,port)
+    # host = '127.0.0.1'
+    # port = 7236
 
     clientSocket.connect((host, port))
     clientSocket.send(cmd.encode())

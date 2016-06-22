@@ -3,7 +3,7 @@
 from lauescript.cryst.transformations import frac2cart
 from lauescript.types.adp import ADPDataError
 from floppy.node import Node, abstractNode
-from floppy.types import Atom
+from floppy.FloppyTypes import Atom
 
 @abstractNode
 class CrystNode(Node):
