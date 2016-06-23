@@ -259,13 +259,13 @@ class Graph(object):
     def testRun(self):
         if not self.runner:
             self.runner = Runner()
-        sendCommand('PAUSE')
+        sendCommand('PAUSE', self.cmdHost, self.cmdPort)
         data = self.serialize()
         self.sendUpdate(data)
-        sendCommand('UPDATE')
+        sendCommand('UPDATE', self.cmdHost, self.cmdPort)
         import time
         time.sleep(.5)
-        sendCommand('UNPAUSE')
+        sendCommand('UNPAUSE', self.cmdHost, self.cmdPort)
         return
 
         import time

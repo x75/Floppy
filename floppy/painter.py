@@ -693,11 +693,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     return
         else:
             ip, port = text.split(':')
+        import socket
         try:
             self.drawer.graph.connect2RemoteRunner(ip, port)
         except ConnectionRefusedError:
             err = QErrorMessage(self)
             err.showMessage('Connection to {} on port {} refused.'.format(ip, port))
+        except socket.timeout:
+            err = QErrorMessage(self)
+            err.showMessage('Connection to {} on port {} timed out.'.format(ip, port))
         else:
             self.statusBar.showMessage('Connection to {} on port {} established.'.format(ip, port), 2000)
 

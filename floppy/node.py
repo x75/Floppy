@@ -25,6 +25,18 @@ def abstractNode(cls):
     return cls
 
 
+def Input(*args, **kwargs):
+    pass
+
+
+def Output(*args, **kwargs):
+    pass
+
+
+def Tag(*args, **kwargs):
+    pass
+
+
 class Info(object):
     """
     Class for handling all information related to both inputs and outputs.

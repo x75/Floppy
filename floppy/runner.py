@@ -9,7 +9,6 @@ from threading import Thread, Lock
 import time
 from queue import Queue
 from socket import AF_INET, SOCK_STREAM, socket, SHUT_RDWR, timeout, SHUT_RDWR, SO_REUSEADDR, SOL_SOCKET
-import random
 import json
 
 
@@ -228,10 +227,6 @@ class ExecutionThread(Thread):
                     node.notify()
 
 
-
-
-
-
 class Listener(Thread):
     def __init__(self, master):
         Thread.__init__(self)
@@ -302,10 +297,6 @@ class CommandProcessor(Thread):
                 else:
                     self.cSocket.send('Command \'{}\' not understood.'.format(message).encode())
                     break
-
-
-
-# from socket import AF_INET, SOCK_STREAM, socket
 
 
 def terminate(clientSocket):
