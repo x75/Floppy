@@ -65,17 +65,16 @@ class Runner(object):
             data += packet
         return data
 
-    def updateGraph(self, _):
-        if not self.conn:
-            self.conn , address = self.updateSocket.accept()
-        import struct
-
-        raw_msglen = self.recvall(self.conn, 4, 5)
-        if not raw_msglen:
-            return None
-        msglen = struct.unpack('>I', raw_msglen)[0]
-        # Read the message data
-        data = self.recvall(self.conn, msglen).decode('utf-8')
+    def updateGraph(self, data):
+        # if not self.conn:
+        #     self.conn , address = self.updateSocket.accept()
+        # import struct
+        #
+        # raw_msglen = self.recvall(self.conn, 4, 5)
+        # if not raw_msglen:
+        #     return None
+        # msglen = struct.unpack('>I', raw_msglen)[0]
+        # data = self.recvall(self.conn, msglen).decode('utf-8')
         data = json.loads(data)
 
         self.graphData = data
@@ -117,9 +116,9 @@ class Runner(object):
         self.cmdQueue.put(ExecutionThread.step)
         xLock.release()
 
-    def sendStatus(self, nodeID):
-        nodeID = self.idMap[nodeID]
-        self.conn.send(('#'+str(nodeID)).encode('utf-8'))
+    # def sendStatus(self, nodeID):
+    #     nodeID = self.idMap[nodeID]
+    #     self.conn.send(('#'+str(nodeID)).encode('utf-8'))
 
 
 class ExecutionThread(Thread):
@@ -195,7 +194,7 @@ class ExecutionThread(Thread):
                     node.run()
                     # raise RuntimeError('Uncaught exception while executing node {}.'.format(node))
                     node.notify()
-                    self.master.sendStatus(node.ID)
+                    # self.master.sendStatus(node.ID)
                     break
             if not running:
                 print('Nothing to do here @ {}'.format(time.time()))
@@ -284,9 +283,9 @@ class CommandProcessor(Thread):
                 elif message == 'UNPAUSE':
                     self.cSocket.send('Runner is unpausing.'.encode())
                     self.master.unpause()
-                elif message == 'UPDATE':
+                elif message.startswith('UPDATE'):
                     self.cSocket.send('Runner is updating.'.encode())
-                    self.master.updateGraph('')
+                    self.master.updateGraph(message[6:])
                 elif message.startswith('GOTO'):
                     nextID = int(message[4:])
                     self.cSocket.send('Runner jumping to node {}.'.format(nextID).encode())
@@ -295,7 +294,7 @@ class CommandProcessor(Thread):
                     self.cSocket.send('Runner is performing one step.'.encode())
                     self.master.step()
                 else:
-                    self.cSocket.send('Command \'{}\' not understood.'.format(message).encode())
+                    self.cSocket.send('Command \'{}...\' not understood.'.format(message[:50]).encode())
 
     def recvall(self, sock, n,):
         # Helper function to recv n bytes or return None if EOF is hit

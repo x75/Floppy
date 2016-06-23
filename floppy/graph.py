@@ -8,6 +8,7 @@ from socket import AF_INET, SOCK_STREAM, socket #, SHUT_RDWR, timeout, SHUT_RDWR
 from floppy.node import NODECLASSES
 from threading import Thread, Lock
 from queue import Queue
+import struct
 
 
 def dummy(nodeClass):
@@ -258,24 +259,24 @@ class Graph(object):
                     # raise RuntimeError('Uncaught exception while executing node {}.'.format(node))
                     node.notify()
 
-    def testRun(self):
-        if not self.runner:
-            self.runner = Runner()
-        sendCommand('PAUSE', self.cmdHost, self.cmdPort)
-        data = self.serialize()
-        self.sendUpdate(data)
-        sendCommand('UPDATE', self.cmdHost, self.cmdPort)
-        import time
-        time.sleep(.5)
-        sendCommand('UNPAUSE', self.cmdHost, self.cmdPort)
-        return
-
-        import time
-        time.sleep(2)
-        sendCommand('PAUSE')
-        time.sleep(1)
-        sendCommand('KILL')
-        del r
+    # def testRun(self):
+    #     if not self.runner:
+    #         self.runner = Runner()
+    #     sendCommand('PAUSE', self.cmdHost, self.cmdPort)
+    #     data = self.serialize()
+    #     self.sendUpdate(data)
+    #     sendCommand('UPDATE', self.cmdHost, self.cmdPort)
+    #     import time
+    #     time.sleep(.5)
+    #     sendCommand('UNPAUSE', self.cmdHost, self.cmdPort)
+    #     return
+    #
+    #     import time
+    #     time.sleep(2)
+    #     sendCommand('PAUSE')
+    #     time.sleep(1)
+    #     sendCommand('KILL')
+    #     del r
 
     def updateRunner(self):
         """
@@ -283,10 +284,11 @@ class Graph(object):
         :return:
         """
         self.executedBuffer = []
-        sendCommand('PAUSE', self.cmdHost, self.cmdPort)
-        data = self.serialize()
-        self.sendUpdate(data)
-        sendCommand('UPDATE', self.cmdHost, self.cmdPort)
+        print(self.rgiConnection.send('PAUSE'))
+        message = self.serialize()
+        # msg = struct.pack('>I', len(message)) + message.encode('utf-8')
+        # self.sendUpdate(data)
+        print(self.rgiConnection.send('UPDATE'+message))
 
     def serialize(self):
         """
@@ -297,68 +299,47 @@ class Graph(object):
         return data
         return zlib.compress(data.encode('utf-8'))
 
-    def convert_to_bytes(self, no):
-        """
-        Returns a 4 byte large representation of an integer.
-        :param no: Integer
-        :return: bytearray representation of input Integer.
-        """
-        result = bytearray()
-        result.append(no & 255)
-        for i in range(3):
-            no >>= 8
-            result.append(no & 255)
-        return result
+    # def convert_to_bytes(self, no):
+    #     """
+    #     Returns a 4 byte large representation of an integer.
+    #     :param no: Integer
+    #     :return: bytearray representation of input Integer.
+    #     """
+    #     result = bytearray()
+    #     result.append(no & 255)
+    #     for i in range(3):
+    #         no >>= 8
+    #         result.append(no & 255)
+    #     return result
 
-    def connect2Runner(self, host='127.0.0.1', port=7237):
-        """
-        Connect to the graph interpreter in order to send a graph update.
-        :return:
-        """
-        port = int(port)
-        self.clientSocket = socket(AF_INET, SOCK_STREAM)
-        self.clientSocket
-        self.clientSocket.settimeout(3)
-        self.clientSocket.connect((host, port))
-        # self.clientSocket.listen(1)
-        self.connected = True
+    # def connect2Runner(self, host='127.0.0.1', port=7237):
+    #     """
+    #     Connect to the graph interpreter in order to send a graph update.
+    #     :return:
+    #     """
+    #     port = int(port)
+    #     self.clientSocket = socket(AF_INET, SOCK_STREAM)
+    #     self.clientSocket
+    #     self.clientSocket.settimeout(3)
+    #     self.clientSocket.connect((host, port))
+    #     # self.clientSocket.listen(1)
+    #     self.connected = True
 
     # def receiveStatus(self):
     #     if not self.connected:
     #         self.connect2Runner()
     #     pass
 
-    def sendUpdate(self, message):
-        """
-        Send the serialized graph data to the graph interpreter.
-        :param message:
-        :return:
-        """
-        if not self.connected:
-            self.connect2Runner()
-        import struct
-        # Prefix each message with a 4-byte length (network byte order)
-        msg = struct.pack('>I', len(message)) + message.encode('utf-8')
-        self.clientSocket.sendall(msg)
-        return
-        #message = message.encode('utf-8')
-        #self.clientSocket.sendall(message)
-        ##return
-
-        message = message.encode('utf-8')
-        bs = self.convert_to_bytes(len(message))
-        message = io.TextIOWrapper(io.BytesIO(message))
-        self.clientSocket.send(bs)
-        chunk = message.read(1024)
-        while chunk:
-            self.clientSocket.send(chunk)
-            chunk = message.read(1024)
-        # printer('Report sent')
-        _ = self.clientSocket.recv(1024).decode()
-        # printer(answer)
-        # self.clientSocket.close()
-
-
+    # def sendUpdate(self, message):
+    #     """
+    #     Send the serialized graph data to the graph interpreter.
+    #     :param message:
+    #     :return:
+    #     """
+    #     # Prefix each message with a 4-byte length (network byte order)
+    #     msg = struct.pack('>I', len(message)) + message.encode('utf-8')
+    #     self.clientSocket.sendall(msg)
+    #     return
 
     def save(self, fileName):
         """
@@ -419,6 +400,9 @@ class Graph(object):
         :return:
         """
         sendCommand('GOTO{}'.format(nextID), self.cmdHost, self.cmdPort)
+
+    def requestRemoteStatus(self):
+        print(self.rgiConnection.send('STATUS'))
 
     def load(self, fileName):
         with open(fileName, 'r') as fp:
