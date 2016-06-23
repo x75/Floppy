@@ -13,7 +13,7 @@ class InputAlreadySet(Exception):
     pass
 
 
-def abstractNode(cls):
+def abstractNode(cls: type):
     """
     Removes a Node class from the NODECLASSES dictionary and then returns the class object.
     Use this as a decorator to stop a not fully implemented Node class from being available in the editor.

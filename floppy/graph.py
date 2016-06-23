@@ -3,7 +3,7 @@ import zlib
 import io
 # import time
 from floppy.node import ControlNode
-from floppy.runner import Runner, sendCommand
+from floppy.runner import Runner, sendCommand, RGIConnection
 from socket import AF_INET, SOCK_STREAM, socket #, SHUT_RDWR, timeout, SHUT_RDWR, SO_REUSEADDR, SOL_SOCKET
 from floppy.node import NODECLASSES
 from threading import Thread, Lock
@@ -49,17 +49,19 @@ class Graph(object):
         """
         if not self.runner:
             self.runner = Runner()
-        self.connect2RemoteRunner(host='127.0.0.1', port=7237)
+        self.connect2RemoteRunner(host='127.0.0.1', port=7236)
         self.slave = True
 
-    def connect2RemoteRunner(self, host='127.0.0.1', port=7237):
+    def connect2RemoteRunner(self, host='127.0.0.1', port=7236):
         self.cmdHost = host
         self.cmdPort = int(port)
         self.slave = False
-        self.connect2Runner(host, port)
-        self.statusLock = Lock()
+        self.rgiConnection = RGIConnection()
+        self.rgiConnection.connect(self.cmdHost, self.cmdPort)
+        # self.connect2Runner(host, port)
+        # self.statusLock = Lock()
         self.statusQueue = Queue(100)
-        self.statusListener = StatusListener(self, self.clientSocket, self.statusQueue, self.statusLock)
+        # self.statusListener = StatusListener(self, self.clientSocket, self.statusQueue, self.statusLock)
 
     def __getattr__(self, item):
         if item == 'newID':
@@ -382,8 +384,9 @@ class Graph(object):
         """
         if not self.slave:
             return
-        sendCommand('KILL', self.cmdHost, self.cmdPort)
-        self.clientSocket.close()
+        print(self.rgiConnection.send('KILL'))
+        # sendCommand('KILL', self.cmdHost, self.cmdPort)
+        # self.clientSocket.close()
         self.runner = None
 
     def pauseRunner(self):
@@ -391,14 +394,16 @@ class Graph(object):
         Send PAUSE command to the graph interpreter.
         :return:
         """
-        sendCommand('PAUSE', self.cmdHost, self.cmdPort)
+        print(self.rgiConnection.send('PAUSE'))
+        # sendCommand('PAUSE', self.cmdHost, self.cmdPort)
 
     def unpauseRunner(self):
         """
         Send UNPAUSE command to the graph interpreter.
         :return:
         """
-        sendCommand('UNPAUSE', self.cmdHost, self.cmdPort)
+        print(self.rgiConnection.send('UNPAUSE'))
+        # sendCommand('UNPAUSE', self.cmdHost, self.cmdPort)
 
     def stepRunner(self):
         """

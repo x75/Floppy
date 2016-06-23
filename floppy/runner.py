@@ -10,7 +10,7 @@ import time
 from queue import Queue
 from socket import AF_INET, SOCK_STREAM, socket, SHUT_RDWR, timeout, SHUT_RDWR, SO_REUSEADDR, SOL_SOCKET
 import json
-
+import struct
 
 
 # host = '127.0.0.1'
@@ -41,6 +41,9 @@ class Runner(object):
         self.updateSocket.bind((host, updatePort))
         self.updateSocket.listen(1)
         self.conn, self.clientAddress = None, None
+
+    def __del__(self):
+        self.updateSocket.close()
 
     def resetPointers(self):
         self.nextNodePointer = None
@@ -129,7 +132,6 @@ class ExecutionThread(Thread):
         super(ExecutionThread, self).__init__()
         # self.updateGraph()
         self.start()
-
 
     def run(self):
         while self.alive:
@@ -233,8 +235,9 @@ class Listener(Thread):
         self.alive = True
         self.listenSocket = socket(AF_INET, SOCK_STREAM)
         self.listenSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+        self.listenSocket.settimeout(.5)
         self.listenSocket.bind((host, port))
-        self.listenSocket.listen(5)
+        self.listenSocket.listen(1)
         self.master = master
         self.daemon = True
         self.start()
@@ -242,7 +245,7 @@ class Listener(Thread):
     def kill(self):
         self.alive = False
         time.sleep(.1)
-        self.listenSocket.shutdown(SHUT_RDWR)
+        # self.listenSocket.shutdown(SHUT_RDWR)
 
     def run(self):
         while self.alive:
@@ -267,26 +270,23 @@ class CommandProcessor(Thread):
 
     def run(self):
         while True:
-            message = self.cSocket.recv(1024).decode()
+            # message = self.cSocket.recv(1024).decode()
+            message = self.receive()
             if message:
                 if message == 'KILL':
                     # print('Killing myself')
                     self.cSocket.send('Runner is terminating.'.encode())
                     self.listener.kill()
                     self.master.kill()
-                    break
                 elif message == 'PAUSE':
                     self.cSocket.send('Runner is pausing.'.encode())
                     self.master.pause()
-                    break
                 elif message == 'UNPAUSE':
                     self.cSocket.send('Runner is unpausing.'.encode())
                     self.master.unpause()
-                    break
                 elif message == 'UPDATE':
                     self.cSocket.send('Runner is updating.'.encode())
                     self.master.updateGraph('')
-                    break
                 elif message.startswith('GOTO'):
                     nextID = int(message[4:])
                     self.cSocket.send('Runner jumping to node {}.'.format(nextID).encode())
@@ -296,7 +296,57 @@ class CommandProcessor(Thread):
                     self.master.step()
                 else:
                     self.cSocket.send('Command \'{}\' not understood.'.format(message).encode())
-                    break
+
+    def recvall(self, sock, n,):
+        # Helper function to recv n bytes or return None if EOF is hit
+        data = b''
+        while len(data) < n:
+            packet = sock.recv(n - len(data))
+            if not packet:
+                return False
+            data += packet
+        return data
+
+    def receive(self):
+        data = None
+        raw_msglen = self.recvall(self.cSocket, 4)
+        if not raw_msglen:
+            return None
+        msglen = struct.unpack('>I', raw_msglen)[0]
+        # Read the message data
+        try:
+            data = self.recvall(self.cSocket, msglen).decode('utf-8')
+        except AttributeError:
+            print('[ERROR] No data received.')
+        return data
+
+
+class RGIConnection(object):
+    def __init__(self, verbose=True):
+        self.socket = None
+        self.host = None
+        self.port = None
+
+    def connect(self, host, port):
+        self.host = host
+        self.port = port
+        self.socket = socket(AF_INET, SOCK_STREAM)
+        self.socket.settimeout(5.)
+        self.socket.connect((host, port))
+
+    def disconnect(self):
+        self.socket.close()
+
+    def reconnect(self):
+        self.disconnect()
+        time.sleep(.5)
+        self.socket.connect((self.host, self.port))
+
+    def send(self, message):
+        print('[REQUEST] ' + message)
+        msg = struct.pack('>I', len(message)) + message.encode('utf-8')
+        self.socket.sendall(msg)
+        return '[ANSWER]  '+self.socket.recv(1024).decode()
 
 
 def terminate(clientSocket):
