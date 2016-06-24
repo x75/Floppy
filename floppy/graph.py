@@ -36,7 +36,7 @@ class Graph(object):
         self.connections = {}
         self.runner = None
         self.reverseConnections = {}
-        self.statusLock = Lock()
+        # self.statusLock = Lock()
         if painter:
             self.painter = painter
             painter.registerGraph(self)
@@ -56,12 +56,14 @@ class Graph(object):
     def connect2RemoteRunner(self, host='127.0.0.1', port=7236):
         self.cmdHost = host
         self.cmdPort = int(port)
+        print(host,port)
         self.slave = False
         self.rgiConnection = RGIConnection()
         self.rgiConnection.connect(self.cmdHost, self.cmdPort)
         # self.connect2Runner(host, port)
         # self.statusLock = Lock()
-        self.statusQueue = Queue(100)
+        # self.statusQueue = Queue(100)
+        self.connected = True
         # self.statusListener = StatusListener(self, self.clientSocket, self.statusQueue, self.statusLock)
 
     def __getattr__(self, item):
@@ -86,6 +88,11 @@ class Graph(object):
         Called by the painter instance periodically to check whether a repaint was requested by another thread.
         :return:
         """
+        if self.connected:
+            IDs = self.requestRemoteStatus()
+            if IDs:
+                self.executedBuffer += [int(ID) for ID in IDs]
+                return True
         if self._requestUpdate:
             self._requestUpdate = False
             return True
@@ -226,9 +233,9 @@ class Graph(object):
         Returns the current execution history: a list of nodeIDs in the order they were executed in.
         :return: list of nodIDs.
         """
-        self.statusLock.acquire()
+        # self.statusLock.acquire()
         history = self.executedBuffer[:]
-        self.statusLock.release()
+        # self.statusLock.release()
         return history
 
 
@@ -391,7 +398,7 @@ class Graph(object):
         Send Step command to the graph interpreter causing it to execute one node and then reenter the PAUSED state.
         :return:
         """
-        sendCommand('STEP', self.cmdHost, self.cmdPort)
+        print(self.rgiConnection.send('STEP'))
 
     def gotoRunner(self, nextID):
         """
@@ -399,10 +406,11 @@ class Graph(object):
         :param nextID:
         :return:
         """
-        sendCommand('GOTO{}'.format(nextID), self.cmdHost, self.cmdPort)
+        print(self.rgiConnection.send('GOTO1'))
 
     def requestRemoteStatus(self):
-        print(self.rgiConnection.send('STATUS'))
+        status = self.rgiConnection.send('STATUS')
+        return status.split(']')[-1].split('#') if len(status) > 10 else []
 
     def load(self, fileName):
         with open(fileName, 'r') as fp:

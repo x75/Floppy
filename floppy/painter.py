@@ -651,6 +651,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.connectAction.triggered.connect(self.connect)
         self.connectAction.setIconVisibleInMenu(True)
         self.addAction(self.connectAction)
+        
+        self.statusAction = QAction('Status', self)
+        self.statusAction.setShortcut('Ctrl+R')
+        self.statusAction.triggered.connect(self.updateStatus)
+        self.statusAction.setIconVisibleInMenu(True)
+        self.addAction(self.statusAction)
+
 
     def initMenus(self):
         fileMenu = self.menuBar.addMenu('&File')
@@ -674,6 +681,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mainToolBar.addAction(self.spawnRunnerAction)
         self.mainToolBar.addAction(self.deleteNodeAction)
         self.mainToolBar.addAction(self.connectAction)
+        self.mainToolBar.addAction(self.statusAction)
 
     def connect(self):
         text = ''
@@ -711,6 +719,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except:
             print('No runner to kill.')
         qApp.quit()
+
+    def updateStatus(self):
+        self.drawer.graph.requestRemoteStatus()
 
     def killRunner(self):
         try:

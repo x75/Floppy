@@ -41,6 +41,7 @@ class Runner(object):
         self.updateSocket.bind((host, updatePort))
         self.updateSocket.listen(1)
         self.conn, self.clientAddress = None, None
+        self.status = []
 
     def __del__(self):
         self.updateSocket.close()
@@ -115,6 +116,15 @@ class Runner(object):
             self.cmdQueue.get()
         self.cmdQueue.put(ExecutionThread.step)
         xLock.release()
+
+    def updateStatus(self, ID):
+        nodeID = self.idMap[ID]
+        self.status.append(nodeID)
+
+    def getStatus(self):
+        string = '#'.join([str(i) for i in self.status])
+        self.status = []
+        return string
 
     # def sendStatus(self, nodeID):
     #     nodeID = self.idMap[nodeID]
@@ -195,6 +205,7 @@ class ExecutionThread(Thread):
                     # raise RuntimeError('Uncaught exception while executing node {}.'.format(node))
                     node.notify()
                     # self.master.sendStatus(node.ID)
+                    self.master.updateStatus(node.ID)
                     break
             if not running:
                 print('Nothing to do here @ {}'.format(time.time()))
@@ -234,7 +245,7 @@ class Listener(Thread):
         self.alive = True
         self.listenSocket = socket(AF_INET, SOCK_STREAM)
         self.listenSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-        self.listenSocket.settimeout(.5)
+        # self.listenSocket.settimeout(5)
         self.listenSocket.bind((host, port))
         self.listenSocket.listen(1)
         self.master = master
@@ -248,14 +259,15 @@ class Listener(Thread):
 
     def run(self):
         while self.alive:
-            # print('++++++++++Waiting for client.')
+            print('++++++++++Waiting for client.')
             try:
                 cSocket, address = self.listenSocket.accept()
-                # print('++++++++++client accepted.')
+                print('++++++++++client accepted.')
             except OSError as x:
                 continue
             # if str(address[0]) == '127.0.0.1':
-            CommandProcessor(cSocket, address, self.master, self)
+            else:
+                CommandProcessor(cSocket, address, self.master, self)
 
 
 class CommandProcessor(Thread):
@@ -267,6 +279,11 @@ class CommandProcessor(Thread):
         self.daemon = True
         self.start()
 
+    def send(self, message):
+        msg = struct.pack('>I', len(message)) + message.encode('utf-8')
+        self.cSocket.sendall(msg)
+        # return '[ANSWER]  '+self.cSocket.recv(1024).decode()
+
     def run(self):
         while True:
             # message = self.cSocket.recv(1024).decode()
@@ -274,27 +291,30 @@ class CommandProcessor(Thread):
             if message:
                 if message == 'KILL':
                     # print('Killing myself')
-                    self.cSocket.send('Runner is terminating.'.encode())
+                    self.send('Runner is terminating.')
                     self.listener.kill()
                     self.master.kill()
                 elif message == 'PAUSE':
-                    self.cSocket.send('Runner is pausing.'.encode())
+                    self.send('Runner is pausing.')
                     self.master.pause()
                 elif message == 'UNPAUSE':
-                    self.cSocket.send('Runner is unpausing.'.encode())
+                    self.send('Runner is unpausing.')
                     self.master.unpause()
                 elif message.startswith('UPDATE'):
-                    self.cSocket.send('Runner is updating.'.encode())
+                    self.send('Runner is updating.')
                     self.master.updateGraph(message[6:])
                 elif message.startswith('GOTO'):
                     nextID = int(message[4:])
-                    self.cSocket.send('Runner jumping to node {}.'.format(nextID).encode())
+                    self.send('Runner jumping to node {}.'.format(nextID))
                     self.master.goto(nextID)
                 elif message == 'STEP':
-                    self.cSocket.send('Runner is performing one step.'.encode())
+                    self.send('Runner is performing one step.')
                     self.master.step()
+                elif message == 'STATUS':
+                    status = self.master.getStatus()
+                    self.send(status)
                 else:
-                    self.cSocket.send('Command \'{}...\' not understood.'.format(message[:50]).encode())
+                    self.send('Command \'{}...\' not understood.'.format(message[:50]))
 
     def recvall(self, sock, n,):
         # Helper function to recv n bytes or return None if EOF is hit
@@ -345,7 +365,30 @@ class RGIConnection(object):
         print('[REQUEST] ' + message)
         msg = struct.pack('>I', len(message)) + message.encode('utf-8')
         self.socket.sendall(msg)
-        return '[ANSWER]  '+self.socket.recv(1024).decode()
+        return '[ANSWER]  '+self._receive()
+
+    def _recvall(self, sock, n,):
+        # Helper function to recv n bytes or return None if EOF is hit
+        data = b''
+        while len(data) < n:
+            packet = sock.recv(n - len(data))
+            if not packet:
+                return False
+            data += packet
+        return data
+
+    def _receive(self):
+        data = None
+        raw_msglen = self._recvall(self.socket, 4)
+        if not raw_msglen:
+            return None
+        msglen = struct.unpack('>I', raw_msglen)[0]
+        # Read the message data
+        try:
+            data = self._recvall(self.socket, msglen).decode('utf-8')
+        except AttributeError:
+            print('[ERROR] No data received.')
+        return data
 
 
 def terminate(clientSocket):
