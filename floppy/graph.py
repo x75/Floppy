@@ -56,7 +56,6 @@ class Graph(object):
     def connect2RemoteRunner(self, host='127.0.0.1', port=7236):
         self.cmdHost = host
         self.cmdPort = int(port)
-        print(host,port)
         self.slave = False
         self.rgiConnection = RGIConnection()
         self.rgiConnection.connect(self.cmdHost, self.cmdPort)
@@ -306,48 +305,6 @@ class Graph(object):
         return data
         return zlib.compress(data.encode('utf-8'))
 
-    # def convert_to_bytes(self, no):
-    #     """
-    #     Returns a 4 byte large representation of an integer.
-    #     :param no: Integer
-    #     :return: bytearray representation of input Integer.
-    #     """
-    #     result = bytearray()
-    #     result.append(no & 255)
-    #     for i in range(3):
-    #         no >>= 8
-    #         result.append(no & 255)
-    #     return result
-
-    # def connect2Runner(self, host='127.0.0.1', port=7237):
-    #     """
-    #     Connect to the graph interpreter in order to send a graph update.
-    #     :return:
-    #     """
-    #     port = int(port)
-    #     self.clientSocket = socket(AF_INET, SOCK_STREAM)
-    #     self.clientSocket
-    #     self.clientSocket.settimeout(3)
-    #     self.clientSocket.connect((host, port))
-    #     # self.clientSocket.listen(1)
-    #     self.connected = True
-
-    # def receiveStatus(self):
-    #     if not self.connected:
-    #         self.connect2Runner()
-    #     pass
-
-    # def sendUpdate(self, message):
-    #     """
-    #     Send the serialized graph data to the graph interpreter.
-    #     :param message:
-    #     :return:
-    #     """
-    #     # Prefix each message with a 4-byte length (network byte order)
-    #     msg = struct.pack('>I', len(message)) + message.encode('utf-8')
-    #     self.clientSocket.sendall(msg)
-    #     return
-
     def save(self, fileName):
         """
         Saves the graph as a JSON string to the disk
@@ -375,7 +332,9 @@ class Graph(object):
         print(self.rgiConnection.send('KILL'))
         # sendCommand('KILL', self.cmdHost, self.cmdPort)
         # self.clientSocket.close()
+        del self.runner
         self.runner = None
+        self.connected = False
 
     def pauseRunner(self):
         """
@@ -409,8 +368,22 @@ class Graph(object):
         print(self.rgiConnection.send('GOTO1'))
 
     def requestRemoteStatus(self):
-        status = self.rgiConnection.send('STATUS')
-        return status.split(']')[-1].split('#') if len(status) > 10 else []
+        if self.connected:
+            try:
+                status = self.rgiConnection.send('STATUS')
+            except BrokenPipeError:
+                self.connected = False
+                return []
+            except ConnectionResetError:
+                self.connected = False
+                return []
+            except socket.timeout:
+                self.connected = False
+                return []
+            else:
+                return status.split(']')[-1].split('#') if len(status) > 10 else []
+        else:
+            return []
 
     def load(self, fileName):
         with open(fileName, 'r') as fp:

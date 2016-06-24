@@ -245,7 +245,7 @@ class Listener(Thread):
         self.alive = True
         self.listenSocket = socket(AF_INET, SOCK_STREAM)
         self.listenSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-        # self.listenSocket.settimeout(5)
+        self.listenSocket.settimeout(1)
         self.listenSocket.bind((host, port))
         self.listenSocket.listen(1)
         self.master = master
@@ -256,10 +256,11 @@ class Listener(Thread):
         self.alive = False
         time.sleep(.1)
         # self.listenSocket.shutdown(SHUT_RDWR)
+        self.listenSocket.close()
 
     def run(self):
         while self.alive:
-            print('++++++++++Waiting for client.')
+            # print('++++++++++Waiting for client.')
             try:
                 cSocket, address = self.listenSocket.accept()
                 print('++++++++++client accepted.')
@@ -294,6 +295,9 @@ class CommandProcessor(Thread):
                     self.send('Runner is terminating.')
                     self.listener.kill()
                     self.master.kill()
+                    return
+                elif message == 'READY?':
+                    self.send('READY')
                 elif message == 'PAUSE':
                     self.send('Runner is pausing.')
                     self.master.pause()
@@ -346,12 +350,15 @@ class RGIConnection(object):
         self.host = None
         self.port = None
 
-    def connect(self, host, port):
+    def connect(self, host, port, validate=True):
         self.host = host
         self.port = port
         self.socket = socket(AF_INET, SOCK_STREAM)
         self.socket.settimeout(5.)
         self.socket.connect((host, port))
+        if validate:
+            print(self.send('READY?'))
+
 
     def disconnect(self):
         self.socket.close()
@@ -365,7 +372,11 @@ class RGIConnection(object):
         print('[REQUEST] ' + message)
         msg = struct.pack('>I', len(message)) + message.encode('utf-8')
         self.socket.sendall(msg)
-        return '[ANSWER]  '+self._receive()
+        try:
+            answer = '[ANSWER]  '+self._receive()
+        except TypeError:
+            answer = ''
+        return answer
 
     def _recvall(self, sock, n,):
         # Helper function to recv n bytes or return None if EOF is hit
