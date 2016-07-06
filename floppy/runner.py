@@ -160,7 +160,7 @@ class ExecutionThread(Thread):
 
                 # print(self.graph.nodes)
                 #print('Doing stuff.')
-                self.executeGraphStep()
+                self.executeGraphStepPar()
             else:
                 time.sleep(.5)
         print('That\'s it. I\'m dead.')
@@ -176,7 +176,7 @@ class ExecutionThread(Thread):
 
     def step(self):
         print('Stepping up.')
-        self.executeGraphStep()
+        self.executeGraphStepPar()
 
     def updateGraph(self):
         from floppy.graph import Graph
@@ -202,11 +202,35 @@ class ExecutionThread(Thread):
                 running = checked if not running else True
                 if checked:
                     node.run()
+                    # self.graph.runNodePar(node)
                     # raise RuntimeError('Uncaught exception while executing node {}.'.format(node))
                     node.notify()
                     # self.master.sendStatus(node.ID)
                     self.master.updateStatus(node.ID)
                     break
+            if not running:
+                print('Nothing to do here @ {}'.format(time.time()))
+                time.sleep(.5)
+
+    def executeGraphStepPar(self):
+        if self.master.nextNodePointer:
+            print(self.master.nextNodePointer, self.graph.nodes.keys())
+            nextNode = self.graph.nodes[self.master.nextNodePointer]
+            self.master.nextNodePointer = None
+            if nextNode.check():
+                nextNode.run()
+                nextNode.notify()
+                self.master.sendStatus(nextNode.ID)
+        else:
+            running = False
+            readyNodes = []
+            for node in self.graph.nodes.values():
+                checked = node.check()
+                running = checked if not running else True
+                if checked and not node.locked:
+                    readyNodes.append(node)
+            for node in readyNodes:
+                self.graph.runNodePar(node, cb=self.master.updateStatus, arg=node.ID)
             if not running:
                 print('Nothing to do here @ {}'.format(time.time()))
                 time.sleep(.5)

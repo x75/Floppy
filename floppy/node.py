@@ -235,6 +235,7 @@ class Node(object, metaclass=MetaNode):
     def __init__(self, nodeID, graph):
         self.__pos__ = (0, 0)
         self.graph = graph
+        self.locked = False
         self.ID = nodeID
         self.inputs = OrderedDict()
         self.outputs = OrderedDict()
@@ -263,6 +264,12 @@ class Node(object, metaclass=MetaNode):
 
     def __hash__(self):
         return hash(str(self))
+
+    def lock(self):
+        self.locked = True
+
+    def unlock(self):
+        self.locked = False
 
     def run(self) -> None:
         """

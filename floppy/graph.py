@@ -265,6 +265,10 @@ class Graph(object):
                     # raise RuntimeError('Uncaught exception while executing node {}.'.format(node))
                     node.notify()
 
+    def runNodePar(self, node, cb=None, arg=None):
+        t = NodeThread(node, cb, arg)
+        # t.join()
+
     # def testRun(self):
     #     if not self.runner:
     #         self.runner = Runner()
@@ -497,6 +501,24 @@ class Graph(object):
             self.removeConnection(out.ID)
         del self.nodes[node.ID]
 
+
+class NodeThread(Thread):
+
+    def __init__(self, node, cb, arg):
+        node.lock()
+        self.node = node
+        self.cb = cb
+        self.arg = arg
+        super(NodeThread, self).__init__()
+        self.start()
+
+    def run(self):
+        super(NodeThread, self).run()
+        self.node.run()
+        self.node.notify()
+        if self.cb:
+            self.cb(self.arg)
+        self.node.unlock()
 
 
 class Connection(object):
