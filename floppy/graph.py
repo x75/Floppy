@@ -266,6 +266,7 @@ class Graph(object):
                     node.notify()
 
     def runNodePar(self, node, cb=None, arg=None):
+        # node.lock()
         t = NodeThread(node, cb, arg)
         # t.join()
 
@@ -505,7 +506,7 @@ class Graph(object):
 class NodeThread(Thread):
 
     def __init__(self, node, cb, arg):
-        node.lock()
+        # node.lock()
         self.node = node
         self.cb = cb
         self.arg = arg

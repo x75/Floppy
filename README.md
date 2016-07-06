@@ -1,10 +1,13 @@
 # Floppy
 Flowchart Python -- A multipurpose Python node editor.
 
-![alt tag](/floppy/ressources/img.png?raw=true "Graph Example")
+![Example Graph](/floppy/ressources/img.png?raw=true "Graph Example")
 
 Floppy includes a PyQt5 based graphical editor for creating graphs consisting of logically connected nodes.
 Floppy also provides an interpreter for these graphs that can run on a remote machine and is controlled via TCP/IP.
+
+A recently added feature is the automatic concurrent execution of graphs. The Graph Interpreter will continuously check
+which nodes are ready to be executed and will then create a new thread for running each node.
 
 A main design goal is to make the addition of custom nodes as easy as possible. For example the following code will
 make a node for adding two integer available in the editor:

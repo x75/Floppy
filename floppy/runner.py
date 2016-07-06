@@ -214,7 +214,7 @@ class ExecutionThread(Thread):
 
     def executeGraphStepPar(self):
         if self.master.nextNodePointer:
-            print(self.master.nextNodePointer, self.graph.nodes.keys())
+            # print(self.master.nextNodePointer, self.graph.nodes.keys())
             nextNode = self.graph.nodes[self.master.nextNodePointer]
             self.master.nextNodePointer = None
             if nextNode.check():
@@ -229,6 +229,7 @@ class ExecutionThread(Thread):
                 running = checked if not running else True
                 if checked and not node.locked:
                     readyNodes.append(node)
+                    node.lock()
             for node in readyNodes:
                 self.graph.runNodePar(node, cb=self.master.updateStatus, arg=node.ID)
             if not running:

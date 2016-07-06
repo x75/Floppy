@@ -316,7 +316,7 @@ class Node(object, metaclass=MetaNode):
         """
         for inp in self.inputs.values():
             if not inp.isAvailable():
-                print('        {}: Prerequisites not met.'.format(str(self)))
+                # print('        {}: Prerequisites not met.'.format(str(self)))
                 return False
         return True
 
@@ -521,7 +521,7 @@ class SwitchNode(ControlNode):
                 if inp.name == 'Control':
                     continue
                 if not inp.isAvailable():
-                    print('        {}: Prerequisites not met.'.format(str(self)))
+                    # print('        {}: Prerequisites not met.'.format(str(self)))
                     return False
             return True
         else:
@@ -581,7 +581,7 @@ class Loop(ControlNode):
                 if inp.name == 'Control':
                     continue
                 if not inp.isAvailable():
-                    print('        {}: Prerequisites not met.'.format(str(self)))
+                    # print('        {}: Prerequisites not met.'.format(str(self)))
                     return False
             return True
         if self.counter > 0:
@@ -649,7 +649,7 @@ class WaitAny(WaitAll):
     def check(self):
         for inp in self.inputs.values():
             if inp.valueSet:
-                print('        {}: Prerequisites not met.'.format(str(self)))
+                # print('        {}: Prerequisites not met.'.format(str(self)))
                 return True
 
     def run(self):
@@ -672,6 +672,12 @@ class Test(Node):
 class TestNode(Node):
     Input('strInput', str)
     Output('strOutput', str)
+
+    def run(self):
+        super(TestNode, self).run()
+        import time
+        time.sleep(self.ID/50.)
+        self._strOutput('')
 
 
 class FinalTestNode(TestNode):
@@ -746,7 +752,7 @@ class ForEach(ControlNode):
                 if inp.name == 'Control':
                     continue
                 if not inp.isAvailable():
-                    print('        {}: Prerequisites not met.'.format(str(self)))
+                    # print('        {}: Prerequisites not met.'.format(str(self)))
                     return False
             return True
         else:
