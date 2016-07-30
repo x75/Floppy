@@ -27,8 +27,8 @@ class NodeFilter(QLineEdit):
     def __init__(self, parent=None):
         super(NodeFilter, self).__init__(parent)
         self.textEdited.connect(self.check)
-        self.setStyleSheet("NodeFilter {background-color:rgb(95,95,95) ;border:1px solid rgb(0, 0, 0); "
-                           "border-color:black; }")
+        self.setStyleSheet("NodeFilter {background-color:rgb(75,75,75) ;border:1px solid rgb(0, 0, 0); "
+                           "border-color:black; color: white }")
 
     def focusInEvent(self, event):
         """
@@ -109,8 +109,11 @@ class NodeList(QListView):
         self.graph = None
         self.down = False
         self.selectedClass = None
-        self.setStyleSheet("NodeList {background-color:rgb(75,75,75) ;border:1px solid rgb(0, 0, 0); "
-                           "border-color:black}")
+        self.setStyleSheet('''
+        NodeList {background-color:rgb(75,75,75) ;border:1px solid rgb(0, 0, 0);
+                  border-color:black}
+        NodeList::item {color: white}
+        ''')
 
     def setup(self, nodeFilter, graph):
         self.filter = nodeFilter

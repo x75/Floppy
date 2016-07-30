@@ -12,12 +12,14 @@ from floppy.nodeLib import NodeList, NodeFilter
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
+        MainWindow.setStyleSheet('''MainWindow { background-color: rgb(95,95,95); border-color: black }''')
         MainWindow.resize(1250, 629)
         self.centralWidget = QtWidgets.QWidget(MainWindow)
         self.centralWidget.setObjectName("centralWidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralWidget)
         self.gridLayout.setObjectName("gridLayout")
         self.HorizontalSplitter = QtWidgets.QSplitter(self.centralWidget)
+        self.HorizontalSplitter.setStyleSheet("QSplitter::handle{background: rgb(75,75,75);}")
         self.HorizontalSplitter.setOrientation(QtCore.Qt.Horizontal)
         self.HorizontalSplitter.setObjectName("HorizontalSplitter")
         self.DrawArea = QtWidgets.QWidget(self.HorizontalSplitter)
@@ -61,10 +63,36 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.HorizontalSplitter, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralWidget)
         self.menuBar = QtWidgets.QMenuBar(MainWindow)
+        self.menuBar.setStyleSheet('''QMenuBar{background: rgb(95,95,95); border-color: black}
+
+        QMenuBar::item {spacing: 3px; padding: 1px 4px;background: transparent; border-radius: 4px; color: white}
+        QMenuBar::item:selected { /* when selected using mouse or keyboard */
+        background: #a8a8a8;}
+
+        QMenu {
+        background-color: rgb(95,95,95); /* sets background of the menu */
+        border: 1px solid black;
+        }
+
+        QMenu::item {
+        /* sets background of menu item. set this to something non-transparent
+        if you want menu color and menu item color to be different */
+        background-color: transparent;
+        color: white;
+        }
+
+        QMenu::item:selected { /* when user selects item using mouse or keyboard */
+        background-color: rgb(0,85,100);
+        }
+        ''')
         self.menuBar.setGeometry(QtCore.QRect(0, 0, 1250, 21))
         self.menuBar.setObjectName("menuBar")
         MainWindow.setMenuBar(self.menuBar)
         self.mainToolBar = QtWidgets.QToolBar(MainWindow)
+        self.mainToolBar.setStyleSheet('''
+        QToolBar {background: rgb(95,95,95)}
+        QToolButton { color: white }
+        ''')
         self.mainToolBar.setObjectName("mainToolBar")
         MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.mainToolBar)
         self.statusBar = QtWidgets.QStatusBar(MainWindow)
