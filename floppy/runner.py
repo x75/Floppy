@@ -182,7 +182,7 @@ class ExecutionThread(Thread):
         from floppy.graph import Graph
         self.graph = Graph()
         # print(type(self.master.graph))
-        idMap = self.graph.loadDict(self.master.graphData)
+        idMap = self.graph.loadState(self.master.graphData)
         self.master.idMap = {value:key for key, value in idMap.items()}
         #self.resetPointers()
 

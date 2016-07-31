@@ -6,7 +6,12 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtGui import *
 from PyQt5.Qt import QTimer
-
+import platform
+TEXTYOFFSET = 0
+LINEEDITFONTSIZE = 8
+if platform.system() is 'Windows':
+    TEXTYOFFSET = 4
+    LINEEDITFONTSIZE = 7
 
 class Painter(QWidget):
     def decorateNode(self, node, position):
@@ -982,9 +987,9 @@ class LineEdit(DrawItem):
             painter.setBrush(QColor(40, 40, 40))
             xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18, self.w-18, 12
             painter.drawRoundedRect(xx, yy, ww, hh, 2, 20)
-            painter.setFont(QFont('Helvetica', 8))
+            painter.setFont(QFont('Helvetica', LINEEDITFONTSIZE))
             painter.setPen(pen)
-            painter.drawText(xx+5, yy-3, ww-10, hh+5, alignment, text)
+            painter.drawText(xx+5, yy-3+TEXTYOFFSET, ww-10, hh+5, alignment, text)
         else:
             alignment = self.__class__.alignment
             pen = QPen(Qt.darkGray)
@@ -992,9 +997,9 @@ class LineEdit(DrawItem):
             painter.setBrush(QColor(10, 10, 10))
             xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18, self.w-18, 12
             painter.drawRoundedRect(xx, yy, ww, hh, 2, 20)
-            painter.setFont(QFont('Helvetica', 8))
+            painter.setFont(QFont('Helvetica', LINEEDITFONTSIZE))
             painter.setPen(pen)
-            painter.drawText(xx+5, yy-3, ww-10, hh+5, alignment, text)
+            painter.drawText(xx+5, yy-3+TEXTYOFFSET, ww-10, hh+5, alignment, text)
 
     def keyPressEvent(self, event):
         if event.key() == 16777219:

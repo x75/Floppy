@@ -325,6 +325,7 @@ class Graph(object):
         Encodes the graph as a JSON string and returns the string.
         :return:
         """
+        return json.dumps([(node.ID, node.save()) for node in self.nodes.values()])
         return json.dumps({node.ID: node.save() for node in self.nodes.values()})
 
     def killRunner(self):
@@ -393,7 +394,46 @@ class Graph(object):
     def load(self, fileName):
         with open(fileName, 'r') as fp:
             saveState = json.loads(fp.read())
-        self.loadDict(saveState)
+        self.loadState(saveState)
+        # self.loadDict(saveState)
+
+    def loadState(self, saveState):
+        """
+        Reconstruct a Graph instance from a JSON string representation created by the Graph.toJson() method.
+        :param saveState:
+        :return: Dictionary mapping the saved nodeIDs to the newly created nodes's IDs.
+        """
+        idMap = {}
+        for id, nodeData in saveState:
+            restoredNode = self.spawnNode(NODECLASSES[nodeData['class']], position=nodeData['position'], silent=True)
+            idMap[int(id)] = restoredNode.ID
+            inputs = nodeData['inputs']
+            outputs = nodeData['outputs']
+            for input in inputs:
+                restoredNode.inputs[input[0]].setDefault(input[-1])
+            for output in outputs:
+                restoredNode.outputs[output[0]].setDefault(output[-1])
+        for id, nodeData in saveState:
+            id = int(id)
+            for inputName, outputID in nodeData['inputConnections'].items():
+                if inputName == 'Control':
+                    continue
+                outputNode, outputName = outputID.split(':O')
+                outputNode = idMap[int(outputNode)]
+                # print(id, nodeData['inputConnections'], outputNode, outputName)
+                self.connect(str(outputNode), outputName, str(idMap[id]), inputName)
+
+            for outputName, inputIDs in nodeData['outputConnections'].items():
+                for inputID in inputIDs:
+                    if not 'Control' in inputID:
+                        continue
+                    inputNode, inputName = inputID.split(':I')
+                    inputNode = idMap[int(inputNode)]
+                    # print(id, nodeData['inputConnections'], outputNode, outputName)
+                    self.connect(str(idMap[id]), outputName, str(inputNode), inputName)
+
+        self.update()
+        return idMap
 
     def loadDict(self, saveState):
         """
