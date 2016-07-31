@@ -79,7 +79,7 @@ class VectorSum(VectorNode):
 
 class Normalize(VectorNode):
     Input('Vector', float, list=True)
-    Input('NVector', float, list=True)
+    Output('NVector', float, list=True)
 
     def run(self):
         super(Normalize, self).run()

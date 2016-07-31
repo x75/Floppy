@@ -301,6 +301,18 @@ class Graph(object):
         # self.sendUpdate(data)
         print(self.rgiConnection.send('UPDATE'+message))
 
+    def push2Runner(self):
+        """
+        Serializes the graph and sends it to the connected graph interpreter telling it to load the new data.
+        :return:
+        """
+        self.executedBuffer = []
+        print(self.rgiConnection.send('PAUSE'))
+        message = self.serialize()
+        # msg = struct.pack('>I', len(message)) + message.encode('utf-8')
+        # self.sendUpdate(data)
+        print(self.rgiConnection.send('PUSH'+message))
+
     def serialize(self):
         """
         Returns a serialized representation of the graph instance.
@@ -373,6 +385,9 @@ class Graph(object):
         """
         print(self.rgiConnection.send('GOTO1'))
 
+    def dropGraph(self):
+        print(self.rgiConnection.send('DROP'))
+
     def requestRemoteStatus(self):
         if self.connected:
             try:
@@ -414,6 +429,42 @@ class Graph(object):
             for output in outputs:
                 restoredNode.outputs[output[0]].setDefault(output[-1])
         for id, nodeData in saveState:
+            id = int(id)
+            for inputName, outputID in nodeData['inputConnections'].items():
+                if inputName == 'Control':
+                    continue
+                outputNode, outputName = outputID.split(':O')
+                outputNode = idMap[int(outputNode)]
+                # print(id, nodeData['inputConnections'], outputNode, outputName)
+                self.connect(str(outputNode), outputName, str(idMap[id]), inputName)
+
+            for outputName, inputIDs in nodeData['outputConnections'].items():
+                for inputID in inputIDs:
+                    if not 'Control' in inputID:
+                        continue
+                    inputNode, inputName = inputID.split(':I')
+                    inputNode = idMap[int(inputNode)]
+                    # print(id, nodeData['inputConnections'], outputNode, outputName)
+                    self.connect(str(idMap[id]), outputName, str(inputNode), inputName)
+
+        self.update()
+        return idMap
+
+    def updateState(self, data):
+        self.connections = {key: set() for key in self.connections.keys()}
+        self.reverseConnections = {key: set() for key in self.reverseConnections.keys()}
+        idMap = {}
+        for id, nodeData in data:
+            idMap[int(id)] = int(id)
+            if not int(id) in self.nodes.keys():
+                restoredNode = self.spawnNode(NODECLASSES[nodeData['class']], position=nodeData['position'], silent=True)
+                inputs = nodeData['inputs']
+                outputs = nodeData['outputs']
+                for input in inputs:
+                    restoredNode.inputs[input[0]].setDefault(input[-1])
+                for output in outputs:
+                    restoredNode.outputs[output[0]].setDefault(output[-1])
+        for id, nodeData in data:
             id = int(id)
             for inputName, outputID in nodeData['inputConnections'].items():
                 if inputName == 'Control':

@@ -554,7 +554,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setWindowIcon(QIcon(os.path.join(self.iconRoot, 'appIcon.png')))
 
         self.resize(900, 700)
-        self.setWindowTitle('Node Draw Test')
+        self.setWindowTitle('Floppy')
 
         self.initActions()
         self.initMenus()
@@ -663,6 +663,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.statusAction.setIconVisibleInMenu(True)
         self.addAction(self.statusAction)
 
+        self.dropAction = QAction('Drop', self)
+        self.dropAction.setShortcut('Ctrl+R')
+        self.dropAction.triggered.connect(self.dropGraph)
+        self.dropAction.setIconVisibleInMenu(True)
+        self.addAction(self.dropAction)
+
+        self.pushAction = QAction('Push', self)
+        self.pushAction.setShortcut('Ctrl+R')
+        self.pushAction.triggered.connect(self.pushGraph)
+        self.pushAction.setIconVisibleInMenu(True)
+        self.addAction(self.pushAction)
+
 
     def initMenus(self):
         fileMenu = self.menuBar.addMenu('&File')
@@ -687,6 +699,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mainToolBar.addAction(self.deleteNodeAction)
         self.mainToolBar.addAction(self.connectAction)
         self.mainToolBar.addAction(self.statusAction)
+        self.mainToolBar.addAction(self.dropAction)
+        self.mainToolBar.addAction(self.pushAction)
 
     def connect(self):
         text = ''
@@ -727,6 +741,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def updateStatus(self):
         self.drawer.graph.requestRemoteStatus()
+
+    def dropGraph(self):
+        self.drawer.graph.dropGraph()
+
+    def pushGraph(self):
+        self.drawer.graph.push2Runner()
 
     def killRunner(self):
         try:

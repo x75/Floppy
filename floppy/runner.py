@@ -27,7 +27,6 @@ class Runner(object):
 
     def __init__(self):
         self.conn = None
-        self.idMap = None
         self.nextNodePointer = None
         self.currentNodePointer = None
         self.lastNodePointer = None
@@ -62,20 +61,21 @@ class Runner(object):
                     self.recvall(sock, n, retry-1)
                 else:
                     self.conn , address = self.updateSocket.accept()
-                    return self.updateGraph('')
+                    return self.loadGraph('[]')
             data += packet
         return data
 
+    def loadGraph(self, data):
+        data = json.loads(data)
+
+        self.graphData = data
+        xLock.acquire()
+        if not self.cmdQueue.empty():
+            self.cmdQueue.get()
+        self.cmdQueue.put(ExecutionThread.loadGraph)
+        xLock.release()
+
     def updateGraph(self, data):
-        # if not self.conn:
-        #     self.conn , address = self.updateSocket.accept()
-        # import struct
-        #
-        # raw_msglen = self.recvall(self.conn, 4, 5)
-        # if not raw_msglen:
-        #     return None
-        # msglen = struct.unpack('>I', raw_msglen)[0]
-        # data = self.recvall(self.conn, msglen).decode('utf-8')
         data = json.loads(data)
 
         self.graphData = data
@@ -94,7 +94,7 @@ class Runner(object):
 
     def drop(self):
         self.pause()
-        self.updateGraph('[]')
+        self.loadGraph('[]')
 
     def kill(self):
         self.updateSocket.close()
@@ -122,7 +122,7 @@ class Runner(object):
         xLock.release()
 
     def updateStatus(self, ID):
-        nodeID = self.idMap[ID]
+        nodeID = ID
         self.status.append(nodeID)
 
     def getStatus(self):
@@ -130,9 +130,6 @@ class Runner(object):
         self.status = []
         return string
 
-    # def sendStatus(self, nodeID):
-    #     nodeID = self.idMap[nodeID]
-    #     self.conn.send(('#'+str(nodeID)).encode('utf-8'))
 
 
 class ExecutionThread(Thread):
@@ -182,12 +179,18 @@ class ExecutionThread(Thread):
         print('Stepping up.')
         self.executeGraphStepPar()
 
-    def updateGraph(self):
+    def loadGraph(self):
         from floppy.graph import Graph
         self.graph = Graph()
         # print(type(self.master.graph))
-        idMap = self.graph.loadState(self.master.graphData)
-        self.master.idMap = {value:key for key, value in idMap.items()}
+        self.graph.loadState(self.master.graphData)
+        #self.resetPointers()
+
+    def updateGraph(self):
+        from floppy.graph import Graph
+        # self.graph = Graph()
+        # print(type(self.master.graph))
+        self.graph.updateState(self.master.graphData)
         #self.resetPointers()
 
     def executeGraphStep(self):
@@ -336,6 +339,9 @@ class CommandProcessor(Thread):
                 elif message.startswith('UPDATE'):
                     self.send('Runner is updating.')
                     self.master.updateGraph(message[6:])
+                elif message.startswith('PUSH'):
+                    self.send('Accepted pushed Graph. Runner is updating.')
+                    self.master.loadGraph(message[4:])
                 elif message.startswith('DROP'):
                     self.send('Runner is dropping current graph.')
                     self.master.drop()
