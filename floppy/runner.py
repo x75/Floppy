@@ -92,6 +92,10 @@ class Runner(object):
         self.cmdQueue.put(ExecutionThread.pause)
         xLock.release()
 
+    def drop(self):
+        self.pause()
+        self.updateGraph('[]')
+
     def kill(self):
         self.updateSocket.close()
         xLock.acquire()
@@ -332,6 +336,9 @@ class CommandProcessor(Thread):
                 elif message.startswith('UPDATE'):
                     self.send('Runner is updating.')
                     self.master.updateGraph(message[6:])
+                elif message.startswith('DROP'):
+                    self.send('Runner is dropping current graph.')
+                    self.master.drop()
                 elif message.startswith('GOTO'):
                     nextID = int(message[4:])
                     self.send('Runner jumping to node {}.'.format(nextID))
