@@ -451,16 +451,26 @@ class Graph(object):
         return idMap
 
     def updateState(self, data):
+        """
+        Updates the current the Graph instance with the json representation of another, similar Graph instance.
+        New Node instances are created for Nodes in the json data that are not already present.
+        Also, all connections are removed and re-instanciated based on the provided json data.
+        :param data:
+        :return:
+        """
         self.connections = {key: set() for key in self.connections.keys()}
         self.reverseConnections = {key: set() for key in self.reverseConnections.keys()}
         idMap = {}
+        removeNodes = set(self.nodes.keys())
         for id, nodeData in data:
             idMap[int(id)] = int(id)
             if not int(id) in self.nodes.keys():
-                restoredNode = self.spawnNode(NODECLASSES[nodeData['class']], position=nodeData['position'], silent=True)
-                thisNode = restoredNode
+                restoredNode = self.spawnNode(NODECLASSES[nodeData['class']],
+                                              position=nodeData['position'], silent=True)
+                thisNode = removeNodes.remove()
             else:
                 thisNode = self.nodes[int(id)]
+            removeNodes.discard(thisNode.ID)
             inputs = nodeData['inputs']
             outputs = nodeData['outputs']
             for input in inputs:
@@ -485,7 +495,8 @@ class Graph(object):
                     inputNode = idMap[int(inputNode)]
                     # print(id, nodeData['inputConnections'], outputNode, outputName)
                     self.connect(str(idMap[id]), outputName, str(inputNode), inputName)
-
+        for nodeID in removeNodes:
+            self.deleteNode(self.nodes[nodeID])
         self.update()
         return idMap
 
