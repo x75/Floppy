@@ -50,10 +50,10 @@ class Graph(object):
         """
         if not self.runner:
             self.runner = Runner()
-        self.connect2RemoteRunner(host='127.0.0.1', port=7236)
+        self.connect2RemoteRunner(host='127.0.0.1', port=7234)
         self.slave = True
 
-    def connect2RemoteRunner(self, host='127.0.0.1', port=7236):
+    def connect2RemoteRunner(self, host='127.0.0.1', port=7234):
         self.cmdHost = host
         self.cmdPort = int(port)
         self.slave = False
@@ -467,7 +467,7 @@ class Graph(object):
             if not int(id) in self.nodes.keys():
                 restoredNode = self.spawnNode(NODECLASSES[nodeData['class']],
                                               position=nodeData['position'], silent=True)
-                thisNode = removeNodes.remove()
+                thisNode = restoredNode
             else:
                 thisNode = self.nodes[int(id)]
             removeNodes.discard(thisNode.ID)

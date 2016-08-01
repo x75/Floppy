@@ -16,9 +16,9 @@ import struct
 # host = '127.0.0.1'
 # host = '10.76.64.86'
 host = ''
-port = 7236
+port = 7234
 
-updatePort = 7237
+# updatePort = 7237
 
 xLock = Lock()
 
@@ -35,35 +35,35 @@ class Runner(object):
         self.listener = Listener(self)
         self.executionThread = ExecutionThread(self.cmdQueue, self)
 
-        self.updateSocket = socket(AF_INET, SOCK_STREAM)
-        self.updateSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-        self.updateSocket.bind((host, updatePort))
-        self.updateSocket.listen(1)
-        self.conn, self.clientAddress = None, None
+        # self.updateSocket = socket(AF_INET, SOCK_STREAM)
+        # self.updateSocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+        # self.updateSocket.bind((host, updatePort))
+        # self.updateSocket.listen(1)
+        # self.conn, self.clientAddress = None, None
         self.status = []
 
-    def __del__(self):
-        self.updateSocket.close()
+    # def __del__(self):
+    #     self.updateSocket.close()
 
     def resetPointers(self):
         self.nextNodePointer = None
         self.currentNodePointer = None
         self.lastNodePointer = None
 
-    def recvall(self, sock, n, retry=5):
-        # Helper function to recv n bytes or return None if EOF is hit
-        data = b''
-        while len(data) < n:
-            packet = sock.recv(n - len(data))
-            if not packet:
-                if retry>0:
-                    time.sleep(.1)
-                    self.recvall(sock, n, retry-1)
-                else:
-                    self.conn , address = self.updateSocket.accept()
-                    return self.loadGraph('[]')
-            data += packet
-        return data
+    # def recvall(self, sock, n, retry=5):
+    #     # Helper function to recv n bytes or return None if EOF is hit
+    #     data = b''
+    #     while len(data) < n:
+    #         packet = sock.recv(n - len(data))
+    #         if not packet:
+    #             if retry>0:
+    #                 time.sleep(.1)
+    #                 self.recvall(sock, n, retry-1)
+    #             else:
+    #                 self.conn , address = self.updateSocket.accept()
+    #                 return self.loadGraph('[]')
+    #         data += packet
+    #     return data
 
     def loadGraph(self, data):
         data = json.loads(data)
@@ -97,7 +97,7 @@ class Runner(object):
         self.loadGraph('[]')
 
     def kill(self):
-        self.updateSocket.close()
+        # self.updateSocket.close()
         xLock.acquire()
         if not self.cmdQueue.empty():
             self.cmdQueue.get()
@@ -161,6 +161,7 @@ class ExecutionThread(Thread):
 
                 # print(self.graph.nodes)
                 #print('Doing stuff.')
+                # self.executeGraphStep()
                 self.executeGraphStepPar()
             else:
                 time.sleep(.5)
@@ -177,6 +178,7 @@ class ExecutionThread(Thread):
 
     def step(self):
         print('Stepping up.')
+        # self.executeGraphStep()
         self.executeGraphStepPar()
 
     def loadGraph(self):
@@ -235,13 +237,14 @@ class ExecutionThread(Thread):
                 checked = node.check()
                 running = checked if not running else True
                 if checked and not node.locked:
-                    readyNodes.append(node)
                     node.lock()
+                    readyNodes.append(node)
+            # print([str(node) for node in readyNodes])
             for node in readyNodes:
                 self.graph.runNodePar(node, cb=self.master.updateStatus, arg=node.ID)
             if not running:
                 print('Nothing to do here @ {}'.format(time.time()))
-                time.sleep(.5)
+                time.sleep(.1)
 
     def execute(self):
         """
@@ -315,7 +318,6 @@ class CommandProcessor(Thread):
     def send(self, message):
         msg = struct.pack('>I', len(message)) + message.encode('utf-8')
         self.cSocket.sendall(msg)
-        # return '[ANSWER]  '+self.cSocket.recv(1024).decode()
 
     def run(self):
         while True:
@@ -417,7 +419,12 @@ class RGIConnection(object):
         return answer
 
     def _recvall(self, sock, n,):
-        # Helper function to recv n bytes or return None if EOF is hit
+        """
+        Helper function to recv n bytes or return None if EOF is hit
+        :param sock:
+        :param n:
+        :return:
+        """
         data = b''
         while len(data) < n:
             packet = sock.recv(n - len(data))

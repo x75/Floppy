@@ -63,7 +63,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.HorizontalSplitter, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralWidget)
         self.menuBar = QtWidgets.QMenuBar(MainWindow)
-        self.menuBar.setStyleSheet('''QMenuBar{background: rgb(95,95,95); border-color: black}
+        self.menuBar.setStyleSheet('''QMenuBar{background: rgb(75,75,75); border-color: black}
 
         QMenuBar::item {spacing: 3px; padding: 1px 4px;background: transparent; border-radius: 4px; color: white}
         QMenuBar::item:selected { /* when selected using mouse or keyboard */
@@ -90,7 +90,7 @@ class Ui_MainWindow(object):
         MainWindow.setMenuBar(self.menuBar)
         self.mainToolBar = QtWidgets.QToolBar(MainWindow)
         self.mainToolBar.setStyleSheet('''
-        QToolBar {background: rgb(95,95,95)}
+        QToolBar {background: rgb(75,75,75); border:1px solid rgb(55,55,55)}
         QToolButton { color: white }
         ''')
         self.mainToolBar.setObjectName("mainToolBar")

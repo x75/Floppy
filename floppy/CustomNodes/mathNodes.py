@@ -6,6 +6,7 @@ def norm(v: list):
     d = (v[0]**2 + v[1]**2 + v[2]**2)**.5
     return [v[0]/d, v[1]/d, v[2]/d]
 
+
 @abstractNode
 class MathNode(Node):
     Tag('Math')

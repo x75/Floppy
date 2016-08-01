@@ -49,6 +49,11 @@ class BreakAtom(CrystNode):
         self._ADP_Flag(atom.adp['flag'])
         self._Cell(atom.molecule.get_cell(degree=True))
 
+    # def check(self):
+    #     for inp in self.inputs.values():
+    #         print(inp.value)
+    #     return super(BreakAtom, self).check()
+
 
 class Frac2Cart(CrystNode):
     Input('Position', float, list=True)

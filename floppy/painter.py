@@ -707,7 +707,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         while not text:
             text, ok = QInputDialog.getItem(self, 'Connect to remote Interpreter',
                                             'IP Address/Port: (xxx.xxx.xxx:Port)',
-                                            ['127.0.0.1:7237'])
+                                            ['127.0.0.1:7236'])
             if not ok:
                 return
         if not ':' in text:

@@ -55,6 +55,8 @@ class Info(object):
         self.select = select
         self.owner = owner
         self.list = list
+        self.looped = False
+        self.usedDefault = False
 
     def setOwner(self, owner):
         self.owner = owner
@@ -79,7 +81,10 @@ class Info(object):
     def __str__(self):
         return 'INFO'
 
-    def reset(self):
+    def reset(self, loopedNode=False, force=False):
+        if loopedNode and not self.looped and not force:
+            print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', str(self.owner), self.name)
+            return
         self.default = None
         self.valueSet = False
         self.value = None
@@ -108,21 +113,26 @@ class InputInfo(Info):
             if noException:
                 return None
             else:
+                print('@@@@@@@@@@@@@@', self.name, self.value, self.valueSet)
                 raise InputNotAvailable('Input not set for node.')
 
-    def set(self, value, override=False):
+    def set(self, value, override=False, looped=False):
         if self.valueSet and not override:
             raise InputAlreadySet('Input \'{}\' of node \'{}\' is already set.'.format(self.name, str(self.owner)))
         self.value = value
         self.valueSet = True
+        self.looped = looped
 
     def setConnected(self, value: bool):
         self.connected = value
 
     def isAvailable(self):
         if self.valueSet:
+            # print('^^^^^^^^^^^^^^^^^^', self.name, self.value, self.valueSet)
             return True
-        elif self.default != None and not self.connected:
+        elif self.default != None and not self.connected and not self.usedDefault:
+            self.usedDefault = True
+            print('+++++++++++++++++', self.name, self.value, self.valueSet)
             return True
         return False
 
@@ -233,6 +243,7 @@ class Node(object, metaclass=MetaNode):
     Tag('Node')
 
     def __init__(self, nodeID, graph):
+        self.looped = False
         self.__pos__ = (0, 0)
         self.graph = graph
         self.locked = False
@@ -277,6 +288,7 @@ class Node(object, metaclass=MetaNode):
         :rtype: None
         """
         print('Executing node {}'.format(self))
+        print('{} is looped ='.format(str(self)), self.looped)
 
     def notify(self):
         """
@@ -290,21 +302,25 @@ class Node(object, metaclass=MetaNode):
             nextInput = con['inputName']
             # nextNode.prepare()
             if self.outputs[outputName].valueSet:
-                nextNode.setInput(nextInput, self.outputs[outputName].value, override=True)
+                nextNode.setInput(nextInput, self.outputs[outputName].value, override=True, looped=self.looped)
             else:
-                nextNode.setInput(nextInput, self.outputs[outputName].default, override=True)
+                nextNode.setInput(nextInput, self.outputs[outputName].default, override=True, looped=self.looped)
 
-        [Info.reset(inp) for inp in self.inputs.values()]
+        [Info.reset(inp, self.looped) for inp in self.inputs.values()]
 
-    def setInput(self, inputName, value, override=False):
+    def setInput(self, inputName, value, override=False, looped=False):
         """
         Sets the value of an input.
         :param inputName: str representing the name of the input.
         :param value: object of the appropriate type for that input.
         :param override: boolean specifying whether the input should be overridden if it was set already.
+        :param looped: boolean. Set to True if the input is set by a looped node. If True, the node becomes a looped
+        node itself. Defaults to False.
         :return: None
         """
-        self.inputs[inputName].set(value, override=override)
+        self.looped = any([self.looped, looped])
+        self.inputs[inputName].set(value, override=override, looped=looped)
+        # print('%%%%%%%%%%%%%%%%', str(self), inputName, value)
 
     def check(self) -> bool:
         """
@@ -314,10 +330,13 @@ class Node(object, metaclass=MetaNode):
         :return: Boolean; True if ready, False if not ready.
         :rtype: bool
         """
+        if self.locked:
+            return False
         for inp in self.inputs.values():
             if not inp.isAvailable():
                 # print('        {}: Prerequisites not met.'.format(str(self)))
                 return False
+        # print('        {}: ready.'.format(str(self)))
         return True
 
     # def prepare(self):
@@ -571,6 +590,7 @@ class Loop(ControlNode):
         super(ControlNode, self).__init__(*args, **kwargs)
         self.fresh = True
         self.counter = 0
+        self.looped = True
 
     # def prepare(self):
     #     pass
@@ -609,7 +629,7 @@ class Loop(ControlNode):
                 nextNode = con['inputNode']
                 nextInput = con['inputName']
                 # nextNode.prepare()
-                nextNode.setInput(nextInput, self.outputs[outputName].value, override=True)
+                nextNode.setInput(nextInput, self.outputs[outputName].value, override=True, looped=self.looped)
             self.inputs['Control'].reset()
 
         else:
@@ -638,7 +658,7 @@ class WaitAll(Node):
 
     def notify(self):
         super(WaitAll, self).notify()
-        [inp.reset() for inp in self.inputs.values()]
+        [inp.reset(self.looped) for inp in self.inputs.values()]
 
 
 class WaitAny(WaitAll):
@@ -676,12 +696,13 @@ class TestNode(Node):
     def run(self):
         super(TestNode, self).run()
         import time
-        time.sleep(self.ID/50.)
+        time.sleep(self.ID/2000.)
         self._strOutput('')
 
 
 class FinalTestNode(TestNode):
-    pass
+    def run(self):
+        super(FinalTestNode, self).run()
 
 
 class TestNode2(Node):
@@ -745,6 +766,11 @@ class ForEach(ControlNode):
         self.fresh = True
         self.counter = 0
         self.done = False
+        self.looped = False
+
+    def setInput(self, inputName, value, override=False, looped=False):
+        super(ForEach, self).setInput(inputName, value, override, looped)
+        # print('                                   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
 
     def check(self):
         if self.fresh:
@@ -777,8 +803,8 @@ class ForEach(ControlNode):
                 nextNode = con['inputNode']
                 nextInput = con['inputName']
                 # nextNode.prepare()
-                nextNode.setInput(nextInput, self.outputs[outputName].value, override=True)
-            self.inputs['Control'].reset()
+                nextNode.setInput(nextInput, self.outputs[outputName].value, override=True, looped=True)
+            self.inputs['Control'].reset(force=True)
 
         else:
             output = self.outputs['Final']
@@ -786,7 +812,7 @@ class ForEach(ControlNode):
                 outputName = con['outputName']
                 nextNode = con['inputNode']
                 nextInput = con['inputName']
-                nextNode.setInput(nextInput, self.outputs[outputName].value)
+                nextNode.setInput(nextInput, self.outputs[outputName].value, looped=self.looped)
             # self.prepare()
             self.fresh = True
             for inp in self.inputs.values():
