@@ -770,7 +770,9 @@ class ForEach(ControlNode):
         self.loopLevel = 0
 
     def setInput(self, inputName, value, override=False, loopLevel=0):
-        super(ForEach, self).setInput(inputName, value, override, self.loopLevel)
+        if inputName == 'Control':
+            loopLevel = self.loopLevel
+        super(ForEach, self).setInput(inputName, value, override, loopLevel)
         # print('                                   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
 
     def check(self):
