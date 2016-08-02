@@ -579,74 +579,74 @@ class SwitchNode(ControlNode):
             self.fresh = True
         self.inputs['Control'].reset()
 
-
-class Loop(ControlNode):
-    """
-    Generic loop node that iterates over a range(x: int)-like expression.
-    """
-    Input('Iterations', int)
-    Output('LoopBody', object)
-
-    def __init__(self, *args, **kwargs):
-        super(ControlNode, self).__init__(*args, **kwargs)
-        self.fresh = True
-        self.counter = 0
-        self.loopLevel = 0
-
-    # def prepare(self):
-    #     pass
-
-    def check(self):
-        if self.fresh:
-            for inp in self.inputs.values():
-                if inp.name == 'Control':
-                    continue
-                if not inp.isAvailable():
-                    # print('        {}: Prerequisites not met.'.format(str(self)))
-                    return False
-            return True
-        if self.counter > 0:
-            if self.inputs['Control'].isAvailable():
-                return True
-
-    def run(self):
-        print('Executing node {}'.format(self))
-        if self.fresh:
-            self.counter = self._Iterations
-            self._LoopBody(self._Start)
-            self.fresh = False
-        elif self.counter == 0:
-            self._Final(self._Control)
-        else:
-            self.counter -= 1
-            self._LoopBody(self._Control)
-
-
-    def notify(self):
-        if self.counter > 0:
-            output = self.outputs['LoopBody']
-            for con in self.graph.getConnectionsOfOutput(output):
-                outputName = con['outputName']
-                nextNode = con['inputNode']
-                nextInput = con['inputName']
-                # nextNode.prepare()
-                nextNode.setInput(nextInput, self.outputs[outputName].value, override=True, loopLevel=self.loopLevel)
-            self.inputs['Control'].reset()
-
-        else:
-            output = self.outputs['Final']
-            for con in self.graph.getConnectionsOfOutput(output):
-                outputName = con['outputName']
-                nextNode = con['inputNode']
-                nextInput = con['inputName']
-                nextNode.setInput(nextInput, self.outputs[outputName].value)
-            # self.prepare()
-            self.fresh = True
-            for inp in self.inputs.values():
-                if not inp.name == 'Iterations':
-                    inp.reset()
-        # print(self.inProgress)
-        # exit()
+#
+# class Loop(ControlNode):
+#     """
+#     Generic loop node that iterates over a range(x: int)-like expression.
+#     """
+#     Input('Iterations', int)
+#     Output('LoopBody', object)
+#
+#     def __init__(self, *args, **kwargs):
+#         super(ControlNode, self).__init__(*args, **kwargs)
+#         self.fresh = True
+#         self.counter = 0
+#         self.loopLevel = 0
+#
+#     # def prepare(self):
+#     #     pass
+#
+#     def check(self):
+#         if self.fresh:
+#             for inp in self.inputs.values():
+#                 if inp.name == 'Control':
+#                     continue
+#                 if not inp.isAvailable():
+#                     # print('        {}: Prerequisites not met.'.format(str(self)))
+#                     return False
+#             return True
+#         if self.counter > 0:
+#             if self.inputs['Control'].isAvailable():
+#                 return True
+#
+#     def run(self):
+#         print('Executing node {}'.format(self))
+#         if self.fresh:
+#             self.counter = self._Iterations
+#             self._LoopBody(self._Start)
+#             self.fresh = False
+#         elif self.counter == 0:
+#             self._Final(self._Control)
+#         else:
+#             self.counter -= 1
+#             self._LoopBody(self._Control)
+#
+#
+#     def notify(self):
+#         if self.counter > 0:
+#             output = self.outputs['LoopBody']
+#             for con in self.graph.getConnectionsOfOutput(output):
+#                 outputName = con['outputName']
+#                 nextNode = con['inputNode']
+#                 nextInput = con['inputName']
+#                 # nextNode.prepare()
+#                 nextNode.setInput(nextInput, self.outputs[outputName].value, override=True, loopLevel=self.loopLevel+1)
+#             self.inputs['Control'].reset()
+#
+#         else:
+#             output = self.outputs['Final']
+#             for con in self.graph.getConnectionsOfOutput(output):
+#                 outputName = con['outputName']
+#                 nextNode = con['inputNode']
+#                 nextInput = con['inputName']
+#                 nextNode.setInput(nextInput, self.outputs[outputName].value, loopLevel=self.loopLevel)
+#             # self.prepare()
+#             self.fresh = True
+#             for inp in self.inputs.values():
+#                 if not inp.name == 'Iterations':
+#                     inp.reset()
+#         # print(self.inProgress)
+#         # exit()
 
 
 class WaitAll(Node):

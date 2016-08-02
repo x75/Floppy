@@ -791,8 +791,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         fileName = QFileDialog.getOpenFileName(self, 'Open File', '~/',
                                                filter='Floppy Files (*.ppy);; Any (*.*)')[0]
         if fileName:
-            self.drawer.graph.load(fileName)
+            self.drawer.graph.load(fileName, callback=self.raiseErrorMessage)
             self.statusBar.showMessage('Graph loaded from {}.'.format(fileName), 2000)
+
+    def raiseErrorMessage(self, message):
+        err = QErrorMessage(self)
+        err.showMessage(message)
 
     def saveGraph(self, *args):
         """

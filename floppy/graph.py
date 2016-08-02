@@ -406,13 +406,13 @@ class Graph(object):
         else:
             return []
 
-    def load(self, fileName):
+    def load(self, fileName, callback=None):
         with open(fileName, 'r') as fp:
             saveState = json.loads(fp.read())
-        self.loadState(saveState)
+        self.loadState(saveState, callback)
         # self.loadDict(saveState)
 
-    def loadState(self, saveState):
+    def loadState(self, saveState, callback=None):
         """
         Reconstruct a Graph instance from a JSON string representation created by the Graph.toJson() method.
         :param saveState:
@@ -420,7 +420,14 @@ class Graph(object):
         """
         idMap = {}
         for id, nodeData in saveState:
-            restoredNode = self.spawnNode(NODECLASSES[nodeData['class']], position=nodeData['position'], silent=True)
+            try:
+                restoredNode = self.spawnNode(NODECLASSES[nodeData['class']], position=nodeData['position'], silent=True)
+            except KeyError:
+                if callback:
+                    callback('Unknown Node class **{}**'.format(nodeData['class']))
+                else:
+                    raise Exception('Unknown Node class <{}>.'.format(nodeData['class']))
+                continue
             idMap[int(id)] = restoredNode.ID
             inputs = nodeData['inputs']
             outputs = nodeData['outputs']
@@ -434,18 +441,25 @@ class Graph(object):
                 if inputName == 'Control':
                     continue
                 outputNode, outputName = outputID.split(':O')
-                outputNode = idMap[int(outputNode)]
+                try:
+                    outputNode = idMap[int(outputNode)]
                 # print(id, nodeData['inputConnections'], outputNode, outputName)
-                self.connect(str(outputNode), outputName, str(idMap[id]), inputName)
+
+                    self.connect(str(outputNode), outputName, str(idMap[id]), inputName)
+                except KeyError:
+                    print('Warning: Could not create connection due to missing node.')
 
             for outputName, inputIDs in nodeData['outputConnections'].items():
                 for inputID in inputIDs:
                     if not 'Control' in inputID:
                         continue
                     inputNode, inputName = inputID.split(':I')
-                    inputNode = idMap[int(inputNode)]
+                    try:
+                        inputNode = idMap[int(inputNode)]
                     # print(id, nodeData['inputConnections'], outputNode, outputName)
-                    self.connect(str(idMap[id]), outputName, str(inputNode), inputName)
+                        self.connect(str(idMap[id]), outputName, str(inputNode), inputName)
+                    except KeyError:
+                        print('Warning: Could not create connection due to missing node.')
 
         self.update()
         return idMap
