@@ -249,8 +249,10 @@ class Node(object, metaclass=MetaNode):
         self.graph = graph
         self.locked = False
         self.ID = nodeID
+        self.buffered = False
         self.inputs = OrderedDict()
         self.outputs = OrderedDict()
+        self.outputBuffer = {}
         self.inputPins = OrderedDict()
         self.outputPins = OrderedDict()
         for i, inp in enumerate(self.__inputs__.values()):
@@ -268,6 +270,7 @@ class Node(object, metaclass=MetaNode):
             newPin = Pin(outID, out, self)
             self.outputPins[out.name] = newPin
             self.outputs[out.name] = out
+            self.outputBuffer[out.name] = None
         if not self.inputs.keys():
             raise AttributeError('Nodes without any input are not valid.')
 
@@ -298,6 +301,7 @@ class Node(object, metaclass=MetaNode):
         :rtype: None
         """
         for con in self.graph.getConnectionsFrom(self):
+            self.buffered = False
             outputName = con['outputName']
             nextNode = con['inputNode']
             nextInput = con['inputName']
@@ -306,7 +310,10 @@ class Node(object, metaclass=MetaNode):
                 nextNode.setInput(nextInput, self.outputs[outputName].value, override=True, loopLevel=self.loopLevel)
             else:
                 nextNode.setInput(nextInput, self.outputs[outputName].default, override=True, loopLevel=self.loopLevel)
-
+        if not self.graph.getConnectionsFrom(self):
+            self.buffered = True
+            for out in self.outputs.values():
+                self.outputBuffer[out.name] = out.value
         [Info.reset(inp, self.loopLevel) for inp in self.inputs.values()]
 
     def setInput(self, inputName, value, override=False, loopLevel=False):
@@ -333,6 +340,9 @@ class Node(object, metaclass=MetaNode):
         """
         if self.locked:
             return False
+        if self.buffered:
+            print('Node {} has buffered output. Trying to notify outgoing connections.'.format(self))
+            return self.notify()
         for inp in self.inputs.values():
             if not inp.isAvailable():
                 # print('        {}: Prerequisites not met.'.format(str(self)))
