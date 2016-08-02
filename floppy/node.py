@@ -55,7 +55,7 @@ class Info(object):
         self.select = select
         self.owner = owner
         self.list = list
-        self.looped = False
+        self.loopLevel = 0
         self.usedDefault = False
 
     def setOwner(self, owner):
@@ -81,9 +81,10 @@ class Info(object):
     def __str__(self):
         return 'INFO'
 
-    def reset(self, loopedNode=False, force=False):
-        if loopedNode and not self.looped and not force:
-            print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', str(self.owner), self.name)
+    def reset(self, nodeLoopLevel=0, force=False):
+        if nodeLoopLevel > self.loopLevel and not force:
+            print('Not resetting Input {} because owing node has higher node\n'
+                  'level than the node setting the Input: {}vs.{}'.format(self.name, nodeLoopLevel, self.loopLevel))
             return
         self.default = None
         self.valueSet = False
@@ -113,15 +114,15 @@ class InputInfo(Info):
             if noException:
                 return None
             else:
-                print('@@@@@@@@@@@@@@', self.name, self.value, self.valueSet)
                 raise InputNotAvailable('Input not set for node.')
 
-    def set(self, value, override=False, looped=False):
+    def set(self, value, override=False, loopLevel=0):
         if self.valueSet and not override:
             raise InputAlreadySet('Input \'{}\' of node \'{}\' is already set.'.format(self.name, str(self.owner)))
         self.value = value
         self.valueSet = True
-        self.looped = looped
+        if not self.name == 'Control':
+            self.loopLevel = loopLevel
 
     def setConnected(self, value: bool):
         self.connected = value
@@ -243,7 +244,7 @@ class Node(object, metaclass=MetaNode):
     Tag('Node')
 
     def __init__(self, nodeID, graph):
-        self.looped = False
+        self.loopLevel = 0
         self.__pos__ = (0, 0)
         self.graph = graph
         self.locked = False
@@ -287,8 +288,8 @@ class Node(object, metaclass=MetaNode):
         Execute the node. Override this to implement logic.
         :rtype: None
         """
-        print('Executing node {}'.format(self))
-        print('{} is looped ='.format(str(self)), self.looped)
+        print('===============\nExecuting node {}'.format(self))
+        print('{} is loopLevel ='.format(str(self)), self.loopLevel,'\n================')
 
     def notify(self):
         """
@@ -302,13 +303,13 @@ class Node(object, metaclass=MetaNode):
             nextInput = con['inputName']
             # nextNode.prepare()
             if self.outputs[outputName].valueSet:
-                nextNode.setInput(nextInput, self.outputs[outputName].value, override=True, looped=self.looped)
+                nextNode.setInput(nextInput, self.outputs[outputName].value, override=True, loopLevel=self.loopLevel)
             else:
-                nextNode.setInput(nextInput, self.outputs[outputName].default, override=True, looped=self.looped)
+                nextNode.setInput(nextInput, self.outputs[outputName].default, override=True, loopLevel=self.loopLevel)
 
-        [Info.reset(inp, self.looped) for inp in self.inputs.values()]
+        [Info.reset(inp, self.loopLevel) for inp in self.inputs.values()]
 
-    def setInput(self, inputName, value, override=False, looped=False):
+    def setInput(self, inputName, value, override=False, loopLevel=False):
         """
         Sets the value of an input.
         :param inputName: str representing the name of the input.
@@ -318,8 +319,8 @@ class Node(object, metaclass=MetaNode):
         node itself. Defaults to False.
         :return: None
         """
-        self.looped = any([self.looped, looped])
-        self.inputs[inputName].set(value, override=override, looped=looped)
+        self.loopLevel = max([self.loopLevel, loopLevel])
+        self.inputs[inputName].set(value, override=override, loopLevel=loopLevel)
         # print('%%%%%%%%%%%%%%%%', str(self), inputName, value)
 
     def check(self) -> bool:
@@ -590,7 +591,7 @@ class Loop(ControlNode):
         super(ControlNode, self).__init__(*args, **kwargs)
         self.fresh = True
         self.counter = 0
-        self.looped = True
+        self.loopLevel = 0
 
     # def prepare(self):
     #     pass
@@ -629,7 +630,7 @@ class Loop(ControlNode):
                 nextNode = con['inputNode']
                 nextInput = con['inputName']
                 # nextNode.prepare()
-                nextNode.setInput(nextInput, self.outputs[outputName].value, override=True, looped=self.looped)
+                nextNode.setInput(nextInput, self.outputs[outputName].value, override=True, loopLevel=self.loopLevel)
             self.inputs['Control'].reset()
 
         else:
@@ -658,7 +659,7 @@ class WaitAll(Node):
 
     def notify(self):
         super(WaitAll, self).notify()
-        [inp.reset(self.looped) for inp in self.inputs.values()]
+        [inp.reset(self.loopLevel) for inp in self.inputs.values()]
 
 
 class WaitAny(WaitAll):
@@ -766,10 +767,10 @@ class ForEach(ControlNode):
         self.fresh = True
         self.counter = 0
         self.done = False
-        self.looped = False
+        self.loopLevel = 0
 
-    def setInput(self, inputName, value, override=False, looped=False):
-        super(ForEach, self).setInput(inputName, value, override, looped)
+    def setInput(self, inputName, value, override=False, loopLevel=0):
+        super(ForEach, self).setInput(inputName, value, override, self.loopLevel)
         # print('                                   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
 
     def check(self):
@@ -803,7 +804,7 @@ class ForEach(ControlNode):
                 nextNode = con['inputNode']
                 nextInput = con['inputName']
                 # nextNode.prepare()
-                nextNode.setInput(nextInput, self.outputs[outputName].value, override=True, looped=True)
+                nextNode.setInput(nextInput, self.outputs[outputName].value, override=True, loopLevel=self.loopLevel+1)
             self.inputs['Control'].reset(force=True)
 
         else:
@@ -812,7 +813,7 @@ class ForEach(ControlNode):
                 outputName = con['outputName']
                 nextNode = con['inputNode']
                 nextInput = con['inputName']
-                nextNode.setInput(nextInput, self.outputs[outputName].value, looped=self.looped)
+                nextNode.setInput(nextInput, self.outputs[outputName].value, loopLevel=self.loopLevel)
             # self.prepare()
             self.fresh = True
             for inp in self.inputs.values():
@@ -879,7 +880,14 @@ class DebugPrint(DebugNode):
         self._Out(obj)
 
 
+class Join(Node):
+    Input('Str1', str)
+    Input('Str2', str)
+    Output('Joined', str)
 
+    def run(self):
+        super(Join, self).run()
+        self._Joined(''.join([self._Str1, self._Str2]))
 
 
 # TODO Cleanup this mess. Prepare method and probably a lot of other stuff is no longer needed.

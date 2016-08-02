@@ -154,7 +154,7 @@ class ExecutionThread(Thread):
             if cmd:
                 cmd(self)
             if self.paused:
-                print('Sleeping')
+                # print('Sleeping')
                 time.sleep(1)
                 continue
             if self.alive and self.graph:
@@ -178,8 +178,8 @@ class ExecutionThread(Thread):
 
     def step(self):
         print('Stepping up.')
-        # self.executeGraphStep()
-        self.executeGraphStepPar()
+        self.executeGraphStep()
+        # self.executeGraphStepPar()
 
     def loadGraph(self):
         from floppy.graph import Graph

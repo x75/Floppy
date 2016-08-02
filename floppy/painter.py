@@ -571,6 +571,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.setupNodeLib()
         # self.drawer.graph.spawnAndConnect()
+        self.connectHint = '127.0.0.1:7234'
 
     def initActions(self):
         self.exitAction = QAction('Quit', self)
@@ -707,7 +708,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         while not text:
             text, ok = QInputDialog.getItem(self, 'Connect to remote Interpreter',
                                             'IP Address/Port: (xxx.xxx.xxx:Port)',
-                                            ['127.0.0.1:7236'])
+                                            [self.connectHint])
             if not ok:
                 return
         if not ':' in text:
@@ -720,6 +721,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     return
         else:
             ip, port = text.split(':')
+        self.connectHint = text
         import socket
         try:
             self.drawer.graph.connect2RemoteRunner(ip, port)
