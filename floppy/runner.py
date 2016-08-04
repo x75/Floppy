@@ -26,6 +26,8 @@ xLock = Lock()
 class Runner(object):
 
     def __init__(self):
+        self.status = []
+        self.runningNodes = []
         self.conn = None
         self.nextNodePointer = None
         self.currentNodePointer = None
@@ -40,7 +42,7 @@ class Runner(object):
         # self.updateSocket.bind((host, updatePort))
         # self.updateSocket.listen(1)
         # self.conn, self.clientAddress = None, None
-        self.status = []
+
 
     # def __del__(self):
     #     self.updateSocket.close()
@@ -123,12 +125,17 @@ class Runner(object):
 
     def updateStatus(self, ID):
         nodeID = ID
-        self.status.append(nodeID)
+        self.status.append((nodeID, '{:12.1f}'.format(time.time())))
+
+    def updateRunningNodes(self, running):
+        self.runningNodes = running
 
     def getStatus(self):
-        string = '#'.join([str(i) for i in self.status])
+        # string = '#'.join([str(i) for i in self.status])
+        state = json.dumps({'ran': self.status,
+                            'running': self.runningNodes})
         self.status = []
-        return string
+        return state
 
 
 
@@ -163,6 +170,7 @@ class ExecutionThread(Thread):
                 #print('Doing stuff.')
                 # self.executeGraphStep()
                 self.executeGraphStepPar()
+                self.master.updateRunningNodes(self.graph.runningNodes)
             else:
                 time.sleep(.5)
         print('That\'s it. I\'m dead.')
@@ -179,6 +187,7 @@ class ExecutionThread(Thread):
     def step(self):
         print('Stepping up.')
         self.executeGraphStep()
+        self.master.updateRunningNodes(self.graph.runningNodes)
         # self.executeGraphStepPar()
 
     def loadGraph(self):
@@ -398,7 +407,6 @@ class RGIConnection(object):
         self.socket.connect((host, port))
         if validate:
             print(self.send('READY?'))
-
 
     def disconnect(self):
         self.socket.close()

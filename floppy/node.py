@@ -285,6 +285,7 @@ class Node(object, metaclass=MetaNode):
 
     def unlock(self):
         self.locked = False
+        self.graph.runningNodes.remove(self.ID)
 
     def run(self) -> None:
         """

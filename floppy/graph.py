@@ -29,6 +29,7 @@ class Graph(object):
         self.slave = False
         self._requestUpdate = False
         self.executedBuffer = []
+        self.runningNodes = []
         self.statusLock = None
         self.connected = False
         self.nextFreeNodeID = 0
@@ -268,7 +269,7 @@ class Graph(object):
                     node.notify()
 
     def runNodePar(self, node, cb=None, arg=None):
-        # node.lock()
+        self.runningNodes.append(node.ID)
         t = NodeThread(node, cb, arg)
         # t.join()
 
@@ -394,6 +395,8 @@ class Graph(object):
         if self.connected:
             try:
                 status = self.rgiConnection.send('STATUS')
+                print(status)
+                return []
             except BrokenPipeError:
                 self.connected = False
                 return []
