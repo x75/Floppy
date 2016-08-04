@@ -96,7 +96,7 @@ class Graph(object):
             self._requestUpdate = False
             return True
 
-    def spawnNode(self, nodeClass, connections=None, position=(0, 0), silent=False):
+    def spawnNode(self, nodeClass, connections=None, position=(0, 0), silent=False, useID=False):
         """
         Spawns a new node of a given class at a given position with optional connections to other nodes.
         :param nodeClass: subclass object of 'Node'.
@@ -108,6 +108,8 @@ class Graph(object):
         """
         # nodeClass = self.decorator(nodeClass, position)
         newNode = nodeClass(self.newID, self)
+        if useID:
+            newNode.ID = useID
         self.reverseConnections[newNode] = set()
         self.connections[newNode] = set()
         if connections:
@@ -412,7 +414,7 @@ class Graph(object):
         self.loadState(saveState, callback)
         # self.loadDict(saveState)
 
-    def loadState(self, saveState, callback=None):
+    def loadState(self, saveState, callback=None, reuseIDs=False):
         """
         Reconstruct a Graph instance from a JSON string representation created by the Graph.toJson() method.
         :param saveState:
@@ -420,8 +422,9 @@ class Graph(object):
         """
         idMap = {}
         for id, nodeData in saveState:
+            useID = id if reuseIDs else False
             try:
-                restoredNode = self.spawnNode(NODECLASSES[nodeData['class']], position=nodeData['position'], silent=True)
+                restoredNode = self.spawnNode(NODECLASSES[nodeData['class']], position=nodeData['position'], silent=True, useID=useID)
             except KeyError:
                 if callback:
                     callback('Unknown Node class **{}**'.format(nodeData['class']))
@@ -464,7 +467,7 @@ class Graph(object):
         self.update()
         return idMap
 
-    def updateState(self, data):
+    def updateState(self, data, reuseIDs=False):
         """
         Updates the current the Graph instance with the json representation of another, similar Graph instance.
         New Node instances are created for Nodes in the json data that are not already present.
@@ -477,10 +480,11 @@ class Graph(object):
         idMap = {}
         removeNodes = set(self.nodes.keys())
         for id, nodeData in data:
+            useID = id if reuseIDs else False
             idMap[int(id)] = int(id)
             if not int(id) in self.nodes.keys():
                 restoredNode = self.spawnNode(NODECLASSES[nodeData['class']],
-                                              position=nodeData['position'], silent=True)
+                                              position=nodeData['position'], silent=True, useID=useID)
                 thisNode = restoredNode
             else:
                 thisNode = self.nodes[int(id)]

@@ -185,14 +185,14 @@ class ExecutionThread(Thread):
         from floppy.graph import Graph
         self.graph = Graph()
         # print(type(self.master.graph))
-        self.graph.loadState(self.master.graphData)
+        self.graph.loadState(self.master.graphData, reuseIDs=True)
         #self.resetPointers()
 
     def updateGraph(self):
         from floppy.graph import Graph
         # self.graph = Graph()
         # print(type(self.master.graph))
-        self.graph.updateState(self.master.graphData)
+        self.graph.updateState(self.master.graphData, reuseIDs=True)
         #self.resetPointers()
 
     def executeGraphStep(self):
