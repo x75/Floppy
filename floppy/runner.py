@@ -125,15 +125,15 @@ class Runner(object):
 
     def updateStatus(self, ID):
         nodeID = ID
-        self.status.append((nodeID, '{:12.1f}'.format(time.time())))
+        self.status.append((nodeID, time.time()))# '{:12.1f}'.format(time.time())))
 
     def updateRunningNodes(self, running):
         self.runningNodes = running
 
     def getStatus(self):
         # string = '#'.join([str(i) for i in self.status])
-        state = json.dumps({'ran': self.status,
-                            'running': self.runningNodes})
+        state = {'ran': self.status,
+                            'running': self.runningNodes}
         self.status = []
         return state
 
@@ -363,9 +363,13 @@ class CommandProcessor(Thread):
                 elif message == 'STEP':
                     self.send('Runner is performing one step.')
                     self.master.step()
-                elif message == 'STATUS':
+                elif message.startswith('STATUS'):
+                    reportNode = message.split('***')[-1]
+                    report = ''
+                    if reportNode:
+                        report = 1
                     status = self.master.getStatus()
-                    self.send(status)
+                    self.send(json.dumps({'STATUS': status, 'REPORT': report}))
                 else:
                     self.send('Command \'{}...\' not understood.'.format(message[:50]))
 

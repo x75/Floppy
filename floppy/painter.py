@@ -1,4 +1,5 @@
 import os
+import time
 from floppy.node import InputNotAvailable, ControlNode
 from floppy.mainwindow import Ui_MainWindow
 from floppy.nodeLib import ContextNodeFilter, ContextNodeList
@@ -7,6 +8,7 @@ from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtGui import *
 from PyQt5.Qt import QTimer
 import platform
+
 TEXTYOFFSET = 0
 LINEEDITFONTSIZE = 8
 if platform.system() is 'Windows':
@@ -238,7 +240,8 @@ class Painter2D(Painter):
         #painter.translate(self.width()/2., self.height()/2.)
         painter.setRenderHint(QPainter.HighQualityAntialiasing)
         # painter.drawEllipse(QPoint(0,0),5,5)
-        history = self.graph.getExecutionHistory()
+        history, last = self.graph.getExecutionHistory()
+        running = self.graph.getRunningNodes()
         for j, node in enumerate(self.nodes):
             j *= 3
             j += 1
@@ -249,12 +252,18 @@ class Painter2D(Painter):
                 # pen.setColor(Qt.green)
                 painter.setBrush(QColor(75, 75, 75))
             elif node.ID in history:
-                if node.ID == history[-1]:
-                    pen.setColor(QColor(175,175,175))
-                    # painter.setBrush(QColor(255, 75, 75))
+                # if node.ID in history:
+                #     pen.setColor(QColor(175,175,175))
+                # else:
+                #     pen.setColor(QColor(125, 125, 125))
+                if node.ID == last[0]:
+                    pen.setColor(Qt.white)
                 else:
-                    pen.setColor(QColor(125, 125, 125))
-                    # painter.setBrush(QColor(175, 75, 75))
+                    dT = history[node.ID]
+                    c = int(17*(15-dT))
+                    pen.setColor(QColor(0, c, c))
+            elif node.ID in running:
+                pen.setColor(Qt.red)
             else:
                 pen.setColor(Qt.black)
 

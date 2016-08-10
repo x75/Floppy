@@ -1,7 +1,7 @@
 import json
 import zlib
 import io
-# import time
+import time
 from floppy.node import ControlNode
 from floppy.runner import Runner, sendCommand, RGIConnection
 from socket import AF_INET, SOCK_STREAM, socket #, SHUT_RDWR, timeout, SHUT_RDWR, SO_REUSEADDR, SOL_SOCKET
@@ -29,6 +29,7 @@ class Graph(object):
         self.slave = False
         self._requestUpdate = False
         self.executedBuffer = []
+        self.currentlyRunning = []
         self.runningNodes = []
         self.statusLock = None
         self.connected = False
@@ -89,10 +90,13 @@ class Graph(object):
         :return:
         """
         if self.connected:
-            IDs = self.requestRemoteStatus()
+            # IDs = self.requestRemoteStatus()
+            status = self.requestRemoteStatus()
+            IDs = status['STATUS']['ran']
             if IDs:
-                self.executedBuffer += [int(ID) for ID in IDs]
+                self.executedBuffer += IDs
                 return True
+            self.currentlyRunning = status['STATUS']['running']
         if self._requestUpdate:
             self._requestUpdate = False
             return True
@@ -236,9 +240,14 @@ class Graph(object):
         :return: list of nodIDs.
         """
         # self.statusLock.acquire()
-        history = self.executedBuffer[:]
+        tT = time.time()
+        history = {i: tT-t for i, t in self.executedBuffer if tT - t < 15}
+        self.executedBuffer = [(i, t) for i, t in self.executedBuffer if tT - t < 15]
         # self.statusLock.release()
-        return history
+        return history, self.executedBuffer[-1] if self.executedBuffer else ('','')
+
+    def getRunningNodes(self):
+        return self.currentlyRunning
 
 
     def execute(self):
@@ -297,7 +306,7 @@ class Graph(object):
         Serializes the graph and sends it to the connected graph interpreter telling it to load the new data.
         :return:
         """
-        self.executedBuffer = []
+        # self.executedBuffer = []
         print(self.rgiConnection.send('PAUSE'))
         message = self.serialize()
         # msg = struct.pack('>I', len(message)) + message.encode('utf-8')
@@ -394,9 +403,8 @@ class Graph(object):
     def requestRemoteStatus(self):
         if self.connected:
             try:
-                status = self.rgiConnection.send('STATUS')
-                print(status)
-                return []
+                status = self.rgiConnection.send('STATUS***')
+                # status = json.loads(status[10:])
             except BrokenPipeError:
                 self.connected = False
                 return []
@@ -407,7 +415,7 @@ class Graph(object):
                 self.connected = False
                 return []
             else:
-                return status.split(']')[-1].split('#') if len(status) > 10 else []
+                return json.loads(status[10:])
         else:
             return []
 
