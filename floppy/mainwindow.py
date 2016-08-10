@@ -8,6 +8,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from floppy.nodeLib import NodeList, NodeFilter
+from floppy.reportWidget import ReportWidget
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -57,7 +58,8 @@ class Ui_MainWindow(object):
         self.NodeListView.setObjectName("NodeListView")
         self.TopLayout.addWidget(self.NodeListView)
         self.gridLayout_3.addLayout(self.TopLayout, 0, 0, 1, 1)
-        self.BottomWidget = QtWidgets.QWidget(self.VerticalSplitter)
+        # self.BottomWidget = QtWidgets.QWidget(self.VerticalSplitter)
+        self.BottomWidget = ReportWidget(self.VerticalSplitter)
         self.BottomWidget.setObjectName("BottomWidget")
         self.gridLayout_2.addWidget(self.VerticalSplitter, 0, 0, 1, 1)
         self.gridLayout.addWidget(self.HorizontalSplitter, 0, 0, 1, 1)

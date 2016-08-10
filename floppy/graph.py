@@ -28,8 +28,10 @@ class Graph(object):
     def __init__(self, painter=None):
         self.slave = False
         self._requestUpdate = False
+        self._requestReport = ''
         self.executedBuffer = []
         self.currentlyRunning = []
+        self.currentReport = ''
         self.runningNodes = []
         self.statusLock = None
         self.connected = False
@@ -84,6 +86,12 @@ class Graph(object):
         """
         self._requestUpdate = True
 
+    def requestReport(self, nodeID):
+        self._requestReport = nodeID
+
+    def getReport(self):
+        return self.currentReport
+
     def needsUpdate(self):
         """
         Called by the painter instance periodically to check whether a repaint was requested by another thread.
@@ -97,6 +105,7 @@ class Graph(object):
                 self.executedBuffer += IDs
                 return True
             self.currentlyRunning = status['STATUS']['running']
+            self.currentReport = status['REPORT']
         if self._requestUpdate:
             self._requestUpdate = False
             return True
@@ -403,7 +412,7 @@ class Graph(object):
     def requestRemoteStatus(self):
         if self.connected:
             try:
-                status = self.rgiConnection.send('STATUS***')
+                status = self.rgiConnection.send('STATUS***{}'.format(self._requestReport))
                 # status = json.loads(status[10:])
             except BrokenPipeError:
                 self.connected = False

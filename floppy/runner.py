@@ -137,6 +137,12 @@ class Runner(object):
         self.status = []
         return state
 
+    def getReport(self, nodeID):
+        if self.executionThread.graph:
+            return (self.executionThread.graph.nodes[nodeID].report())
+            return ''
+        else:
+            return ''
 
 
 class ExecutionThread(Thread):
@@ -367,7 +373,7 @@ class CommandProcessor(Thread):
                     reportNode = message.split('***')[-1]
                     report = ''
                     if reportNode:
-                        report = 1
+                        report = self.master.getReport(int(reportNode))
                     status = self.master.getStatus()
                     self.send(json.dumps({'STATUS': status, 'REPORT': report}))
                 else:

@@ -41,6 +41,7 @@ class Painter2D(Painter):
         self.graph = None
         self.shiftDown = False
         self.looseConnection = None
+        self.reportWidget = None
         self.pinPositions = {}
         self.drawItems = []
         self.drawItemsOfNode = {}
@@ -143,6 +144,7 @@ class Painter2D(Painter):
                 xx = xx.x()
                 if x1 < xx < x2 and y1 < yy < y2:
                     self.clickedNode = nodePoints[-1]
+                    self.graph.requestReport(self.clickedNode.ID)
                     # print(self.clickedNode)
                     self.update()
                     self.downOverNode = event.pos()
@@ -242,6 +244,9 @@ class Painter2D(Painter):
         # painter.drawEllipse(QPoint(0,0),5,5)
         history, last = self.graph.getExecutionHistory()
         running = self.graph.getRunningNodes()
+        report = self.graph.getReport()
+        self.reportWidget.updateReport(report)
+
         for j, node in enumerate(self.nodes):
             j *= 3
             j += 1
@@ -569,6 +574,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.initMenus()
 
         drawWidget = painter
+        painter.reportWidget = self.BottomWidget
         drawWidget.setAutoFillBackground(True)
         p = self.palette()
         p.setColor(drawWidget.backgroundRole(), QColor(70, 70, 70))
