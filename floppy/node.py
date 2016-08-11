@@ -354,8 +354,8 @@ class Node(object, metaclass=MetaNode):
     def report(self):
         return {'class': self.__class__.__name__,
                 'ID': self.ID,
-                'inputs': [(i, v.varType.__name__, v.value) for i, v in self.inputs.items()],
-                'outputs': [(i, str(v.varType), v.value) for i, v in self.outputs.items()],}
+                'inputs': [(i, v.varType.__name__, str(v.value)) for i, v in self.inputs.items()],
+                'outputs': [(i, v.varType.__name__, str(v.value)) for i, v in self.outputs.items()],}
 
     # def prepare(self):
     #     """

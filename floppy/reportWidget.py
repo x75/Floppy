@@ -6,7 +6,7 @@ class ReportWidget(QtWebKitWidgets.QWebView):
     def defaultTemplate(self, data):
         return """<h1 id="head">{nodeName} -- {nodeID}</h1>
         <style>
-          h1 {{ text-align:center;}}
+          h1 {{ text-align:center; color: white}}
         </style>
 
         <style type="text/css">
@@ -18,11 +18,13 @@ class ReportWidget(QtWebKitWidgets.QWebView):
            float:left;
            width:200;
            text-align:left;
+           color: white
         }}
         #right_col {{
            float:right;
            width:200;
            text-align:right;
+           color: white
         }}
         </style>
 
@@ -40,6 +42,8 @@ class ReportWidget(QtWebKitWidgets.QWebView):
 
     def __init__(self, *args, **kwargs):
         super(ReportWidget, self).__init__(*args, **kwargs)
+        self.setStyleSheet('''ReportWidget{background: rgb(55,55,55)}
+        ''')
         self.data = None
         self.setHtml('')
 

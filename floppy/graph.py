@@ -252,6 +252,8 @@ class Graph(object):
         tT = time.time()
         history = {i: tT-t for i, t in self.executedBuffer if tT - t < 15}
         self.executedBuffer = [(i, t) for i, t in self.executedBuffer if tT - t < 15]
+        if history:
+            self.requestUpdate()
         # self.statusLock.release()
         return history, self.executedBuffer[-1] if self.executedBuffer else ('','')
 
