@@ -20,7 +20,7 @@ class Ui_MainWindow(object):
         self.gridLayout = QtWidgets.QGridLayout(self.centralWidget)
         self.gridLayout.setObjectName("gridLayout")
         self.HorizontalSplitter = QtWidgets.QSplitter(self.centralWidget)
-        self.HorizontalSplitter.setStyleSheet("QSplitter::handle{background: rgb(75,75,75);}")
+        self.HorizontalSplitter.setStyleSheet("QSplitter::handle{background: rgb(85,85,85);}")
         self.HorizontalSplitter.setOrientation(QtCore.Qt.Horizontal)
         self.HorizontalSplitter.setObjectName("HorizontalSplitter")
         self.DrawArea = QtWidgets.QWidget(self.HorizontalSplitter)

@@ -352,10 +352,23 @@ class Node(object, metaclass=MetaNode):
         return True
 
     def report(self):
-        return {'class': self.__class__.__name__,
+        """
+        Creates and returns a dictionary encoding the current state of the Node instance.
+        Override this method to implement custom reporting behavior. Check the ReportWidget documentation for details
+        on how to implement custom templates.
+
+        The 'keep' key can be used to cache data by the editor. The value assigned to 'keep' must be another key of
+        the report dictionary or 'CLEAR'. If it is a key, the value assigned to that key will be cached. If it is
+        'CLEAR' the editors cache will be purged. This can be useful for plotting an ongoing stream of data points
+        in the editor.
+
+        """
+        return {'template': 'defaultTemplate',
+                'class': self.__class__.__name__,
                 'ID': self.ID,
                 'inputs': [(i, v.varType.__name__, str(v.value)) for i, v in self.inputs.items()],
-                'outputs': [(i, v.varType.__name__, str(v.value)) for i, v in self.outputs.items()],}
+                'outputs': [(i, v.varType.__name__, str(v.value)) for i, v in self.outputs.items()],
+                'keep': None}
 
     # def prepare(self):
     #     """
@@ -716,6 +729,11 @@ class TestNode(Node):
         import time
         time.sleep(self.ID/2000.)
         self._strOutput('')
+
+    def report(self):
+        r = super(TestNode, self).report()
+        r['template'] = 'plotTemplate'
+        return r
 
 
 class FinalTestNode(TestNode):
