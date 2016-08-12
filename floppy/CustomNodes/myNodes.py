@@ -2,6 +2,7 @@ from floppy.node import Node, Input, Output, Tag
 import time
 import random
 
+
 class MyNode(Node):
     Input('AAA', int)
     Output('BBB', int)

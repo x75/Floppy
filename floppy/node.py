@@ -106,7 +106,7 @@ class InputInfo(Info):
             else:
                 return self.value
         elif self.default != None and not self.connected:
-            if not self.varType == object:
+            if not self.varType == object and self.default:
                 return self.varType(self.default)
             else:
                 return self.default
@@ -730,10 +730,10 @@ class TestNode(Node):
         time.sleep(self.ID/2000.)
         self._strOutput('')
 
-    def report(self):
-        r = super(TestNode, self).report()
-        r['template'] = 'plotTemplate'
-        return r
+    # def report(self):
+    #     r = super(TestNode, self).report()
+    #     r['template'] = 'plotTemplate'
+    #     return r
 
 
 class FinalTestNode(TestNode):
@@ -771,7 +771,7 @@ class CreateInt(Node):
         self._Integer(self._Value)
 
 
-class ReadNode(Node):
+class ReadFile(Node):
     """
     Node for reading a string from a file.
     """
@@ -779,7 +779,7 @@ class ReadNode(Node):
     Output('Content', str)
 
     def run(self):
-        super(ReadNode, self).run()
+        super(ReadFile, self).run()
         fileName = self._Name
         try:
             with open(fileName, 'r') as fp:
