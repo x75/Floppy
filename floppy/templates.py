@@ -1,5 +1,6 @@
-import matplotlib.pyplot as plt, mpld3
+from matplotlib.pyplot import plot, savefig
 from floppy.reportWidget import template
+from numpy import array
 # plt.plot([3,1,4,1,5], 'ks-', mec='w', mew=5, ms=20)
 # # fig = plt.figure()
 # plt.savefig("x.svg")
@@ -8,12 +9,15 @@ _pointCache = None
 
 @template
 def plotTemplate(data, cache):
-    points = [3,1,4,1,5]
-    if not points == globals()['_pointCache']:
-        plt.plot(points, 'ks-', mec='w', mew=5, ms=20)
-        fig = plt.figure()
-        plt.savefig("x.svg")
-        globals()['_pointCache'] = points
+    points = data['points']
+    # print(cache)
+
+    if not cache == globals()['_pointCache'] and cache:
+        x, y = zip(*cache)
+        plot(x, array(y), color='blue')
+        # fig = plt.figure()
+        savefig(__file__[:-12]+"/x.svg")
+        globals()['_pointCache'] = cache[:]
     return """<h1 id="head">{nodeName} -- {nodeID}</h1>
         <style>
           h1 {{ text-align:center; color: white}}

@@ -138,7 +138,7 @@ class Runner(object):
         return state
 
     def getReport(self, nodeID):
-        if self.executionThread.graph:
+        if self.executionThread.graph and nodeID in self.executionThread.graph.nodes:
             return (self.executionThread.graph.nodes[nodeID].report())
             return ''
         else:

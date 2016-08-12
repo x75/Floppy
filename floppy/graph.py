@@ -90,7 +90,9 @@ class Graph(object):
         self._requestReport = nodeID
 
     def getReport(self):
-        return self.currentReport
+        r = self.currentReport
+        self.currentReport = {}
+        return r
 
     def needsUpdate(self):
         """
@@ -101,11 +103,11 @@ class Graph(object):
             # IDs = self.requestRemoteStatus()
             status = self.requestRemoteStatus()
             IDs = status['STATUS']['ran']
+            self.currentlyRunning = status['STATUS']['running']
+            self.currentReport = status['REPORT']
             if IDs:
                 self.executedBuffer += IDs
                 return True
-            self.currentlyRunning = status['STATUS']['running']
-            self.currentReport = status['REPORT']
         if self._requestUpdate:
             self._requestUpdate = False
             return True

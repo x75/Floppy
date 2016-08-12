@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtGui, QtWidgets, QtWebKitWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets, QtWebKitWidgets, QtWebKit
 
 TEMPLATES = {}
 
@@ -75,16 +75,17 @@ class ReportWidget(QtWebKitWidgets.QWebView):
             if keep:
                 if keep == 'CLEAR':
                     self.cache = []
-                else:
-                    self.cache.append(data[keep])
+                elif data[keep]:
+                    self.cache += data[keep]
+                    # print('xxxxx', self.cache)
         try:
             tmplt = TEMPLATES[data['template']]
         except KeyError:
             print('Error: {} template missing'.format(data['template']))
-            print(TEMPLATES.keys())
             return
         url = QtCore.QUrl.fromLocalFile(__file__)
-        self.setHtml(tmplt(data, self.cache), url)
+        QtWebKit.QWebSettings.clearMemoryCaches()
+        self.setHtml(tmplt(data, self.cache[:]), url)
 
 
 @template
