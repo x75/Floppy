@@ -901,7 +901,7 @@ class DrawItem(object):
         self.transform = transform
         self.x = x
         self.y = y
-        self.w = w
+        self.w = w - 10
         self.h = h
         point = QPoint(x+12, y-16)*transform
         self._x = point.x()
@@ -1073,7 +1073,7 @@ class LineEdit(DrawItem):
             pen = QPen(Qt.darkGray)
             painter.setPen(pen)
             painter.setBrush(QColor(10, 10, 10))
-            xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18, self.w-18, 12
+            xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18, self.w-18, 4+PINSIZE
             painter.drawRoundedRect(xx, yy, ww, hh, 2, 20)
             painter.setFont(QFont('Helvetica', LINEEDITFONTSIZE))
             painter.setPen(pen)
