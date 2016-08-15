@@ -16,19 +16,40 @@ class SettingsDialog(QDialog):
                         ('Pin Size', PinSizeEdit(settings, globals, self)),
                         ]
         super(SettingsDialog, self).__init__(*args)
+        self.setStyleSheet('''SettingsDialog {
+                                background: rgb(75,75,75);
+                            }
+                            QLineEdit {
+                                background-color: rgb(95,95,95);
+                                border: 1px solid gray;
+                                color: white;
+                            }
+                            QSpinBox {
+                                background-color: rgb(95,95,95);
+                                color: white;
+                                border: 1px solid gray;
+                            }
+                            QPushButton {
+                                background-color: rgb(95,95,95);
+                                color: white;
+                            }
+                            QLabel {
+                                color: white;
+                            }
+        ''')
         mainLayout = QVBoxLayout()
-        layout = QFormLayout()
         for name, widget in self.dialogs:
             if not widget:
                 lWidget = QGroupBox(name)
                 lWidget.setStyleSheet('''
                 QGroupBox {
+                    color: white;
                     border: 1px solid gray;
                     border-radius: 9px;
                     margin-top: 0.5em;
                 }
-
                 QGroupBox::title {
+                    color: white;
                     subcontrol-origin: margin;
                     left: 10px;
                     padding: 0 3px 0 3px;
