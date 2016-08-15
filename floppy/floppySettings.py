@@ -8,7 +8,10 @@ class SettingsDialog(QDialog):
         self.dialogs = [('Default Connection', DefaultConnectionEdit(settings, globals, self)),
                         ('Node Font Size', FontSizeEdit(settings, globals, self)),
                         ('Node Font Offset', FontOffsetEdit(settings, globals, self)),
-                        ('Node Title Font Size', TitleFontSizeEdit(settings, globals, self)),]
+                        ('Node Title Font Size', TitleFontSizeEdit(settings, globals, self)),
+                        ('Connection Line Width', ConnectionLineWidthEdit(settings, globals, self)),
+                        ('Node Width Scale', NodeWidthEdit(settings, globals, self)),
+                        ]
         super(SettingsDialog, self).__init__(*args)
         layout = QFormLayout()
         for name, widget in self.dialogs:
@@ -100,4 +103,46 @@ class TitleFontSizeEdit(QSpinBox):
 
     def redraw(self):
         self.globals['NODETITLEFONTSIZE'] = self.value()
+        self.parent.redraw()
+
+
+class ConnectionLineWidthEdit(QSpinBox):
+    def __init__(self, settings, globals, parent):
+        self.parent = parent
+        self.globals = globals
+        self.settings = settings
+        super(ConnectionLineWidthEdit, self).__init__()
+        v = settings.value('ConnectionLineWidth', type=int)
+        v = v if v else 2
+        self.setRange(1, 20)
+        self.setValue(v)
+        self.valueChanged.connect(self.redraw)
+
+    def commit(self):
+        self.settings.setValue('ConnectionLineWidth', self.value())
+        self.globals['CONNECTIONLINEWIDTH'] = self.value()
+
+    def redraw(self):
+        self.globals['CONNECTIONLINEWIDTH'] = self.value()
+        self.parent.redraw()
+
+
+class NodeWidthEdit(QSpinBox):
+    def __init__(self, settings, globals, parent):
+        self.parent = parent
+        self.globals = globals
+        self.settings = settings
+        super(NodeWidthEdit, self).__init__()
+        v = settings.value('NodeWidthScale', type=int)
+        v = v if v else 100
+        self.setRange(50, 250)
+        self.setValue(v)
+        self.valueChanged.connect(self.redraw)
+
+    def commit(self):
+        self.settings.setValue('NodeWidthScale', self.value())
+        self.globals['NODEWIDTHSCALE'] = self.value()
+
+    def redraw(self):
+        self.globals['NODEWIDTHSCALE'] = self.value()
         self.parent.redraw()

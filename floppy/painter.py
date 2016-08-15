@@ -12,6 +12,8 @@ import platform
 
 
 NODETITLEFONTSIZE = 12
+CONNECTIONLINEWIDTH = 2
+NODEWIDTHSCALE = 100
 TEXTYOFFSET = 0
 LINEEDITFONTSIZE = 8
 if platform.system() is 'Windows':
@@ -251,6 +253,8 @@ class Painter2D(Painter):
         report = self.graph.getReport()
         self.reportWidget.updateReport(report)
 
+        lastDraws = []
+
         for j, node in enumerate(self.nodes):
             j *= 3
             j += 1
@@ -281,7 +285,7 @@ class Painter2D(Painter):
             path = QPainterPath()
             x = node.__pos__[0]# + self.globalOffset.x()
             y = node.__pos__[1]# + self.globalOffset.y()
-            w = node.__size__[0]*100
+            w = node.__size__[0]*NODEWIDTHSCALE
             h = node.__size__[1]*16+40
             # painter.translate(xxx, yyy)
             # x=0
@@ -333,7 +337,9 @@ class Painter2D(Painter):
                     text = inputPin.name
                     self.drawLabel(x, y+drawOffset+8, w, h, text, painter, Qt.AlignLeft)
                 else:
-                    drawItem.draw(painter)
+                    item = drawItem.draw(painter)
+                    if item:
+                        lastDraws.append(item)
 
             # for k, outputPin in enumerate(node.outputPins.values()):
             finalBuffer = None
@@ -389,6 +395,8 @@ class Painter2D(Painter):
         self.pinPositions = {value[1]: value[0] for value in self.inputPinPositions+self.outputPinPositions}
         # self.drawConnections(painter)
         self.transform = painter.transform()
+        for item in lastDraws:
+            item.draw(painter, last=True)
 
     def drawConnections(self, painter):
         if not self.graph:
@@ -432,7 +440,7 @@ class Painter2D(Painter):
     def drawBezier(self, start, end, color, painter, rotate=None):
                 pen = QPen()
                 pen.setColor(color)
-                pen.setWidth(2*self.scale)
+                pen.setWidth(CONNECTIONLINEWIDTH*self.scale)
                 painter.setPen(pen)
                 path = QPainterPath()
                 path.moveTo(start)
@@ -964,7 +972,7 @@ class Selector(DrawItem):
             self.state = 0
         return super(Selector, self).collide(pos)
 
-    def draw(self, painter):
+    def draw(self, painter, last=False):
         if not self.state:
             alignment = Qt.AlignRight
             text = self.data.name
@@ -985,6 +993,8 @@ class Selector(DrawItem):
             points = QPoint(xx+self.w-40, yy+2), QPoint(xx+10-40 + self.w, yy+2), QPoint(xx+5+self.w-40, yy+9)
             painter.drawPolygon(*points)
         else:
+            if not last:
+                return self
             alignment = Qt.AlignRight
             text = self.data.name
             pen = QPen(Qt.darkGray)
