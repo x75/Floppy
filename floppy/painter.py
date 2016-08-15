@@ -2,18 +2,22 @@ import os
 import time
 from floppy.node import InputNotAvailable, ControlNode
 from floppy.mainwindow import Ui_MainWindow
+from floppy.floppySettings import SettingsDialog
 from floppy.nodeLib import ContextNodeFilter, ContextNodeList
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtCore import Qt, QPoint, QSettings
 from PyQt5.QtGui import *
 from PyQt5.Qt import QTimer
 import platform
 
+
+NODETITLEFONTSIZE = 12
 TEXTYOFFSET = 0
 LINEEDITFONTSIZE = 8
 if platform.system() is 'Windows':
     TEXTYOFFSET = 4
     LINEEDITFONTSIZE = 7
+
 
 class Painter(QWidget):
     def decorateNode(self, node, position):
@@ -292,6 +296,7 @@ class Painter2D(Painter):
             # painter.drawRoundedRect(node.pos[0], node.pos[1], node.size[0], node.size[1], 50, 5)
             painter.drawPath(path)
             pen.setColor(QColor(150, 150, 150))
+            painter.setFont(QFont('Helvetica', NODETITLEFONTSIZE))
             painter.setPen(pen)
             painter.drawText(x, y, w, h, Qt.AlignHCenter, node.__class__.__name__)
             painter.setBrush(QColor(40, 40, 40))
@@ -562,6 +567,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         iconRoot = os.path.realpath(__file__)
         iconRoot = os.path.join(os.path.dirname(os.path.dirname(iconRoot)), 'floppy')
         self.iconRoot = os.path.join(iconRoot, 'ressources')
+        self.settings = QSettings('Floppy', 'Floppy')
 
         self.setupUi(self)
 
@@ -586,7 +592,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.setupNodeLib()
         # self.drawer.graph.spawnAndConnect()
-        self.connectHint = '127.0.0.1:7234'
+        self.connectHint = self.settings.value('DefaultConnection', type=str)
 
     def initActions(self):
         self.exitAction = QAction('Quit', self)
@@ -690,6 +696,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.pushAction.triggered.connect(self.pushGraph)
         self.pushAction.setIconVisibleInMenu(True)
         self.addAction(self.pushAction)
+        
+        self.settingsAction = QAction('Settings', self)
+        self.settingsAction.setShortcut('Ctrl+O')
+        self.settingsAction.triggered.connect(self.openSettingsDialog)
+        self.settingsAction.setIconVisibleInMenu(False)
+        self.addAction(self.settingsAction)
 
 
     def initMenus(self):
@@ -699,6 +711,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         advancedMenu = self.menuBar.addMenu('&Advanced')
         advancedMenu.addAction(self.connectAction)
+
+        settingsMenu = self.menuBar.addMenu('&Settings')
+        settingsMenu.addAction(self.settingsAction)
         
         self.mainToolBar.addAction(self.exitAction)
         self.mainToolBar.addAction(self.saveAction)
@@ -718,7 +733,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mainToolBar.addAction(self.dropAction)
         self.mainToolBar.addAction(self.pushAction)
 
+    def openSettingsDialog(self):
+        settingsDialog = SettingsDialog(self, settings=self.settings, globals=globals())
+        settingsDialog.show()
+
     def connect(self):
+        self.connectHint = self.settings.value('DefaultConnection', type=str)
         text = ''
         while not text:
             text, ok = QInputDialog.getItem(self, 'Connect to remote Interpreter',
@@ -1138,3 +1158,5 @@ class NodeDialog(QDockWidget):
         """
         pin = self.graph.getPinWithID(self.pin)
         return pin.info.varType.__name__
+
+
