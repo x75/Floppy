@@ -11,6 +11,7 @@ from PyQt5.Qt import QTimer
 import platform
 
 
+PINSIZE = 8
 NODETITLEFONTSIZE = 12
 CONNECTIONLINEWIDTH = 2
 NODEWIDTHSCALE = 100
@@ -125,7 +126,7 @@ class Painter2D(Painter):
 
             for point, i in self.inputPinPositions:
                 # print(event.pos(), point, i)
-                if abs(event.pos().x() - point.x()) < 7 * self.scale and abs(event.pos().y() - point.y()) < 7 * self.scale:
+                if abs(event.pos().x() - point.x()) < PINSIZE * self.scale and abs(event.pos().y() - point.y()) < PINSIZE * self.scale:
                     self.clickedPin = i
                     if self.shiftDown:
                         self.graph.removeConnection(i)
@@ -134,7 +135,7 @@ class Painter2D(Painter):
             for point, i in self.outputPinPositions:
                 # print(event.pos(), point, i)
                 # w = node.__size__[0]*100
-                if abs(event.pos().x() - point.x()) < 7 * self.scale and abs(event.pos().y() - point.y()) < 7 * self.scale:
+                if abs(event.pos().x() - point.x()) < PINSIZE * self.scale and abs(event.pos().y() - point.y()) < PINSIZE * self.scale:
                     self.clickedPin = i
                     if self.shiftDown:
                         self.graph.removeConnection(i)
@@ -254,6 +255,7 @@ class Painter2D(Painter):
         self.reportWidget.updateReport(report)
 
         lastDraws = []
+        halfPinSize = PINSIZE//2
 
         for j, node in enumerate(self.nodes):
             j *= 3
@@ -286,7 +288,8 @@ class Painter2D(Painter):
             x = node.__pos__[0]# + self.globalOffset.x()
             y = node.__pos__[1]# + self.globalOffset.y()
             w = node.__size__[0]*NODEWIDTHSCALE
-            h = node.__size__[1]*16+40
+            # h = node.__size__[1]*16+40
+            h = node.__size__[1]*(8+PINSIZE)+40
             # painter.translate(xxx, yyy)
             # x=0
             # y=0
@@ -319,23 +322,24 @@ class Painter2D(Painter):
                     pen.setColor(Qt.red)
                     painter.setPen(pen)
                 if inputPin.name == 'Control':
-                    painter.drawEllipse(x-4+w/2., y-4, 8, 8)
+                    painter.drawEllipse(x-halfPinSize+w/2., y-halfPinSize, PINSIZE, PINSIZE)
                     point = QPoint(x+w/2., y) * painter.transform()
                     self.inputPinPositions.append((point, inputPin.ID))
                     continue
                 else:
                     if inputPin.info.list:
-                        painter.drawRect(x-4, y+drawOffset+8, 8, 8)
+                        painter.drawRect(x-halfPinSize, y+drawOffset+PINSIZE, PINSIZE, PINSIZE)
                     else:
-                        painter.drawEllipse(x-4, y+drawOffset+8, 8, 8)
-                    point = QPoint(x, y+drawOffset+12) * painter.transform()
+                        painter.drawEllipse(x-halfPinSize, y+drawOffset+PINSIZE, PINSIZE, PINSIZE)
+                    point = QPoint(x, y+drawOffset+6+PINSIZE) * painter.transform()
                 # self.pinPositions.append((point, i+j))
                 self.inputPinPositions.append((point, inputPin.ID))
-                drawOffset += 16
+                # drawOffset += 16
+                drawOffset += (8 + PINSIZE)
                 drawItem.update(x, y+drawOffset+8, w, h, painter.transform())
                 if self.graph.getConnectionOfInput(inputPin):
                     text = inputPin.name
-                    self.drawLabel(x, y+drawOffset+8, w, h, text, painter, Qt.AlignLeft)
+                    # self.drawLabel(x, y+drawOffset+8, w, h, text, painter, Qt.AlignLeft)
                 else:
                     item = drawItem.draw(painter)
                     if item:
@@ -364,15 +368,16 @@ class Painter2D(Painter):
                     # continue
                 else:
                     if outputPin.info.list:
-                        painter.drawRect(x + w-4, y+drawOffset+8, 8, 8)
+                        painter.drawRect(x + w-halfPinSize, y+drawOffset+PINSIZE, PINSIZE, PINSIZE)
                     else:
-                        painter.drawEllipse(x + w-4, y+drawOffset+8, 8, 8)
-                    point = QPoint(x + w-4, y+drawOffset+12) * painter.transform()
-                drawOffset += 16
+                        painter.drawEllipse(x + w-halfPinSize, y+drawOffset+PINSIZE, PINSIZE, PINSIZE)
+                    point = QPoint(x + w-4, y+drawOffset+6+PINSIZE) * painter.transform()
+                # drawOffset += 16
+                drawOffset += (8 + PINSIZE)
                 self.outputPinPositions.append((point, outputPin.ID))
                 if not outputPin.info.select:
                     text = outputPin.name
-                    self.drawLabel(x, y+drawOffset+8, w, h, text, painter, Qt.AlignRight)
+                    # self.drawLabel(x, y+drawOffset+8, w, h, text, painter, Qt.AlignRight)
                 else:
                     text = outputPin.name
                     # self.drawSelector(x, y+drawOffset+8, w, h, text, painter, Qt.AlignRight)
@@ -387,7 +392,7 @@ class Painter2D(Painter):
                 if outputPin.ID == self.clickedPin:
                     pen.setColor(Qt.red)
                     painter.setPen(pen)
-                painter.drawEllipse(x-4+w/2., y+10+drawOffset, 8, 8)
+                painter.drawEllipse(x-halfPinSize+w/2., y+10-int(PINSIZE/10)+drawOffset, PINSIZE, PINSIZE)
                 point = QPoint(x+w/2., y+drawOffset+14) * painter.transform()
                 self.outputPinPositions.append((point, outputPin.ID))
 
@@ -470,41 +475,41 @@ class Painter2D(Painter):
                 path.cubicTo(p21, p22, p31, p32, end.x(), end.y())
                 painter.drawPath(path)
 
-    def drawLineEdit(self, x, y, w, h, text, painter, alignment):
-        text = str(text)
-        pen = QPen(Qt.darkGray)
-        painter.setPen(pen)
-        xx, yy, ww, hh = x+(w)/2.-(w-25)/2., y-18, w-25, 12
-        painter.drawRoundedRect(xx, yy, ww, hh, 2, 20)
-        pen.setColor(Qt.gray)
-        painter.setFont(QFont('Helvetica', 8))
-        painter.setPen(pen)
-        painter.drawText(xx+5, yy-3, ww-10, hh+5, alignment, text)
-
-    def drawLabel(self, x, y, w, h, text, painter, alignment):
-        text = str(text)
-        pen = QPen(Qt.gray)
-        painter.setPen(pen)
-        xx, yy, ww, hh = x+(w)/2.-(w-25)/2., y-18, w-18, 12
-        painter.setFont(QFont('Helvetica', 8))
-        painter.setPen(pen)
-        painter.drawText(xx+5, yy-3, ww-10, hh+5, alignment, text)
-
-    def drawSelector(self, x, y, w, h, text, painter, alignment):
-        text = str(text)
-        pen = QPen(Qt.darkGray)
-        painter.setPen(pen)
-        xx, yy, ww, hh = x+(w)/2.-(w-25)/2., y-18, w-25, 12
-        painter.drawRoundedRect(xx, yy, ww, hh, 2, 20)
-        painter.setFont(QFont('Helvetica', 8))
-        painter.setPen(pen)
-        painter.drawText(xx-5, yy-3, ww-20, hh+5, alignment, text)
-        pen.setColor(Qt.gray)
-        # pen.setWidth(3)
-        painter.setPen(pen)
-        painter.setBrush(QBrush(Qt.gray))
-        points = QPoint(xx+w-40, yy+2), QPoint(xx+10-40 +w, yy+2), QPoint(xx+5+w-40, yy+9)
-        painter.drawPolygon(*points)
+    # def drawLineEdit(self, x, y, w, h, text, painter, alignment):
+    #     text = str(text)
+    #     pen = QPen(Qt.darkGray)
+    #     painter.setPen(pen)
+    #     xx, yy, ww, hh = x+(w)/2.-(w-25)/2., y-18, w-25, 12
+    #     painter.drawRoundedRect(xx, yy, ww, hh, 2, 20)
+    #     pen.setColor(Qt.gray)
+    #     painter.setFont(QFont('Helvetica', 8))
+    #     painter.setPen(pen)
+    #     painter.drawText(xx+5, yy-3, ww-10, hh+5, alignment, text)
+    #
+    # def drawLabel(self, x, y, w, h, text, painter, alignment):
+    #     text = str(text)
+    #     pen = QPen(Qt.gray)
+    #     painter.setPen(pen)
+    #     xx, yy, ww, hh = x+(w)/2.-(w-25)/2., y-18, w-18, 12
+    #     painter.setFont(QFont('Helvetica', 8))
+    #     painter.setPen(pen)
+    #     painter.drawText(xx+5, yy-3, ww-10, hh+5, alignment, text)
+    #
+    # def drawSelector(self, x, y, w, h, text, painter, alignment):
+    #     text = str(text)
+    #     pen = QPen(Qt.darkGray)
+    #     painter.setPen(pen)
+    #     xx, yy, ww, hh = x+(w)/2.-(w-25)/2., y-18, w-25, 12
+    #     painter.drawRoundedRect(xx, yy, ww, hh, 2, 20)
+    #     painter.setFont(QFont('Helvetica', 8))
+    #     painter.setPen(pen)
+    #     painter.drawText(xx-5, yy-3, ww-20, hh+5, alignment, text)
+    #     pen.setColor(Qt.gray)
+    #     # pen.setWidth(3)
+    #     painter.setPen(pen)
+    #     painter.setBrush(QBrush(Qt.gray))
+    #     points = QPoint(xx+w-40, yy+2), QPoint(xx+10-40 +w, yy+2), QPoint(xx+5+w-40, yy+9)
+    #     painter.drawPolygon(*points)
 
     def registerNode(self, node, position, silent=False):
         if not silent:
@@ -601,6 +606,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupNodeLib()
         # self.drawer.graph.spawnAndConnect()
         self.connectHint = self.settings.value('DefaultConnection', type=str)
+        settingsDialog = SettingsDialog(self, settings=self.settings, globals=globals())
+        settingsDialog.close()
 
     def initActions(self):
         self.exitAction = QAction('Quit', self)
@@ -909,8 +916,8 @@ class DrawItem(object):
         pen = QPen(Qt.darkGray)
         painter.setPen(pen)
         painter.setBrush(QColor(40, 40, 40))
-        xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18, self.w-18, 12
-        painter.setFont(QFont('Helvetica', 8))
+        xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18, self.w-18, 4+PINSIZE
+        painter.setFont(QFont('Helvetica', LINEEDITFONTSIZE))
         painter.setPen(pen)
         painter.drawText(xx+5, yy-3, ww-10, hh+5, alignment, text)
 
@@ -1056,7 +1063,7 @@ class LineEdit(DrawItem):
             pen = QPen(Qt.darkGray)
             painter.setPen(pen)
             painter.setBrush(QColor(40, 40, 40))
-            xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18, self.w-18, 12
+            xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18, self.w-18, 4+PINSIZE
             painter.drawRoundedRect(xx, yy, ww, hh, 2, 20)
             painter.setFont(QFont('Helvetica', LINEEDITFONTSIZE))
             painter.setPen(pen)

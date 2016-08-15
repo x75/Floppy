@@ -13,6 +13,7 @@ class SettingsDialog(QDialog):
                         ('Node Title Font Size', TitleFontSizeEdit(settings, globals, self)),
                         ('Connection Line Width', ConnectionLineWidthEdit(settings, globals, self)),
                         ('Node Width Scale', NodeWidthEdit(settings, globals, self)),
+                        ('Pin Size', PinSizeEdit(settings, globals, self)),
                         ]
         super(SettingsDialog, self).__init__(*args)
         mainLayout = QVBoxLayout()
@@ -184,4 +185,25 @@ class NodeWidthEdit(QSpinBox):
 
     def redraw(self):
         self.globals['NODEWIDTHSCALE'] = self.value()
+        self.parent.redraw()
+
+
+class PinSizeEdit(QSpinBox):
+    def __init__(self, settings, globals, parent):
+        self.parent = parent
+        self.globals = globals
+        self.settings = settings
+        super(PinSizeEdit, self).__init__()
+        v = settings.value('PinSize', type=int)
+        v = v if v else 8
+        self.setRange(1, 25)
+        self.setValue(v)
+        self.valueChanged.connect(self.redraw)
+
+    def commit(self):
+        self.settings.setValue('PinSize', self.value())
+        self.globals['PINSIZE'] = self.value()
+
+    def redraw(self):
+        self.globals['PINSIZE'] = self.value()
         self.parent.redraw()
