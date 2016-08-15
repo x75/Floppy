@@ -5,7 +5,9 @@ class SettingsDialog(QDialog):
     def __init__(self, *args, settings=None, globals=None):
         self.globals = globals
         self.settings= settings
-        self.dialogs = [('Default Connection', DefaultConnectionEdit(settings, globals, self)),
+        self.dialogs = [('Network Settings', None),
+                        ('Default Connection', DefaultConnectionEdit(settings, globals, self)),
+                        ('Node Graph Render Settings', None),
                         ('Node Font Size', FontSizeEdit(settings, globals, self)),
                         ('Node Font Offset', FontOffsetEdit(settings, globals, self)),
                         ('Node Title Font Size', TitleFontSizeEdit(settings, globals, self)),
@@ -13,14 +15,51 @@ class SettingsDialog(QDialog):
                         ('Node Width Scale', NodeWidthEdit(settings, globals, self)),
                         ]
         super(SettingsDialog, self).__init__(*args)
+        mainLayout = QVBoxLayout()
         layout = QFormLayout()
         for name, widget in self.dialogs:
-            layout.addRow(name, widget)
-        self.setLayout(layout)
+            if not widget:
+                lWidget = QGroupBox(name)
+                lWidget.setStyleSheet('''
+                QGroupBox {
+                    border: 1px solid gray;
+                    border-radius: 9px;
+                    margin-top: 0.5em;
+                }
+
+                QGroupBox::title {
+                    subcontrol-origin: margin;
+                    left: 10px;
+                    padding: 0 3px 0 3px;
+                }
+                ''')
+                lWidget.setFlat(False)
+                sectionLayout = QFormLayout()
+                lWidget.setLayout(sectionLayout)
+                mainLayout.addWidget(lWidget)
+                # layout.addRow(name)
+            else:
+                sectionLayout.addRow(name, widget)
+        closeButton = QPushButton('Close')
+        closeButton.clicked.connect(self.close)
+        mainLayout.addWidget(closeButton)
+        self.setLayout(mainLayout)
+
+    def close(self):
+        for name, widget in self.dialogs:
+            try:
+                widget.commit()
+            except AttributeError:
+                pass
+        self.settings.sync()
+        super(SettingsDialog, self).close()
 
     def closeEvent(self, e):
         for name, widget in self.dialogs:
-            widget.commit()
+            try:
+                widget.commit()
+            except AttributeError:
+                pass
         self.settings.sync()
         super(SettingsDialog, self).closeEvent(e)
 
