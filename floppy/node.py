@@ -3,6 +3,7 @@ from copy import copy
 from floppy.FloppyTypes import Type, MetaType
 
 NODECLASSES = {}
+STOREDVALUES = {}
 
 
 class InputNotAvailable(Exception):
@@ -106,6 +107,7 @@ class InputInfo(Info):
             else:
                 return self.value
         elif self.default != None and not self.connected:
+            self.usedDefault = True if self.loopLevel > 0 else False
             if not self.varType == object and self.default:
                 return self.varType(self.default)
             else:
@@ -132,8 +134,8 @@ class InputInfo(Info):
             # print('^^^^^^^^^^^^^^^^^^', self.name, self.value, self.valueSet)
             return True
         elif self.default != None and not self.connected and not self.usedDefault:
-            self.usedDefault = True
-            print('+++++++++++++++++', self.name, self.value, self.valueSet)
+            # self.usedDefault = True
+            print('+++++++++++++++++', self.name, self.value, self.valueSet, self.owner)
             return True
         return False
 
@@ -346,6 +348,7 @@ class Node(object, metaclass=MetaNode):
             return self.notify()
         for inp in self.inputs.values():
             if not inp.isAvailable():
+                print(self, inp.default)
                 # print('        {}: Prerequisites not met.'.format(str(self)))
                 return False
         # print('        {}: ready.'.format(str(self)))
@@ -547,9 +550,7 @@ class ControlNode(Node):
         self.waiting = False
 
 
-
-
-class SwitchNode(ControlNode):
+class Switch(ControlNode):
     """
     Node for creating a basic if/else construction.
     The input 'Switch' accepts a bool. Depending of the value of the input, the 'True' or 'False' outputs are set to
@@ -560,9 +561,11 @@ class SwitchNode(ControlNode):
     Input('Switch', bool)
     Output('True', object)
     Output('False', object)
+    Tag('If')
+    Tag('Else')
 
     def __init__(self, *args, **kwargs):
-        super(SwitchNode, self).__init__(*args, **kwargs)
+        super(Switch, self).__init__(*args, **kwargs)
         self.fresh = True
 
     def check(self):
@@ -925,6 +928,73 @@ class Join(Node):
     def run(self):
         super(Join, self).run()
         self._Joined(''.join([self._Str1, self._Str2]))
+
+
+class Break(Node):
+    Input('Input', object)
+    Output('Output', object)
+    Tag('Loop')
+
+    def run(self):
+        super(Break, self).run()
+        self._Output(self._Input)
+
+    def notify(self):
+        output = self.outputs['Output']
+        for con in self.graph.getConnectionsOfOutput(output):
+            outputName = con['outputName']
+            nextNode = con['inputNode']
+            nextInput = con['inputName']
+            # nextNode.prepare()
+            nextNode.setInput(nextInput, self.outputs[outputName].value, override=True, loopLevel=self.loopLevel-1)
+
+
+class SetValue(Node):
+    Input('Name', str)
+    Input('Value', object)
+
+    def __init__(self, *args, **kwargs):
+        super(SetValue, self).__init__(*args, **kwargs)
+        self.lastValue = (None, None)
+
+    def run(self):
+        super(SetValue, self).run()
+        STOREDVALUES[self._Name] = self._Value
+        self.lastValue = (self._Name, self._Value)
+
+    def report(self):
+        r = super(SetValue, self).report()
+        n, v = self.lastValue
+        r['inputs'] = [(n, type(v).__name__, str(v))]
+        return r
+
+
+class GetValue(Node):
+    Input('Trigger', object)
+    Input('Name', str)
+    Output('Value', object)
+
+    def run(self):
+        self._Value(STOREDVALUES[self._Name])
+
+
+class Split(Node):
+    Input('String', str)
+    Input('Separator', str)
+    Output('List', str, list=True)
+
+    def run(self):
+        super(Split, self).run()
+        self._List(self._String.split(self._Separator))
+
+
+class SplitLines(Node):
+    Input('String', str)
+    Output('List', str, list=True)
+
+    def run(self):
+        super(SplitLines, self).run()
+        self._List(self._String.splitlines())
 
 
 # TODO Cleanup this mess. Prepare method and probably a lot of other stuff is no longer needed.
