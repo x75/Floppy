@@ -84,8 +84,8 @@ class Info(object):
 
     def reset(self, nodeLoopLevel=0, force=False):
         if nodeLoopLevel > self.loopLevel and not force:
-            print('Not resetting Input {} because owing node has higher node\n'
-                  'level than the node setting the Input: {}vs.{}'.format(self.name, nodeLoopLevel, self.loopLevel))
+            # print('Not resetting Input {} because owing node has higher node\n'
+            #       'level than the node setting the Input: {}vs.{}'.format(self.name, nodeLoopLevel, self.loopLevel))
             return
         self.default = None
         self.valueSet = False
@@ -135,7 +135,7 @@ class InputInfo(Info):
             return True
         elif self.default != None and not self.connected and not self.usedDefault:
             # self.usedDefault = True
-            print('+++++++++++++++++', self.name, self.value, self.valueSet, self.owner)
+            # print('+++++++++++++++++', self.name, self.value, self.valueSet, self.owner)
             return True
         return False
 
@@ -294,8 +294,9 @@ class Node(object, metaclass=MetaNode):
         Execute the node. Override this to implement logic.
         :rtype: None
         """
-        print('===============\nExecuting node {}'.format(self))
-        print('{} is loopLevel ='.format(str(self)), self.loopLevel,'\n================')
+        print('Executing node {}'.format(self))
+        # print('===============\nExecuting node {}'.format(self))
+        # print('{} is loopLevel ='.format(str(self)), self.loopLevel,'\n================')
 
     def notify(self):
         """
@@ -343,12 +344,12 @@ class Node(object, metaclass=MetaNode):
         """
         if self.locked:
             return False
-        if self.buffered:
+        if self.buffered and self.outputs.keys():
             print('Node {} has buffered output. Trying to notify outgoing connections.'.format(self))
             return self.notify()
         for inp in self.inputs.values():
             if not inp.isAvailable():
-                print(self, inp.default)
+                # print(self, inp.default)
                 # print('        {}: Prerequisites not met.'.format(str(self)))
                 return False
         # print('        {}: ready.'.format(str(self)))
@@ -369,8 +370,8 @@ class Node(object, metaclass=MetaNode):
         return {'template': 'defaultTemplate',
                 'class': self.__class__.__name__,
                 'ID': self.ID,
-                'inputs': [(i, v.varType.__name__, str(v.value)) for i, v in self.inputs.items()],
-                'outputs': [(i, v.varType.__name__, str(v.value)) for i, v in self.outputs.items()],
+                'inputs': [(i, v.varType.__name__, str(v.value) if len(str(v.value)) < 10 else str(v.value)[:10]+'...') for i, v in self.inputs.items()],
+                'outputs': [(i, v.varType.__name__, str(v.value) if len(str(v.value)) < 10 else str(v.value)[:10]+'...') for i, v in self.outputs.items()],
                 'keep': None}
 
     # def prepare(self):

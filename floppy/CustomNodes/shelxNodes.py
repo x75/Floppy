@@ -23,6 +23,7 @@ class RunShelxl(ShelxNode):
     def __init__(self, *args, **kwargs):
         super(RunShelxl, self).__init__(*args, **kwargs)
         self.p = None
+        self.stdout = ''
 
     def run(self):
         super(RunShelxl, self).run()
@@ -31,7 +32,12 @@ class RunShelxl(ShelxNode):
         with open('__tmp__.hkl', 'w') as fp:
             fp.write(self._HKL)
 
-        self.p = subprocess.Popen('shelxl {}'.format('__tmp__'), shell=True)
+        self.p = subprocess.Popen('shelxl {}'.format('__tmp__'), shell=True, stdout=subprocess.PIPE)
+        while True:
+            line = self.p.stdout.readline()
+            if not line:
+                break
+            self.stdout += str(line)[1:]
         os.waitpid(self.p.pid, 0)
         output = ''
         with open('__tmp__.res', 'r') as fp:
@@ -39,10 +45,27 @@ class RunShelxl(ShelxNode):
         self._RES(output)
         with open('__tmp__.lst', 'r') as fp:
             output = fp.read()
+        for line in output.splitlines():
+            if line.startswith(' R1 ='):
+                line = [i for i in line.split() if i]
+                R1 = float(line[2])
+                break
+        self._R1(R1)
         self._LST(output)
         with open('__tmp__.fcf', 'r') as fp:
             output = fp.read()
         self._FCF(output)
+
+
         for file in os.listdir():
             if file.startswith('__tmp__'):
                 os.remove(file)
+
+    def report(self):
+        r = super(RunShelxl, self).report()
+        r['template'] = 'programTemplate'
+        r['stdout'] = self.stdout
+        return r
+
+
+

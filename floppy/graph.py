@@ -179,10 +179,10 @@ class Graph(object):
                                                                                                        str(outNode),
                                                                                                        inp,
                                                                                                        str(inpNode)))
-        print('Connect output \'{1}\' of node {0} to input \'{3}\' of node {2}'.format(str(outNode),
-                                                                                       out,
-                                                                                       str(inpNode),
-                                                                                       inp))
+        # print('Connect output \'{1}\' of node {0} to input \'{3}\' of node {2}'.format(str(outNode),
+        #                                                                                out,
+        #                                                                                str(inpNode),
+        #                                                                                inp))
         conn = Connection(outNode, out, inpNode, inp)
         if not issubclass(type(inpNode), ControlNode) or not inp == 'Control':
             for oldCon in self.reverseConnections[inpNode]:

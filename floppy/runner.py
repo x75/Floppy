@@ -427,7 +427,7 @@ class RGIConnection(object):
         self.socket.connect((self.host, self.port))
 
     def send(self, message):
-        print('[REQUEST] ' + message)
+        # print('[REQUEST] ' + message)
         msg = struct.pack('>I', len(message)) + message.encode('utf-8')
         self.socket.sendall(msg)
         try:

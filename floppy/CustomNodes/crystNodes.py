@@ -122,4 +122,7 @@ class PDB2INS(CrystNode):
         except IOError:
             self._HKL('')
         self._PDB(open('__pdb2ins__.pdb', 'r').read())
+        for file in os.listdir():
+            if file.startswith('__pdb2ins__'):
+                os.remove(file)
 

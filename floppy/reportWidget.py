@@ -60,6 +60,8 @@ class ReportWidget(QtWebKitWidgets.QWebView):
         import floppy.templates
 
     def updateReport(self, data):
+        if data == self.data:
+            return
         self.data = data
         self._update()
 
