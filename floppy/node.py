@@ -3,7 +3,7 @@ from copy import copy
 from floppy.FloppyTypes import Type, MetaType
 
 NODECLASSES = {}
-STOREDVALUES = {}
+# STOREDVALUES = {}
 
 
 class InputNotAvailable(Exception):
@@ -953,6 +953,7 @@ class Break(Node):
 class SetValue(Node):
     Input('Name', str)
     Input('Value', object)
+    Output('Trigger', object)
 
     def __init__(self, *args, **kwargs):
         super(SetValue, self).__init__(*args, **kwargs)
@@ -960,7 +961,7 @@ class SetValue(Node):
 
     def run(self):
         super(SetValue, self).run()
-        STOREDVALUES[self._Name] = self._Value
+        self.graph.STOREDVALUES[self._Name] = self._Value
         self.lastValue = (self._Name, self._Value)
 
     def report(self):
@@ -976,7 +977,7 @@ class GetValue(Node):
     Output('Value', object)
 
     def run(self):
-        self._Value(STOREDVALUES[self._Name])
+        self._Value(self.graph.STOREDVALUES[self._Name])
 
 
 class Split(Node):
@@ -997,5 +998,26 @@ class SplitLines(Node):
         super(SplitLines, self).run()
         self._List(self._String.splitlines())
 
+
+class ShowValues(Node):
+    Input('Trigger', object)
+    Output('Output', object)
+
+    def __init__(self, *args, **kwargs):
+        super(ShowValues, self).__init__(*args, **kwargs)
+        self.store = {}
+
+    def run(self):
+        super(ShowValues, self).run()
+        self._Output(self._Trigger)
+        self.store = self.graph.STOREDVALUES
+
+    def report(self):
+        r = super(ShowValues, self).report()
+        r['template'] = 'programTemplate'
+        s = self.store
+        keys = sorted(s.keys())
+        r['stdout'] = '\\n'.join(['{}: {}'.format(key, str(s[key])) for key in keys])
+        return r
 
 # TODO Cleanup this mess. Prepare method and probably a lot of other stuff is no longer needed.

@@ -89,7 +89,7 @@ def programTemplate(data, cache):
         }}
         #stdout {{
            color: white;
-           font-size: 50%
+           font-size: 75%
         }}
         </style>
 

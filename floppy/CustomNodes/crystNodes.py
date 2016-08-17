@@ -92,8 +92,13 @@ class PDB2INS(CrystNode):
     Output('HKL', str)
     Output('PDB', str)
 
+    def __init__(self, *args, **kwargs):
+        super(PDB2INS, self).__init__(*args, **kwargs)
+        self.stdout = ''
+
     def check(self):
-        return self.inputs['FileName'].isAvailable()
+        x = self.inputs['FileName'].isAvailable()
+        return x
 
     def run(self):
         super(PDB2INS, self).run()
@@ -113,8 +118,13 @@ class PDB2INS(CrystNode):
         print(opt)
         # opt = [o for o in ' '.join(opt).split(' ') if o]
         # print(opt)
-        self.p = subprocess.Popen(opt, shell=True)
-        os.waitpid(self.p.pid, 0)
+        self.p = subprocess.Popen(opt, shell=True, stdout=subprocess.PIPE)
+        self.stdout = ''
+        while True:
+            line = self.p.stdout.readline()
+            if not line:
+                break
+            self.stdout += str(line)[1:]
         # print('ran')
         self._INS(open('__pdb2ins__.ins', 'r').read())
         try:
@@ -126,3 +136,26 @@ class PDB2INS(CrystNode):
             if file.startswith('__pdb2ins__'):
                 os.remove(file)
 
+    def report(self):
+        r = super(PDB2INS, self).report()
+        r['stdout'] = self.stdout
+        r['template'] = 'programTemplate'
+        return r
+
+
+
+class BreakPDB(CrystNode):
+    Input('PDB', str)
+    Output('Code', str)
+    Output('R1', float)
+
+    def run(self):
+        for line in self._PDB.splitlines():
+            if line.startswith('REMARK   3   R VALUE') and '(WORKING SET)' in line:
+                line = [i for i in line[:-1].split() if i]
+                r1 = line[-1]
+            elif line.startswith('HEADER'):
+                line = [i for i in line[:-1].split() if i]
+                code = line[-1]
+        self._Code(code)
+        self._R1(r1)

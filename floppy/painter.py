@@ -266,7 +266,7 @@ class Painter2D(Painter):
             if self.clickedNode == node:
                 # pen.setColor(Qt.green)
                 painter.setBrush(QColor(75, 75, 75))
-            elif node.ID in history:
+            if node.ID in history:
                 # if node.ID in history:
                 #     pen.setColor(QColor(175,175,175))
                 # else:
@@ -288,15 +288,10 @@ class Painter2D(Painter):
             x = node.__pos__[0]# + self.globalOffset.x()
             y = node.__pos__[1]# + self.globalOffset.y()
             w = node.__size__[0]*NODEWIDTHSCALE
-            # h = node.__size__[1]*16+40
             h = node.__size__[1]*(8+PINSIZE)+40
-            # painter.translate(xxx, yyy)
-            # x=0
-            # y=0
 
             path.addRoundedRect(x, y, w, h, 50, 5)
             self.nodePoints.append((QPoint(x, y)*painter.transform(), QPoint(x+w, y+h)*painter.transform(), node))
-            # pen.setColor(Qt.black)
             painter.setPen(pen)
 
             painter.fillPath(path, QColor(55,55,55))
@@ -339,6 +334,7 @@ class Painter2D(Painter):
                 drawItem.update(x, y+drawOffset+8, w, h, painter.transform())
                 if self.graph.getConnectionOfInput(inputPin):
                     text = inputPin.name
+                    drawItem.draw(painter, asLabel=text)
                     # self.drawLabel(x, y+drawOffset+8, w, h, text, painter, Qt.AlignLeft)
                 else:
                     item = drawItem.draw(painter)
@@ -1052,11 +1048,23 @@ class LineEdit(DrawItem):
             self.state = 0
         return collides
 
-    def draw(self, painter):
+    def draw(self, painter, asLabel=False):
+
         if not self.text and not self.data.info.default:
             text = self.data.name
         else:
             text = self.data.info.default
+        if asLabel:
+            text = asLabel
+            alignment = self.__class__.alignment
+            pen = QPen(Qt.darkGray)
+            painter.setPen(pen)
+            painter.setBrush(QColor(40, 40, 40))
+            xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18, self.w-18, 4+PINSIZE
+            painter.setFont(QFont('Helvetica', LINEEDITFONTSIZE))
+            painter.setPen(pen)
+            painter.drawText(xx+5, yy-3, ww-10, hh+5, alignment, text)
+            return
         text = str(text)
         if not self.state:
             alignment = self.__class__.alignment

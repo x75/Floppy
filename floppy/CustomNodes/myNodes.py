@@ -8,11 +8,11 @@ class MyNode(Node):
     Output('BBB', int)
 
 
-class PlotNode(Node):
+class PlotNode2(Node):
     Input('XX', str)
     Output('YY', str)
     def __init__(self, *args, **kwargs):
-        super(PlotNode, self).__init__(*args, **kwargs)
+        super(PlotNode2, self).__init__(*args, **kwargs)
         self.time = time.time()
         self.points = []
         self.counts = 0
@@ -24,12 +24,12 @@ class PlotNode(Node):
             return True
 
     def run(self):
-        super(PlotNode, self).run()
+        super(PlotNode2, self).run()
         self.counts += 1
         self.points.append((self.counts, random.randint(5,20)))
 
     def report(self):
-        r = super(PlotNode, self).report()
+        r = super(PlotNode2, self).report()
         r['template'] = 'plotTemplate'
         r['points'] = self.points[:]
         r['keep'] = 'points'

@@ -37,6 +37,7 @@ class Graph(object):
         self.connected = False
         self.nextFreeNodeID = 0
         self.nodes = {}
+        self.STOREDVALUES = {}
         self.connections = {}
         self.runner = None
         self.reverseConnections = {}
@@ -332,6 +333,7 @@ class Graph(object):
         :return:
         """
         self.executedBuffer = []
+        self.STOREDVALUES = {}
         print(self.rgiConnection.send('PAUSE'))
         message = self.serialize()
         # msg = struct.pack('>I', len(message)) + message.encode('utf-8')
