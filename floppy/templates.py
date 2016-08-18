@@ -16,6 +16,8 @@ def plotTemplate(data, cache, fileBase):
         plot(x, array(y), color='blue')
         # fig = plt.figure()
         savefig(__file__[:-12]+"/x.svg")
+        plt.close('all')
+        plt.clf()
         globals()['_pointCache'] = cache[:]
     return """<h1 id="head">{nodeName} -- {nodeID}</h1>
         <style>

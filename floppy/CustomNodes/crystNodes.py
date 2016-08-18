@@ -1,8 +1,9 @@
 # import lauescript
 # from lauescript.laueio import loader
+# from lauescript.cryst.iterators import iter_atom_pairs
 from lauescript.cryst.transformations import frac2cart
 from lauescript.types.adp import ADPDataError
-from floppy.node import Node, abstractNode, Input, Output, Tag
+from floppy.node import Node, abstractNode, Input, Output, Tag, ForLoop
 from floppy.FloppyTypes import Atom
 import subprocess
 import os
@@ -110,7 +111,7 @@ class PDB2INS(CrystNode):
                 ' -h '+str(self._HKLF) if self._HKLF else '',
                 ' -c '+str(self._CELL) if self._CELL else '',
                 ' -s '+str(self._SpaceGroup) if self._SpaceGroup else '',
-                ' -a ' if self._ANIS else '',
+                ' -a ' if self._ANIS else '-a',
                 ' -b ' if self._MakeHKL else '-b',
                 ' -r ' if self._REDO else '',
                 ' -z ' + str(self._Z) if self._Z else '')
@@ -143,7 +144,6 @@ class PDB2INS(CrystNode):
         return r
 
 
-
 class BreakPDB(CrystNode):
     Input('PDB', str)
     Output('Code', str)
@@ -159,3 +159,29 @@ class BreakPDB(CrystNode):
                 code = line[-1]
         self._Code(code)
         self._R1(r1)
+
+
+class ForEachAtomPair(ForLoop):
+    Input('Start', Atom, list=True)
+    Output('Atom1', Atom)
+    Output('Atom2', Atom)
+
+    # def __init__(self, *args, **kwargs):
+    #     super(ForEachAtomPair, self).__init__(*args, **kwargs)
+
+    def run(self):
+        atoms = self._Start
+        if self.fresh:
+            self.x = 0
+            self.y = 1
+            self.end = len(atoms)-1
+        self.fresh = False
+        self._Atom1(atoms[self.x])
+        self._Atom2(atoms[self.y])
+        self.y += 1
+        if self.y >= self.end:
+            self.x += 1
+            self.y = self.x+1
+        if self.x >= self.end:
+            self._Final(self._Start)
+            self.done = True

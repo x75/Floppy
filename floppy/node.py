@@ -794,15 +794,27 @@ class ReadFile(Node):
         self._Content(c)
 
 
-class ForEach(ControlNode):
+class WriteFile(Node):
+    Input('Name', str)
+    Input('Content', str)
+    Output('Trigger', object)
+
+    def run(self):
+        super(WriteFile, self).run()
+        with open(self._Name, 'w') as fp:
+            fp.write(self._Content)
+
+
+@abstractNode
+class ForLoop(ControlNode):
     """
     Generic loop node that iterates over all elements in a list.
     """
-    Input('Start', object, list=True)
-    Output('ListElement', object)
+    # Input('Start', object, list=True)
+    # Output('ListElement', object)
 
     def __init__(self, *args, **kwargs):
-        super(ForEach, self).__init__(*args, **kwargs)
+        super(ForLoop, self).__init__(*args, **kwargs)
         self.fresh = True
         self.counter = 0
         self.done = False
@@ -811,7 +823,7 @@ class ForEach(ControlNode):
     def setInput(self, inputName, value, override=False, loopLevel=0):
         if inputName == 'Control':
             loopLevel = self.loopLevel
-        super(ForEach, self).setInput(inputName, value, override, loopLevel)
+        super(ForLoop, self).setInput(inputName, value, override, loopLevel)
         # print('                                   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
 
     def check(self):
@@ -828,7 +840,7 @@ class ForEach(ControlNode):
                 return True
 
     def run(self):
-        super(ForEach, self).run()
+        super(ForLoop, self).run()
         self.fresh = False
         try:
             self._ListElement(self._Start[self.counter])
@@ -839,13 +851,14 @@ class ForEach(ControlNode):
 
     def notify(self):
         if not self.done:
-            output = self.outputs['ListElement']
-            for con in self.graph.getConnectionsOfOutput(output):
-                outputName = con['outputName']
-                nextNode = con['inputNode']
-                nextInput = con['inputName']
-                # nextNode.prepare()
-                nextNode.setInput(nextInput, self.outputs[outputName].value, override=True, loopLevel=self.loopLevel+1)
+            for oName in ('Atom1', 'Atom2'):
+                output = self.outputs[oName]
+                for con in self.graph.getConnectionsOfOutput(output):
+                    outputName = con['outputName']
+                    nextNode = con['inputNode']
+                    nextInput = con['inputName']
+                    # nextNode.prepare()
+                    nextNode.setInput(nextInput, self.outputs[outputName].value, override=True, loopLevel=self.loopLevel+1)
             self.inputs['Control'].reset(force=True)
 
         else:
@@ -863,6 +876,11 @@ class ForEach(ControlNode):
             self.counter = 0
             self.fresh = True
             self.done = False
+
+
+class ForEach(ForLoop):
+    Input('Start', object, list=True)
+    Output('ListElement', object)
 
 
 class IsEqual(Node):
@@ -1019,5 +1037,36 @@ class ShowValues(Node):
         keys = sorted(s.keys())
         r['stdout'] = '\\n'.join(['{}: {}'.format(key, str(s[key])) for key in keys])
         return r
+
+
+class Createlist(Node):
+    Input('Name', str)
+    Output('List', object, list=True)
+
+    def run(self):
+        super(Createlist, self).run()
+        l = []
+        self.graph.STOREDVALUES[self._Name] = l
+        self._List(l)
+
+
+class AppendValue(Node):
+    Input('Name', str)
+    Input('Value', object)
+    Output('List', object, list=True)
+
+    def run(self):
+        super(AppendValue, self).run()
+        self.graph.STOREDVALUES[self._Name].append(self._Value)
+        self._List(self.graph.STOREDVALUES[self._Name])
+
+
+class ToString(Node):
+    Input('Value', object)
+    Output('String', str)
+
+    def run(self):
+        super(ToString, self).run()
+        self._String(str(self._Value))
 
 # TODO Cleanup this mess. Prepare method and probably a lot of other stuff is no longer needed.
