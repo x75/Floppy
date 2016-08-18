@@ -231,6 +231,7 @@ class Painter2D(Painter):
         return self.clickedNode
 
     def paintEvent(self, event):
+        # before = time.time()
         self.inputPinPositions = []
         self.outputPinPositions = []
         self.nodePoints = []
@@ -398,6 +399,7 @@ class Painter2D(Painter):
         self.transform = painter.transform()
         for item in lastDraws:
             item.draw(painter, last=True)
+
 
     def drawConnections(self, painter):
         if not self.graph:

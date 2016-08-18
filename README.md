@@ -9,6 +9,15 @@ Floppy also provides an interpreter for these graphs that can run on a remote ma
 A recently added feature is the automatic concurrent execution of graphs. The Graph Interpreter will continuously check
 which nodes are ready to be executed and will then create a new thread for running each node.
 
+To execute a graph, the editor must connect to a graph interpreter. If a graph interpreter is running on a remote
+machine, the 'Connect' button can be used to establish a connection. However the easiest way is probably to create a local
+interpreter by clicking the 'Spawn' button. To load the currently active graph instance on the interpreter side, it has to
+be pushed via the 'Push' button. The 'Unpause' can then be used to start the execution.
+The 'Step' button can be used instead of 'Unpause' to execute the graph one step at a time.
+
+Now that I am writing this I realize how complicated that sounds... I need to change that.
+
+
 A main design goal is to make the addition of custom nodes as easy as possible. For example the following code will
 make a node for adding two integer available in the editor:
 
