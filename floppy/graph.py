@@ -276,20 +276,23 @@ class Graph(object):
         terminates.
         :return:
         """
-        return self.testRun()
-        running = True
-        i = 0
-        while running:
-            i += 1
-            print('\nExecuting iteration {}.'.format(i))
-            running = False
-            for node in self.nodes.values():
-                checked = node.check()
-                running = checked if not running else True
-                if checked:
-                    node.run()
-                    # raise RuntimeError('Uncaught exception while executing node {}.'.format(node))
-                    node.notify()
+        if not self.connected:
+            self.spawnAndConnect()
+        self.push2Runner()
+        time.sleep(1)
+        self.unpauseRunner()
+        # running = True
+        # i = 0
+        # while running:
+        #     i += 1
+        #     print('\nExecuting iteration {}.'.format(i))
+        #     running = False
+        #     for node in self.nodes.values():
+        #         checked = node.check()
+        #         running = checked if not running else True
+        #         if checked:
+        #             node.run()
+        #             node.notify()
 
     def runNodePar(self, node, cb=None, arg=None):
         self.runningNodes.append(node.ID)
