@@ -38,7 +38,7 @@ class RunShelxl(ShelxNode):
             if not line:
                 break
             self.stdout += str(line)[1:]
-        os.waitpid(self.p.pid, 0)
+        #os.waitpid(self.p.pid, 0)
         output = ''
         with open('__tmp__.res', 'r') as fp:
             output = fp.read()

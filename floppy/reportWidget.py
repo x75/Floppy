@@ -88,7 +88,9 @@ class ReportWidget(QtWebKitWidgets.QWebView):
         except KeyError:
             print('Error: {} template missing'.format(data['template']))
             return
-        url = QtCore.QUrl.fromLocalFile(__file__)
+
+        # url = QtCore.QUrl.fromLocalFile(self.fileBase)
+        url = QtCore.QUrl.fromLocalFile(QtCore.QDir(self.fileBase).absoluteFilePath('dummy.html'))
         QtWebKit.QWebSettings.clearMemoryCaches()
         self.setHtml(tmplt(data, self.cache[:], self.fileBase), url)
 

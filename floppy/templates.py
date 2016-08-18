@@ -2,6 +2,7 @@ from matplotlib.pyplot import plot, savefig
 import matplotlib.pyplot as plt
 from floppy.reportWidget import template
 from numpy import array, arange
+import os
 
 _pointCache = None
 
@@ -120,6 +121,9 @@ def programTemplate(data, cache, fileBase):
 def plotBarsGroupedTemplate(data, cache, fileBase):
     points = data['points']
     fileName = fileBase+'/_ppy_{}.svg'.format(data['ID'])
+    #fileName = os.path.join(fileBase, '_ppy_{}.svg'.format(data['ID']))
+    # fileName = '_ppy_{}.svg'.format(data['ID'])
+    # print(fileName)
 
     if not points == globals()['_pointCache'] and points:
         x, y = zip(*points)
@@ -141,6 +145,7 @@ def plotBarsGroupedTemplate(data, cache, fileBase):
         plt.tight_layout()
         savefig(fileName)
         globals()['_pointCache'] = cache[:]
+    fileName = '_ppy_{}.svg'.format(data['ID'])
     return """<h1 id="head">{nodeName} -- {nodeID}</h1>
         <style>
           h1 {{ text-align:center; color: white}}

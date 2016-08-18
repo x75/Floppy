@@ -851,7 +851,9 @@ class ForLoop(ControlNode):
 
     def notify(self):
         if not self.done:
-            for oName in ('Atom1', 'Atom2'):
+            for oName in self.outputs.keys():
+                if oName == 'Final':
+                    continue
                 output = self.outputs[oName]
                 for con in self.graph.getConnectionsOfOutput(output):
                     outputName = con['outputName']
