@@ -787,6 +787,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.drawer.graph.killRunner()
         except:
             print('No runner to kill.')
+        workDir = self.settings.value('WorkDir', type=str)
+        for file in os.listdir(workDir):
+            if file.startswith('_'):
+                os.remove(workDir+'/'+file)
         qApp.quit()
 
     def updateStatus(self):

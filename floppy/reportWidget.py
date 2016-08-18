@@ -1,4 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets, QtWebKitWidgets, QtWebKit
+from PyQt5.QtCore import Qt, QPoint, QSettings
 
 TEMPLATES = {}
 
@@ -62,6 +63,8 @@ class ReportWidget(QtWebKitWidgets.QWebView):
     def updateReport(self, data):
         if data == self.data:
             return
+        settings = QSettings('Floppy', 'Floppy')
+        self.fileBase = settings.value('WorkDir', type=str)
         self.data = data
         self._update()
 
@@ -87,11 +90,11 @@ class ReportWidget(QtWebKitWidgets.QWebView):
             return
         url = QtCore.QUrl.fromLocalFile(__file__)
         QtWebKit.QWebSettings.clearMemoryCaches()
-        self.setHtml(tmplt(data, self.cache[:]), url)
+        self.setHtml(tmplt(data, self.cache[:], self.fileBase), url)
 
 
 @template
-def defaultTemplate(data, cache):
+def defaultTemplate(data, cache, fileBase):
         return """<h1 id="head">{nodeName} -- {nodeID}</h1>
         <style>
           h1 {{ text-align:center; color: white}}

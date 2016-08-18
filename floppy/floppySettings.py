@@ -14,6 +14,8 @@ class SettingsDialog(QDialog):
                         ('Connection Line Width', ConnectionLineWidthEdit(settings, globals, self)),
                         ('Node Width Scale', NodeWidthEdit(settings, globals, self)),
                         ('Pin Size', PinSizeEdit(settings, globals, self)),
+                        ('Temporary File Settings', None),
+                        ('Work File Directory', WorkFileDirEdit(settings, globals, self)),
                         ]
         super(SettingsDialog, self).__init__(*args)
         self.setStyleSheet('''SettingsDialog {
@@ -228,3 +230,22 @@ class PinSizeEdit(QSpinBox):
     def redraw(self):
         self.globals['PINSIZE'] = self.value()
         self.parent.redraw()
+
+
+class WorkFileDirEdit(QPushButton):
+    def __init__(self, settings, globals, parent):
+        self.parent = parent
+        self.globals = globals
+        self.settings = settings
+        super(WorkFileDirEdit, self).__init__('Browse')
+        v = settings.value('WorkDir', type=str)
+        v = v if v else './'
+        self.value = v
+        self.clicked.connect(self.openDialog)
+
+    def commit(self):
+        self.settings.setValue('WorkDir', self.value)
+
+    def openDialog(self):
+        dirName = QFileDialog.getExistingDirectory(self, 'Temporary file storage', self.value)
+        self.value = dirName

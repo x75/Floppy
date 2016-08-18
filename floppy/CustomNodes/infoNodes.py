@@ -29,3 +29,25 @@ class PlotA_and_B(PlotNode):
         r['keep'] = 'points'
         self.data = []
         return r
+
+
+class PlotBarsGrouped(PlotNode):
+    Input('A', float)
+    Input('B', float)
+    Output('Trigger', object)
+
+    def __init__(self,*args, **kwargs):
+        super(PlotBarsGrouped, self).__init__(*args, **kwargs)
+        self.data = []
+
+    def run(self):
+        super(PlotBarsGrouped, self).run()
+        self.data.append((self._A, self._B))
+
+    def report(self):
+        r = super(PlotBarsGrouped, self).report()
+        r['template'] = 'plotBarsGroupedTemplate'
+        r['points'] = self.data[:]
+        # r['keep'] = 'points'
+        # self.data = []
+        return r
