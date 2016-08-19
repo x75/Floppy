@@ -1,5 +1,6 @@
 import os
 import time
+from floppy.graph import Graph
 from floppy.node import InputNotAvailable, ControlNode
 from floppy.mainwindow import Ui_MainWindow
 from floppy.floppySettings import SettingsDialog
@@ -45,6 +46,11 @@ class Painter2D(Painter):
     
     def __init__(self, parent=None):
         super(Painter2D, self).__init__(parent)
+        self.setMouseTracking(True)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.checkGraph)
+        self.timer.start(500)
+        self.setFocusPolicy(Qt.ClickFocus)
         self.graph = None
         self.shiftDown = False
         self.looseConnection = None
@@ -53,15 +59,31 @@ class Painter2D(Painter):
         self.drawItems = []
         self.drawItemsOfNode = {}
         self.watchingItems = set()
-        self.setMouseTracking(True)
+
         self.contextSensitive = True
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.checkGraph)
-        self.timer.start(500)
+
         self.mouseDownPos = None
         self.dialog = None
         self.relayTo = None
-        self.setFocusPolicy(Qt.ClickFocus)
+        self.reset()
+
+    def reset(self):
+        self.nodes = []
+        self.graph = None
+        self.shiftDown = False
+        self.looseConnection = None
+        self.reportWidget = None
+        self.pinPositions = {}
+        self.drawItems = []
+        self.drawItemsOfNode = {}
+        self.watchingItems = set()
+
+        self.contextSensitive = True
+
+        self.mouseDownPos = None
+        self.dialog = None
+        self.relayTo = None
+
 
     def checkGraph(self):
         if self.graph.needsUpdate():
@@ -600,6 +622,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         l.addWidget(drawWidget)
         self.DrawArea.setLayout(l)
         self.drawer = drawWidget
+        self.painter = drawWidget
 
         self.setupNodeLib()
         # self.drawer.graph.spawnAndConnect()
@@ -608,10 +631,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         settingsDialog.close()
 
     def initActions(self):
-        self.exitAction = QAction('Quit', self)
+        self.exitAction = QAction(QIcon(os.path.join(self.iconRoot, 'quit.png')), 'Quit', self)
         self.exitAction.setShortcut('Ctrl+Q')
         self.exitAction.setStatusTip('Exit application')
         self.exitAction.triggered.connect(self.close)
+
+        self.newAction = QAction(QIcon(os.path.join(self.iconRoot, 'new.png')), 'New', self)
+        self.newAction.setShortcut('Ctrl+N')
+        self.newAction.setStatusTip('New Graph')
+        self.newAction.triggered.connect(self.new)
 
         self.runAction = QAction(QIcon(os.path.join(self.iconRoot, 'run.png')), 'Run', self)
         self.runAction.setShortcut('Ctrl+R')
@@ -720,6 +748,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def initMenus(self):
         fileMenu = self.menuBar.addMenu('&File')
         fileMenu.addAction(self.exitAction)
+        fileMenu.addAction(self.newAction)
         fileMenu.addAction(self.runAction)
 
         advancedMenu = self.menuBar.addMenu('&Advanced')
@@ -729,6 +758,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         settingsMenu.addAction(self.settingsAction)
         
         self.mainToolBar.addAction(self.exitAction)
+        self.mainToolBar.addAction(self.newAction)
         self.mainToolBar.addAction(self.saveAction)
         self.mainToolBar.addAction(self.loadAction)
         self.mainToolBar.addSeparator()
@@ -745,6 +775,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mainToolBar.addAction(self.statusAction)
         self.mainToolBar.addAction(self.dropAction)
         self.mainToolBar.addAction(self.pushAction)
+
+    def new(self):
+        self.drawer.reset()
+        self.drawer.registerGraph(Graph(self.drawer))
+        self.drawer.reportWidget = self.BottomWidget
+        self.drawer.repaint()
+
 
     def openSettingsDialog(self):
         settingsDialog = SettingsDialog(self, settings=self.settings, globals=globals())
