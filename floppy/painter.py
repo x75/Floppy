@@ -666,37 +666,37 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.addAction(self.connectAction)
         
         
-        self.killRunnerAction = QAction('Kill', self)
+        self.killRunnerAction = QAction(QIcon(os.path.join(self.iconRoot, 'kill.png')), 'Kill Interpreter', self)
         self.killRunnerAction.setShortcut('Ctrl+Q')
         self.killRunnerAction.triggered.connect(self.killRunner)
         self.killRunnerAction.setIconVisibleInMenu(True)
         self.addAction(self.killRunnerAction)
 
-        self.pauseRunnerAction = QAction('Pause', self)
+        self.pauseRunnerAction = QAction(QIcon(os.path.join(self.iconRoot, 'pause.png')), 'Pause', self)
         self.pauseRunnerAction.setShortcut('Ctrl+Q')
         self.pauseRunnerAction.triggered.connect(self.pauseRunner)
         self.pauseRunnerAction.setIconVisibleInMenu(True)
         self.addAction(self.pauseRunnerAction)
         
-        self.unpauseRunnerAction = QAction('Unpause', self)
+        self.unpauseRunnerAction = QAction(QIcon(os.path.join(self.iconRoot, 'unpause.png')), 'Unpause', self)
         self.unpauseRunnerAction.setShortcut('Ctrl+Q')
         self.unpauseRunnerAction.triggered.connect(self.unpauseRunner)
         self.unpauseRunnerAction.setIconVisibleInMenu(True)
         self.addAction(self.unpauseRunnerAction)
         
-        self.stepRunnerAction = QAction('Step', self)
+        self.stepRunnerAction = QAction(QIcon(os.path.join(self.iconRoot, 'step.png')), 'Step', self)
         self.stepRunnerAction.setShortcut('Ctrl+Q')
         self.stepRunnerAction.triggered.connect(self.stepRunner)
         self.stepRunnerAction.setIconVisibleInMenu(True)
         self.addAction(self.stepRunnerAction)
         
-        self.gotoRunnerAction = QAction('GoTo', self)
+        self.gotoRunnerAction = QAction(QIcon(os.path.join(self.iconRoot, 'goto.png')), 'GoTo', self)
         self.gotoRunnerAction.setShortcut('Ctrl+Q')
         self.gotoRunnerAction.triggered.connect(self.gotoRunner)
         self.gotoRunnerAction.setIconVisibleInMenu(True)
         self.addAction(self.gotoRunnerAction)
         
-        self.updateRunnerAction = QAction('Update', self)
+        self.updateRunnerAction = QAction(QIcon(os.path.join(self.iconRoot, 'update.png')), 'Update', self)
         self.updateRunnerAction.setShortcut('Ctrl+Q')
         self.updateRunnerAction.triggered.connect(self.updateRunner)
         self.updateRunnerAction.setIconVisibleInMenu(True)
