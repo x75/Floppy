@@ -58,6 +58,7 @@ class Info(object):
         self.list = list
         self.loopLevel = 0
         self.usedDefault = False
+        self.pure = 0
 
     def setOwner(self, owner):
         self.owner = owner
@@ -126,6 +127,9 @@ class InputInfo(Info):
         if not self.name == 'Control':
             self.loopLevel = loopLevel
 
+    def setPure(self):
+        self.pure = 1
+
     def setConnected(self, value: bool):
         self.connected = value
 
@@ -133,9 +137,11 @@ class InputInfo(Info):
         if self.valueSet:
             # print('^^^^^^^^^^^^^^^^^^', self.name, self.value, self.valueSet)
             return True
-        elif self.default != None and not self.connected and not self.usedDefault:
+        elif self.default != None and not self.connected and not self.usedDefault and self.pure < 2:
+            if self.pure == 1:
+                self.pure = 2
             # self.usedDefault = True
-            # print('+++++++++++++++++', self.name, self.value, self.valueSet, self.owner)
+            print('+++++++++++++++++', self.name, self.value, self.valueSet, self.owner, self.usedDefault)
             return True
         return False
 
@@ -275,6 +281,9 @@ class Node(object, metaclass=MetaNode):
             self.outputBuffer[out.name] = None
         if not self.inputs.keys():
             raise AttributeError('Nodes without any input are not valid.')
+        if len(self.inputs.keys()) == 1:
+            self.inputs[list(self.inputs.keys())[0]].setPure()
+
 
     def __str__(self):
         return '{}-{}'.format(self.__class__.__name__, self.ID)

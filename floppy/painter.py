@@ -772,13 +772,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mainToolBar.addSeparator()
         self.mainToolBar.addAction(self.spawnRunnerAction)
         self.mainToolBar.addAction(self.pushAction)
+        self.mainToolBar.addAction(self.updateRunnerAction)
         self.mainToolBar.addAction(self.killRunnerAction)
         self.mainToolBar.addSeparator()
         # self.mainToolBar.addAction(self.deleteNodeAction)
         self.mainToolBar.addAction(self.connectAction)
         # self.mainToolBar.addAction(self.statusAction)
         self.mainToolBar.addAction(self.dropAction)
-        self.mainToolBar.addAction(self.updateRunnerAction)
+
 
         self.mainToolBar.addSeparator()
         self.mainToolBar.addAction(self.settingsAction)
