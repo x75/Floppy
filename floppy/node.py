@@ -687,9 +687,12 @@ class WaitAll(Node):
     """
     Watis for all inputs to be set before executing further nodes.
     """
-    Input('1', object)
-    Input('2', object)
-    Output('out', object)
+    Input('Pass', object)
+    Input('Wait', object)
+    Output('Out', object)
+
+    def run(self):
+        self._Out(self._Pass)
 
     def notify(self):
         super(WaitAll, self).notify()
@@ -1041,12 +1044,12 @@ class ShowValues(Node):
         return r
 
 
-class Createlist(Node):
+class CreateList(Node):
     Input('Name', str)
     Output('List', object, list=True)
 
     def run(self):
-        super(Createlist, self).run()
+        super(CreateList, self).run()
         l = []
         self.graph.STOREDVALUES[self._Name] = l
         self._List(l)
@@ -1070,5 +1073,36 @@ class ToString(Node):
     def run(self):
         super(ToString, self).run()
         self._String(str(self._Value))
+
+
+class MakeTable(Node):
+    Input('Keys', str, list=True)
+    # Input('Values', object, list=True)
+    Output('Table', str)
+
+    def run(self):
+        super(MakeTable, self).run()
+        for key, value in self.graph.STOREDVALUES.items():
+            print(key, value)
+        keys = self._Keys
+        data = [self.graph.STOREDVALUES[key] for key in keys]
+        # cols = len(keys)
+        table = ''
+        for key in keys:
+            table += '{} '.format(key)
+        table += '\n'
+        alive = True
+        while alive:
+            for col in data:
+                try:
+                    value = col.pop(0)
+                except IndexError:
+                    alive = False
+                    break
+                else:
+                    table += '{} '.format(value)
+        print(table)
+        self._Table(table)
+
 
 # TODO Cleanup this mess. Prepare method and probably a lot of other stuff is no longer needed.

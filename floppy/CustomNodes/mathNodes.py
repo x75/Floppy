@@ -44,7 +44,7 @@ class DotProduct(VectorNode):
 class Distance(VectorNode):
     Input('Position1', float, list=True)
     Input('Position2', float, list=True)
-    Output('Distance', float, list=True)
+    Output('Distance', float, )
 
     def run(self):
         super(Distance, self).run()

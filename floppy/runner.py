@@ -192,8 +192,8 @@ class ExecutionThread(Thread):
 
     def step(self):
         print('Stepping up.')
-        self.executeGraphStep()
-        self.master.updateRunningNodes(self.graph.runningNodes)
+        if self.executeGraphStep():
+            self.master.updateRunningNodes(self.graph.runningNodes)
         # self.executeGraphStepPar()
 
     def loadGraph(self):
@@ -211,6 +211,8 @@ class ExecutionThread(Thread):
         #self.resetPointers()
 
     def executeGraphStep(self):
+        if not self.graph:
+            return
         if self.master.nextNodePointer:
             print(self.master.nextNodePointer, self.graph.nodes.keys())
             nextNode = self.graph.nodes[self.master.nextNodePointer]
@@ -235,6 +237,7 @@ class ExecutionThread(Thread):
             if not running:
                 print('Nothing to do here @ {}'.format(time.time()))
                 time.sleep(.5)
+        return True
 
     def executeGraphStepPar(self):
         if self.master.nextNodePointer:
