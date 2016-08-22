@@ -669,7 +669,12 @@ class NodeThread(Thread):
 
     def run(self):
         super(NodeThread, self).run()
-        self.node.run()
+        try:
+            self.node.run()
+        except:
+            print('Something bad happened in when executing {}.'.format(str(self.node)))
+            self.node.unlock
+            return
         self.node.notify()
         if self.cb:
             self.cb(self.arg)

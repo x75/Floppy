@@ -889,13 +889,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         qApp.quit()
 
     def updateStatus(self):
-        self.drawer.graph.requestRemoteStatus()
+        try:
+            self.drawer.graph.requestRemoteStatus()
+        except AttributeError:
+            self.statusBar.showMessage('Cannot Update Graph. No Interpreter Available..', 2000)
 
     def dropGraph(self):
-        self.drawer.graph.dropGraph()
+        try:
+            self.drawer.graph.dropGraph()
+        except AttributeError:
+            self.statusBar.showMessage('Cannot Drop Graph. No Interpreter Available..', 2000)
 
     def pushGraph(self):
-        self.drawer.graph.push2Runner()
+        try:
+            self.drawer.graph.push2Runner()
+        except AttributeError:
+            self.statusBar.showMessage('Cannot Push Graph. No Interpreter Available.', 2000)
 
     def killRunner(self):
         try:
@@ -911,19 +920,34 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.drawer.repaint()
 
     def stepRunner(self):
-        self.drawer.graph.stepRunner()
+        try:
+            self.drawer.graph.stepRunner()
+        except AttributeError:
+            self.statusBar.showMessage('Cannot Execute Graph Step. No Interpreter Available.', 2000)
 
     def gotoRunner(self):
-        self.drawer.graph.gotoRunner(1)
+        try:
+            self.drawer.graph.gotoRunner(1)
+        except AttributeError:
+            self.statusBar.showMessage('Cannot Go To Node. No Interpreter Available.', 2000)
 
     def updateRunner(self):
-        self.drawer.graph.updateRunner()
+        try:
+            self.drawer.graph.updateRunner()
+        except AttributeError:
+            self.statusBar.showMessage('Cannot Update Interpreter. No Interpreter Available.', 2000)
 
     def pauseRunner(self):
-        self.drawer.graph.pauseRunner()
+        try:
+            self.drawer.graph.pauseRunner()
+        except AttributeError:
+            self.statusBar.showMessage('Cannot Pause Interpreter. No Interpreter Available.', 2000)
 
     def unpauseRunner(self):
-        self.drawer.graph.unpauseRunner()
+        try:
+            self.drawer.graph.unpauseRunner()
+        except AttributeError:
+            self.statusBar.showMessage('Cannot Unpause Interpreter. No Interpreter Available.', 2000)
 
     def spawnRunner(self):
         print('Spawning new Runner.')
