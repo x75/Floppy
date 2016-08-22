@@ -499,13 +499,13 @@ class Node(object, metaclass=MetaNode):
             conns = [outputConn['inputNode'].getInputID(outputConn['inputName']) for outputConn in conns]
             outputConns[key] = conns
         return {'class': self.__class__.__name__,
-                     'position': self.__pos__,
-                     'inputs': [(inputName, inp.varType.__name__, inp(True), inp.default)
-                                for inputName, inp in self.inputs.items()],
-                     'inputConnections': inputConns,
-                     'outputs': [(outputName, out.varType.__name__, out.value, out.default)
-                                 for outputName, out in self.outputs.items()],
-                     'outputConnections': outputConns,
+                'position': self.__pos__,
+                'inputs': [(inputName, inp.varType.__name__, inp(True), inp.default)
+                           for inputName, inp in self.inputs.items()],
+                'inputConnections': inputConns,
+                'outputs': [(outputName, out.varType.__name__, out.value, out.default)
+                            for outputName, out in self.outputs.items()],
+                'outputConnections': outputConns,
                 'subgraph': self.subgraph}
 
     @classmethod
@@ -542,6 +542,18 @@ class Pin(object):
         info.ID = pinID
         self.node = node
 
+
+@abstractNode
+class ProxyNode(Node):
+    """
+    A dummy node without any functionality used as a place holder for subgraphs.
+    """
+
+    def addProxyInput(self, name, output, input, varType):
+        pass
+
+    def addProxyOutput(self, name, output, input, varType):
+        pass
 
 @abstractNode
 class ControlNode(Node):

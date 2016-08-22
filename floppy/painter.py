@@ -69,7 +69,7 @@ class Painter2D(Painter):
         self.relayTo = None
         self.selectFrame = None
         self.selectFrame_End = None
-        self.selectedSubgraph = 'main'
+        self.selectedSubgraph = ('main', None)
         self.groupSelection = []
         self.reset()
 
@@ -96,19 +96,32 @@ class Painter2D(Painter):
         self.relayTo = None
         self.selectFrame = None
         self.selectFrame_End = None
-        self.selectedSubgraph = 'main'
+        self.selectedSubgraph = ('main', None)
         self.groupSelection = []
 
     def createSubgraph(self, name):
         for node in self.groupSelection:
             node.subgraph = name
+        print([i.name for i in self.getAllInputsOfSubgraph(name) if i.connected])
 
-    def setSelectedSubgraph(self, graph):
-        self.selectedSubgraph = graph
+    def setSelectedSubgraph(self, graph, parent=None):
+        if not parent:
+            parent = self.selectedSubgraph[0]
+        self.selectedSubgraph = (graph, parent)
 
     def getAllSubgraphs(self):
         return {node.subgraph for node in self.nodes}
 
+    def getAllInputsOfSubgraph(self, subgraph=None):
+        if not subgraph:
+            subgraph = self.selectedSubgraph[0]
+        inputs = {node.inputs.values() for node in self.nodes if node.subgraph == subgraph}
+        return [j for i in inputs for j in i]
+
+    def getAllOutputsOfSubgraph(self, subgraph=None):
+        if not subgraph:
+            subgraph = self.selectedSubgraph[0]
+        nodes = {node for node in self.nodes if node.subgraph == subgraph}
 
     def checkGraph(self):
         if self.graph.needsUpdate():
@@ -371,7 +384,7 @@ class Painter2D(Painter):
         halfPinSize = PINSIZE//2
 
         for j, node in enumerate(self.nodes):
-            if not self.selectedSubgraph == node.subgraph:
+            if not self.selectedSubgraph[0] == node.subgraph:
                 continue
             j *= 3
             j += 1
