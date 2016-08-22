@@ -100,9 +100,17 @@ class Painter2D(Painter):
         self.groupSelection = []
 
     def createSubgraph(self, name):
+        subgraph = set()
         for node in self.groupSelection:
             node.subgraph = name
-        print([i.name for i in self.getAllInputsOfSubgraph(name) if i.connected])
+            subgraph.add(node)
+        allInputs = [i for i in self.getAllInputsOfSubgraph(name)]
+        for inp in allInputs:
+            con = self.graph.getConnectionOfInput(inp)
+            if con:
+                outNode = con.outputNode
+                if not outNode in subgraph:
+                    print(outNode)
 
     def setSelectedSubgraph(self, graph, parent=None):
         if not parent:

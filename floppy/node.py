@@ -289,7 +289,6 @@ class Node(object, metaclass=MetaNode):
         if len(self.inputs.keys()) == 1:
             self.inputs[list(self.inputs.keys())[0]].setPure()
 
-
     def __str__(self):
         return '{}-{}'.format(self.__class__.__name__, self.ID)
 
