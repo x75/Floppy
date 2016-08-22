@@ -59,8 +59,9 @@ class Painter2D(Painter):
         self.drawItems = []
         self.drawItemsOfNode = {}
         self.watchingItems = set()
-
+        self.triggers = set()
         self.contextSensitive = True
+        self.rightClickedNode = None
 
         self.mouseDownPos = None
         self.dialog = None
@@ -69,6 +70,7 @@ class Painter2D(Painter):
 
     def reset(self):
         self.nodes = []
+        self.triggers = set()
         self.graph = None
         self.shiftDown = False
         self.looseConnection = None
@@ -77,6 +79,7 @@ class Painter2D(Painter):
         self.drawItems = []
         self.drawItemsOfNode = {}
         self.watchingItems = set()
+        self.rightClickedNode = None
 
         self.contextSensitive = True
 
@@ -134,7 +137,21 @@ class Painter2D(Painter):
             self.dialog = None
         self.mouseDownPos = event.pos()
         if event.button() == Qt.RightButton:
-            self.drag = event.pos()
+            self.rightClickedNode = None
+            for nodePoints in self.nodePoints:
+                x1 = nodePoints[0].x()
+                x2 = nodePoints[1].x() #+ x1
+                y1 = nodePoints[0].y()
+                y2 = nodePoints[1].y() #+ y1
+                xx = event.pos()
+                yy = xx.y()
+                xx = xx.x()
+                if x1 < xx < x2 and y1 < yy < y2:
+                    self.rightClickedNode = nodePoints[-1]
+                    break
+            if not self.rightClickedNode:
+                self.drag = event.pos()
+
         if event.button() == Qt.LeftButton:
             for item in self.watchingItems:
                 item.watchDown(event.pos())
@@ -252,6 +269,23 @@ class Painter2D(Painter):
     def getSelectedNode(self):
         return self.clickedNode
 
+    def contextMenuEvent(self, event):
+        node = self.rightClickedNode
+        if not node:
+            return None
+        menu = QMenu(self)
+        if not node in self.triggers:
+            triggerAction = menu.addAction('Add Trigger')
+            action = menu.exec_(self.mapToGlobal(event.pos()))
+            if action == triggerAction:
+                self.triggers.add(node)
+        else:
+            triggerAction = menu.addAction('Remove Trigger')
+            action = menu.exec_(self.mapToGlobal(event.pos()))
+            if action == triggerAction:
+                self.triggers.discard(node)
+        return None
+
     def paintEvent(self, event):
         # before = time.time()
         self.inputPinPositions = []
@@ -323,12 +357,21 @@ class Painter2D(Painter):
             pen.setColor(QColor(150, 150, 150))
             painter.setFont(QFont('Helvetica', NODETITLEFONTSIZE))
             painter.setPen(pen)
-            painter.drawText(x, y, w, h, Qt.AlignHCenter, node.__class__.__name__)
+            painter.drawText(x, y+3, w, h, Qt.AlignHCenter, node.__class__.__name__)
             painter.setBrush(QColor(40, 40, 40))
             drawOffset = 25
             # for i, inputPin in enumerate(node.inputPins.values()):
             for i, drawItem in enumerate(self.drawItemsOfNode[node]['inp']):
                 inputPin = drawItem.data
+                if inputPin.name == 'TRIGGER':
+                    if not node in self.triggers and not inputPin.info.connected:
+                        drawItem.update(x, y+drawOffset+8, w, h, painter.transform())
+                        drawItem.deactivate()
+                        drawOffset += (8 + PINSIZE)
+                        continue
+                    else:
+                        self.triggers.add(node)
+                        drawItem.activeate()
                 # pen.setColor(QColor(255, 190, 0))
                 try:
                     pen.setColor(Painter2D.PINCOLORS[inputPin.info.varType])
@@ -549,6 +592,9 @@ class Painter2D(Painter):
             self.drawItems.append(s)
             self.drawItemsOfNode[node]['out'].append(s)
         for inp in node.inputPins.values():
+            # print(inp.name)
+            # if inp.name == 'TRIGGER':# and inp.connected:
+            #      self.triggers.add(node)
             if inp.info.select:
                 s = Selector(node, inp, self)
             elif inp.info.name == 'Control':
@@ -943,6 +989,13 @@ class DrawItem(object):
         self.h = 0
         self.parent = parent
         self.data = data
+        self.active = True
+
+    def deactivate(self):
+        self.active = False
+
+    def activeate(self):
+        self.active = True
 
     def update(self, x, y, w, h, transform):
         self.transform = transform
@@ -975,6 +1028,8 @@ class DrawItem(object):
         self.state = state
 
     def collide(self, pos):
+        if not self.active:
+            return False
         if self._x < pos.x() < self._xx and self._y < pos.y() < self._yy:
             return True
 

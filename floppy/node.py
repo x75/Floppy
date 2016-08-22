@@ -42,10 +42,11 @@ class Info(object):
     """
     Class for handling all information related to both inputs and outputs.
     """
-    def __init__(self, name, varType, hints=None, default='', select=None, owner=False, list=False):
+    def __init__(self, name, varType, hints=None, default='', select=None, owner=False, list=False, optional=False):
         self.name = name
         self.connected = False
         self.varType = varType
+        self.optional = optional
         if not hints:
             self.hints = [varType.__name__]
         else:
@@ -186,13 +187,15 @@ class MetaNode(type):
                  hints=None,
                  default='',
                  select=None,
-                 list=False):
+                 list=False,
+                 optional=False):
         MetaNode.inputs.append({'name': name,
                                 'varType': varType,
                                 'hints': hints,
                                 'default': default,
                                 'select': select,
-                                'list': list})
+                                'list': list,
+                                'optional': optional})
 
     def addOutput(name: str,
                   varType: object,
@@ -249,6 +252,7 @@ class Node(object, metaclass=MetaNode):
     To access the value of an input during the Node's 'run' method or 'check' method use
     'myNodeInstance._myStringInput'. An 'InputNotAvailable' Exception is raised is the input is not set yet.
     """
+    Input('TRIGGER', object, optional=True)
     Tag('Node')
 
     def __init__(self, nodeID, graph):
@@ -358,7 +362,8 @@ class Node(object, metaclass=MetaNode):
             return self.notify()
         for inp in self.inputs.values():
             if not inp.isAvailable():
-                # print(self, inp.default)
+                if inp.optional and not inp.connected:
+                    continue
                 # print('        {}: Prerequisites not met.'.format(str(self)))
                 return False
         # print('        {}: ready.'.format(str(self)))
@@ -1004,7 +1009,7 @@ class SetValue(Node):
 
 
 class GetValue(Node):
-    Input('Trigger', object)
+    # Input('Trigger', object)
     Input('Name', str)
     Output('Value', object)
 
@@ -1032,7 +1037,7 @@ class SplitLines(Node):
 
 
 class ShowValues(Node):
-    Input('Trigger', object)
+    # Input('Trigger', object)
     Output('Output', object)
 
     def __init__(self, *args, **kwargs):
