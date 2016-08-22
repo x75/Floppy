@@ -1060,7 +1060,7 @@ class ShowValues(Node):
 
     def run(self):
         super(ShowValues, self).run()
-        self._Output(self._Trigger)
+        self._Output(self._TRIGGER)
         self.store = self.graph.STOREDVALUES
 
     def report(self):
