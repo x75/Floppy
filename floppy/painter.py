@@ -73,6 +73,9 @@ class Painter2D(Painter):
         self.groupSelection = []
         self.reset()
 
+    def groupSelected(self):
+        return len(self.groupSelection)
+
     def reset(self):
         self.nodes = []
         self.triggers = set()
@@ -95,6 +98,16 @@ class Painter2D(Painter):
         self.selectFrame_End = None
         self.selectedSubgraph = 'main'
         self.groupSelection = []
+
+    def createSubgraph(self, name):
+        for node in self.groupSelection:
+            node.subgraph = name
+
+    def setSelectedSubgraph(self, graph):
+        self.selectedSubgraph = graph
+
+    def getAllSubgraphs(self):
+        return {node.subgraph for node in self.nodes}
 
 
     def checkGraph(self):
@@ -358,6 +371,8 @@ class Painter2D(Painter):
         halfPinSize = PINSIZE//2
 
         for j, node in enumerate(self.nodes):
+            if not self.selectedSubgraph == node.subgraph:
+                continue
             j *= 3
             j += 1
             pen = QPen()
@@ -760,51 +775,44 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.saveAction.setIconVisibleInMenu(True)
         self.addAction(self.saveAction)
 
-        self.connectAction = QAction(QIcon(os.path.join(self.iconRoot, 'save.png')), 'Connect', self)
-        self.connectAction.setShortcut('Ctrl+Q')
-        self.connectAction.triggered.connect(self.killRunner)
-        self.connectAction.setIconVisibleInMenu(True)
-        self.addAction(self.connectAction)
-        
-        
         self.killRunnerAction = QAction(QIcon(os.path.join(self.iconRoot, 'kill.png')), 'Kill Interpreter', self)
-        self.killRunnerAction.setShortcut('Ctrl+Q')
+        self.killRunnerAction.setShortcut('Ctrl+K')
         self.killRunnerAction.triggered.connect(self.killRunner)
         self.killRunnerAction.setIconVisibleInMenu(True)
         self.addAction(self.killRunnerAction)
 
         self.pauseRunnerAction = QAction(QIcon(os.path.join(self.iconRoot, 'pause.png')), 'Pause', self)
-        self.pauseRunnerAction.setShortcut('Ctrl+Q')
+        self.pauseRunnerAction.setShortcut('Ctrl+P')
         self.pauseRunnerAction.triggered.connect(self.pauseRunner)
         self.pauseRunnerAction.setIconVisibleInMenu(True)
         self.addAction(self.pauseRunnerAction)
         
         self.unpauseRunnerAction = QAction(QIcon(os.path.join(self.iconRoot, 'unpause.png')), 'Unpause', self)
-        self.unpauseRunnerAction.setShortcut('Ctrl+Q')
+        self.unpauseRunnerAction.setShortcut('Ctrl+L')
         self.unpauseRunnerAction.triggered.connect(self.unpauseRunner)
         self.unpauseRunnerAction.setIconVisibleInMenu(True)
         self.addAction(self.unpauseRunnerAction)
         
         self.stepRunnerAction = QAction(QIcon(os.path.join(self.iconRoot, 'step.png')), 'Step', self)
-        self.stepRunnerAction.setShortcut('Ctrl+Q')
+        self.stepRunnerAction.setShortcut('Ctrl+K')
         self.stepRunnerAction.triggered.connect(self.stepRunner)
         self.stepRunnerAction.setIconVisibleInMenu(True)
         self.addAction(self.stepRunnerAction)
         
         self.gotoRunnerAction = QAction(QIcon(os.path.join(self.iconRoot, 'goto.png')), 'GoTo', self)
-        self.gotoRunnerAction.setShortcut('Ctrl+Q')
+        self.gotoRunnerAction.setShortcut('Ctrl+F')
         self.gotoRunnerAction.triggered.connect(self.gotoRunner)
         self.gotoRunnerAction.setIconVisibleInMenu(True)
         self.addAction(self.gotoRunnerAction)
         
         self.updateRunnerAction = QAction(QIcon(os.path.join(self.iconRoot, 'update.png')), 'Update', self)
-        self.updateRunnerAction.setShortcut('Ctrl+Q')
+        self.updateRunnerAction.setShortcut('Ctrl+U')
         self.updateRunnerAction.triggered.connect(self.updateRunner)
         self.updateRunnerAction.setIconVisibleInMenu(True)
         self.addAction(self.updateRunnerAction)
         
         self.spawnRunnerAction = QAction(QIcon(os.path.join(self.iconRoot, 'spawn.png')), 'Spawn', self)
-        self.spawnRunnerAction.setShortcut('Ctrl+Q')
+        self.spawnRunnerAction.setShortcut('Ctrl+H')
         self.spawnRunnerAction.triggered.connect(self.spawnRunner)
         self.spawnRunnerAction.setIconVisibleInMenu(True)
         self.addAction(self.spawnRunnerAction)
@@ -816,35 +824,41 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.addAction(self.deleteNodeAction)
         
         self.connectAction = QAction(QIcon(os.path.join(self.iconRoot, 'connect.png')), 'Connect', self)
-        self.connectAction.setShortcut('Ctrl+R')
+        self.connectAction.setShortcut('Ctrl+C')
         self.connectAction.triggered.connect(self.connect)
         self.connectAction.setIconVisibleInMenu(True)
         self.addAction(self.connectAction)
         
         self.statusAction = QAction('Status', self)
-        self.statusAction.setShortcut('Ctrl+R')
+        # self.statusAction.setShortcut('Ctrl+R')
         self.statusAction.triggered.connect(self.updateStatus)
         self.statusAction.setIconVisibleInMenu(True)
         self.addAction(self.statusAction)
 
         self.dropAction = QAction(QIcon(os.path.join(self.iconRoot, 'drop.png')), 'Drop', self)
-        self.dropAction.setShortcut('Ctrl+R')
+        self.dropAction.setShortcut('Ctrl+I')
         self.dropAction.triggered.connect(self.dropGraph)
         self.dropAction.setIconVisibleInMenu(True)
         self.addAction(self.dropAction)
 
         self.pushAction = QAction(QIcon(os.path.join(self.iconRoot, 'push.png')), 'Push', self)
-        self.pushAction.setShortcut('Ctrl+R')
+        self.pushAction.setShortcut('Ctrl+X')
         self.pushAction.triggered.connect(self.pushGraph)
         self.pushAction.setIconVisibleInMenu(True)
         self.addAction(self.pushAction)
         
         self.settingsAction = QAction(QIcon(os.path.join(self.iconRoot, 'settings.png')), 'Settings', self)
-        self.settingsAction.setShortcut('Ctrl+O')
+        self.settingsAction.setShortcut('Ctrl+T')
         self.settingsAction.triggered.connect(self.openSettingsDialog)
         self.settingsAction.setIconVisibleInMenu(False)
         self.addAction(self.settingsAction)
-
+        
+        self.createSubgraphAction = QAction(QIcon(os.path.join(self.iconRoot, 'macro.png')), 'Create Macro', self)
+        self.createSubgraphAction.setShortcut('Ctrl+G')
+        self.createSubgraphAction.triggered.connect(self.openMacroDialog)
+        self.createSubgraphAction.setIconVisibleInMenu(False)
+        self.addAction(self.createSubgraphAction)
+        
 
     def initMenus(self):
         fileMenu = self.menuBar.addMenu('&File')
@@ -854,6 +868,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         advancedMenu = self.menuBar.addMenu('&Advanced')
         advancedMenu.addAction(self.connectAction)
+        advancedMenu.addAction(self.createSubgraphAction)
 
         settingsMenu = self.menuBar.addMenu('&Settings')
         settingsMenu.addAction(self.settingsAction)
@@ -882,14 +897,44 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mainToolBar.addAction(self.dropAction)
 
 
+
         self.mainToolBar.addSeparator()
         self.mainToolBar.addAction(self.settingsAction)
+        self.mainToolBar.addSeparator()
+
+        self.mainToolBar.addWidget(QLabel('Display Macro:'))
+        macroSelector = QComboBox(self.mainToolBar)
+        self.macroSelector = macroSelector
+        macroSelector.addItem('main')
+        self.knownSubgraphs = {'main'}
+        macroSelector.currentTextChanged.connect(self.selectSubgraph)
+        macroSelector.activated.connect(self.getSubgraphList)
+        self.mainToolBar.addWidget(macroSelector)
+
+    def selectSubgraph(self):
+        self.drawer.setSelectedSubgraph(self.macroSelector.currentText())
+        self.drawer.update()
+
+    def getSubgraphList(self):
+        new = self.drawer.getAllSubgraphs()
+        self.macroSelector.addItems(new.difference(self.knownSubgraphs))
+        self.knownSubgraphs = self.knownSubgraphs.union(new)
 
     def new(self):
         self.drawer.reset()
         self.drawer.registerGraph(Graph(self.drawer))
         self.drawer.reportWidget = self.BottomWidget
         self.drawer.repaint()
+
+    def openMacroDialog(self):
+        if not self.drawer.groupSelected():
+            self.statusBar.showMessage('You Must Select a Group to Create a Macro.', 2000)
+            return
+        name, state = QInputDialog.getText(self, 'Create Macro', 'Macro Name:')
+        if not state:
+            return
+        self.drawer.createSubgraph(name)
+        self.getSubgraphList()
 
 
     def openSettingsDialog(self):

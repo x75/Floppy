@@ -460,6 +460,8 @@ class Graph(object):
                 else:
                     raise Exception('Unknown Node class <{}>.'.format(nodeData['class']))
                 continue
+            else:
+                restoredNode.subgraph = nodeData['subgraph']
             idMap[int(id)] = restoredNode.ID
             inputs = nodeData['inputs']
             outputs = nodeData['outputs']
