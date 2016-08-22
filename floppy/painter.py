@@ -67,6 +67,10 @@ class Painter2D(Painter):
         self.mouseDownPos = None
         self.dialog = None
         self.relayTo = None
+        self.selectFrame = None
+        self.selectFrame_End = None
+        self.selectedSubgraph = 'main'
+        self.groupSelection = []
         self.reset()
 
     def reset(self):
@@ -87,6 +91,10 @@ class Painter2D(Painter):
         self.mouseDownPos = None
         self.dialog = None
         self.relayTo = None
+        self.selectFrame = None
+        self.selectFrame_End = None
+        self.selectedSubgraph = 'main'
+        self.groupSelection = []
 
 
     def checkGraph(self):
@@ -195,7 +203,10 @@ class Painter2D(Painter):
                     # print(self.clickedNode)
                     self.update()
                     self.downOverNode = event.pos()
-                    break
+                    return
+            self.groupSelection = []
+            self.selectFrame = event.pos()
+
 
     def getOutputPinAt(self, pos):
         for point, pin in self.outputPinPositions:
@@ -233,12 +244,31 @@ class Painter2D(Painter):
                                                    abs((event.pos()-self.mouseDownPos).y()) > 10):
                     # print('Do something. NOW!!!')
                     self.openDialog(event)
+            self.looseConnection = False
+            self.clickedPin = None
         self.drag = False
         self.downOverNode = False
-        self.looseConnection = False
-        self.clickedPin = None
+
+        if self.selectFrame and self.selectFrame_End:
+            self.groupSelection = self.massNodeCollide(self.selectFrame.x(), self.selectFrame.y(),
+                                                       self.selectFrame_End.x(), self.selectFrame_End.y())
+        self.selectFrame = None
+        self.selectFrame_End = None
         self.repaint()
         self.update()
+
+    def massNodeCollide(self, x, y, xx, yy):
+        nodes = []
+        for nodePoints in self.nodePoints:
+            x1 = nodePoints[0].x()
+            x2 = nodePoints[1].x() #+ x1
+            y1 = nodePoints[0].y()
+            y2 = nodePoints[1].y() #+ y1
+            if x < x1 < xx and y < y1 < yy and x < x2 < xx and y < y2 < yy:
+                nodes.append(nodePoints[-1])
+                # print(self.clickedNode)
+        return nodes
+
 
     def openDialog(self, event):
         dialog = NodeDialog(self, event, self.clickedPin, self.graph)
@@ -256,16 +286,28 @@ class Painter2D(Painter):
             # self.repaint()
             self.update()
         if self.downOverNode:
-            node = self.clickedNode
-            newPos = (event.pos() - self.downOverNode)*self.scale**-1
-            oldPos = QPoint(node.__pos__[0], node.__pos__[1])
-            newPos = oldPos + newPos
-            node.__pos__ = (newPos.x(), newPos.y())
-            self.downOverNode = event.pos()
-            self.update()
+            if self.groupSelection:
+                for node in self.groupSelection:
+                    newPos = (event.pos() - self.downOverNode)*self.scale**-1
+                    oldPos = QPoint(node.__pos__[0], node.__pos__[1])
+                    newPos = oldPos + newPos
+                    node.__pos__ = (newPos.x(), newPos.y())
+                self.downOverNode = event.pos()
+                self.update()
+            else:
+                node = self.clickedNode
+                newPos = (event.pos() - self.downOverNode)*self.scale**-1
+                oldPos = QPoint(node.__pos__[0], node.__pos__[1])
+                newPos = oldPos + newPos
+                node.__pos__ = (newPos.x(), newPos.y())
+                self.downOverNode = event.pos()
+                self.update()
+
         else:
             self.drawLooseConnection(event.pos())
             self.update()
+        if self.selectFrame:
+            self.selectFrame_End = event.pos()
 
     def getSelectedNode(self):
         return self.clickedNode
@@ -321,7 +363,7 @@ class Painter2D(Painter):
             pen = QPen()
             pen.setWidth(2)
             painter.setBrush(QColor(55, 55, 55))
-            if self.clickedNode == node:
+            if self.clickedNode == node or node in self.groupSelection:
                 # pen.setColor(Qt.green)
                 painter.setBrush(QColor(75, 75, 75))
             if node.ID in history:
@@ -463,8 +505,20 @@ class Painter2D(Painter):
         self.pinPositions = {value[1]: value[0] for value in self.inputPinPositions+self.outputPinPositions}
         # self.drawConnections(painter)
         self.transform = painter.transform()
+        self.transform = painter.transform()
         for item in lastDraws:
             item.draw(painter, last=True)
+
+        if self.selectFrame and self.selectFrame_End:
+            painter.setBrush(QColor(255,255,255,25))
+            painter.setPen(Qt.white)
+            x = self.selectFrame.x()
+            y = self.selectFrame.y()
+            xx = self.selectFrame_End.x() - x
+            yy = self.selectFrame_End.y() - y
+            painter.translate(-self.width()/2. - self.globalOffset.x(), -self.height()/2. - self.globalOffset.y())
+            painter.drawRect(x, y, xx, yy)
+            painter.translate(self.width()/2. + self.globalOffset.x(), self.height()/2. + self.globalOffset.y())
 
 
     def drawConnections(self, painter):

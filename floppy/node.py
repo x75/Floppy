@@ -260,6 +260,7 @@ class Node(object, metaclass=MetaNode):
         self.__pos__ = (0, 0)
         self.graph = graph
         self.locked = False
+        self.subgraph = 'main'
         self.ID = nodeID
         self.buffered = False
         self.inputs = OrderedDict()
@@ -504,7 +505,8 @@ class Node(object, metaclass=MetaNode):
                      'inputConnections': inputConns,
                      'outputs': [(outputName, out.varType.__name__, out.value, out.default)
                                  for outputName, out in self.outputs.items()],
-                     'outputConnections': outputConns}
+                     'outputConnections': outputConns,
+                'subgraph': self.subgraph}
 
     @classmethod
     def matchHint(cls, text: str):
