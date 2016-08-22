@@ -48,17 +48,17 @@ class Graph(object):
         else:
             self.painter = dummy
 
-    def spawnAndConnect(self):
+    def spawnAndConnect(self, port=8079):
         """
         Spawns a new graph interpreter instance and establishes a TCP/IP connection to it.
         :return:
         """
         if not self.runner:
             self.runner = Runner()
-        self.connect2RemoteRunner(host='127.0.0.1', port=7234)
+        self.connect2RemoteRunner(host='127.0.0.1', port=port)
         self.slave = True
 
-    def connect2RemoteRunner(self, host='127.0.0.1', port=7234):
+    def connect2RemoteRunner(self, host='127.0.0.1', port=8079):
         self.cmdHost = host
         self.cmdPort = int(port)
         self.slave = False
@@ -661,8 +661,10 @@ class NodeThread(Thread):
         # node.lock()
         self.node = node
         self.cb = cb
+
         self.arg = arg
         super(NodeThread, self).__init__()
+        self.daemon = True
         self.start()
 
     def run(self):

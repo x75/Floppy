@@ -12,6 +12,7 @@ from PyQt5.Qt import QTimer
 import platform
 
 
+LOCALPORT = 8080
 PINSIZE = 8
 NODETITLEFONTSIZE = 12
 CONNECTIONLINEWIDTH = 2
@@ -881,7 +882,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         workDir = self.settings.value('WorkDir', type=str)
         for file in os.listdir(workDir):
             if file.startswith('_'):
-                os.remove(workDir+'/'+file)
+                try:
+                    os.remove(workDir+'/'+file)
+                except:
+                    pass
         qApp.quit()
 
     def updateStatus(self):
@@ -924,7 +928,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def spawnRunner(self):
         print('Spawning new Runner.')
         self.statusBar.showMessage('New Remote Interpreter spawned.', 2000)
-        self.drawer.graph.spawnAndConnect()
+        self.drawer.graph.spawnAndConnect(LOCALPORT)
 
     def runCode(self, *args):
         self.drawer.graph.execute()

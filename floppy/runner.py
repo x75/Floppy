@@ -16,7 +16,8 @@ import struct
 # host = '127.0.0.1'
 # host = '10.76.64.86'
 host = ''
-port = 7234
+port = 8079
+
 
 # updatePort = 7237
 
@@ -148,11 +149,13 @@ class Runner(object):
 class ExecutionThread(Thread):
     def __init__(self, cmdQueue, master):
         self.graph = None
+
         self.master = master
         self.paused = True
         self.alive = True
         self.cmdQueue = cmdQueue
         super(ExecutionThread, self).__init__()
+        self.daemon = True
         # self.updateGraph()
         self.start()
 

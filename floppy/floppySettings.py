@@ -7,6 +7,7 @@ class SettingsDialog(QDialog):
         self.settings= settings
         self.dialogs = [('Network Settings', None),
                         ('Default Connection', DefaultConnectionEdit(settings, globals, self)),
+                        ('Local Interpreter Port', LocalInterpreterPortEdit(settings, globals, self)),
                         ('Node Graph Render Settings', None),
                         ('Node Font Size', FontSizeEdit(settings, globals, self)),
                         ('Node Font Offset', FontOffsetEdit(settings, globals, self)),
@@ -249,3 +250,19 @@ class WorkFileDirEdit(QPushButton):
     def openDialog(self):
         dirName = QFileDialog.getExistingDirectory(self, 'Temporary file storage', self.value)
         self.value = dirName
+
+
+class LocalInterpreterPortEdit(QSpinBox):
+    def __init__(self, settings, globals, parent):
+        self.parent = parent
+        self.globals = globals
+        self.settings = settings
+        super(LocalInterpreterPortEdit, self).__init__()
+        v = settings.value('LocalPort', type=int)
+        v = v if v else 8080
+        self.setRange(1, 99999)
+        self.setValue(v)
+
+    def commit(self):
+        self.settings.setValue('LocalPort', self.value())
+        self.globals['LOCALPORT'] = self.value()

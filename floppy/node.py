@@ -142,7 +142,7 @@ class InputInfo(Info):
             if self.pure == 1:
                 self.pure = 2
             # self.usedDefault = True
-            print('+++++++++++++++++', self.name, self.value, self.valueSet, self.owner, self.usedDefault)
+            # print('+++++++++++++++++', self.name, self.value, self.valueSet, self.owner, self.usedDefault)
             return True
         return False
 
