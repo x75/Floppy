@@ -142,7 +142,7 @@ class InputInfo(Info):
             if self.pure == 1:
                 self.pure = 2
             # self.usedDefault = True
-            # print('+++++++++++++++++', self.name, self.value, self.valueSet, self.owner, self.usedDefault)
+            # print('+++++++++++++++++', self.name, self.value, self.valueSet, self.owner, self.usedDefault, self.pure)
             return True
         return False
 
@@ -286,8 +286,8 @@ class Node(object, metaclass=MetaNode):
             self.outputBuffer[out.name] = None
         if not self.inputs.keys():
             raise AttributeError('Nodes without any input are not valid.')
-        if len(self.inputs.keys()) == 1:
-            self.inputs[list(self.inputs.keys())[0]].setPure()
+        if len(self.inputs.keys()) == 2:
+            self.inputs[list(self.inputs.keys())[1]].setPure()
 
     def __str__(self):
         return '{}-{}'.format(self.__class__.__name__, self.ID)
@@ -535,6 +535,7 @@ class Pin(object):
     Class for storing all information required to represent a input/output pin.
     """
     def __init__(self, pinID, info, node):
+        self.ID = pinID
         self.ID = pinID
         self.name = info.name
         self.info = info
@@ -1059,7 +1060,7 @@ class ShowValues(Node):
 
     def run(self):
         super(ShowValues, self).run()
-        self._Output(self._Trigger)
+        self._Output(self._TRIGGER)
         self.store = self.graph.STOREDVALUES
 
     def report(self):

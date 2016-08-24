@@ -47,6 +47,8 @@ class Runner(object):
 
     # def __del__(self):
     #     self.updateSocket.close()
+    def join(self):
+        self.executionThread.join()
 
     def resetPointers(self):
         self.nextNodePointer = None
@@ -517,3 +519,4 @@ if __name__ == '__main__':
             except Exception as e:
                 print('Warning: error in custom node:\n{}'.format(str(e)))
     r = Runner()
+    r.join()
