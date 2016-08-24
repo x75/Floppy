@@ -2,9 +2,12 @@ from matplotlib.pyplot import plot, savefig
 import matplotlib.pyplot as plt
 from floppy.reportWidget import template
 from numpy import array, arange
+import threading
+import time
 import os
 
 _pointCache = None
+plotting = False
 
 @template
 def plotTemplate(data, cache, fileBase):
@@ -117,6 +120,38 @@ def programTemplate(data, cache, fileBase):
                                        name, varType, value in data['outputs']]),
                    stdout=data['stdout'].replace('\\n', '<br>'))
 
+
+def plotBars(points, cache, fileName):
+    globals()['_pointCache'] = cache
+    # thisPlot = time.time()
+    # try:
+    #     if thisPlot - lastPlot < 5:
+    #         return
+    # except:
+    #     lastPlot = thisPlot
+    #     return
+    # lastPlot = thisPlot
+    x, y = zip(*points)
+    n_groups = len(x)
+    fig, ax = plt.subplots()
+    index = arange(n_groups)
+    bar_width = 0.35
+    opacity = .4
+    rects1 = plt.bar(index, x, bar_width,
+                     alpha=opacity,
+                     color='b',
+                     label='A')
+    rects2 = plt.bar(index + bar_width, y, bar_width,
+                     alpha=opacity,
+                     color='r',
+                     label='B')
+    plt.xticks(index+bar_width)
+    plt.legend()
+    plt.tight_layout()
+    savefig(fileName)
+    global plotting
+    plotting = False
+
 @template
 def plotBarsGroupedTemplate(data, cache, fileBase):
     points = data['points']
@@ -124,27 +159,33 @@ def plotBarsGroupedTemplate(data, cache, fileBase):
     #fileName = os.path.join(fileBase, '_ppy_{}.svg'.format(data['ID']))
     # fileName = '_ppy_{}.svg'.format(data['ID'])
     # print(fileName)
-
+    global plotting
     if not points == globals()['_pointCache'] and points:
-        x, y = zip(*points)
-        n_groups = len(x)
-        fig, ax = plt.subplots()
-        index = arange(n_groups)
-        bar_width = 0.35
-        opacity = .4
-        rects1 = plt.bar(index, x, bar_width,
-                         alpha=opacity,
-                         color='b',
-                         label='A')
-        rects2 = plt.bar(index + bar_width, y, bar_width,
-                         alpha=opacity,
-                         color='r',
-                         label='B')
-        plt.xticks(index+bar_width)
-        plt.legend()
-        plt.tight_layout()
-        savefig(fileName)
-        globals()['_pointCache'] = cache[:]
+        if not plotting:
+            plotting = True
+            threading.Thread(target=plotBars, args=(points, cache, fileName)).start()
+        else:
+            return None
+        # x, y = zip(*points)
+        # n_groups = len(x)
+        # fig, ax = plt.subplots()
+        # index = arange(n_groups)
+        # bar_width = 0.35
+        # opacity = .4
+        # rects1 = plt.bar(index, x, bar_width,
+        #                  alpha=opacity,
+        #                  color='b',
+        #                  label='A')
+        # rects2 = plt.bar(index + bar_width, y, bar_width,
+        #                  alpha=opacity,
+        #                  color='r',
+        #                  label='B')
+        # plt.xticks(index+bar_width)
+        # plt.legend()
+        # plt.tight_layout()
+        # savefig(fileName)
+        # globals()['_pointCache'] = cache[:]
+
     fileName = '_ppy_{}.svg'.format(data['ID'])
     return """<h1 id="head">{nodeName} -- {nodeID}</h1>
         <style>

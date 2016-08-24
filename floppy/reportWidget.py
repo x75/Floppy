@@ -92,7 +92,9 @@ class ReportWidget(QtWebKitWidgets.QWebView):
         # url = QtCore.QUrl.fromLocalFile(self.fileBase)
         url = QtCore.QUrl.fromLocalFile(QtCore.QDir(self.fileBase).absoluteFilePath('dummy.html'))
         QtWebKit.QWebSettings.clearMemoryCaches()
-        self.setHtml(tmplt(data, self.cache[:], self.fileBase), url)
+        html = tmplt(data, self.cache[:], self.fileBase)
+        if html:
+            self.setHtml(html, url)
 
 
 @template
