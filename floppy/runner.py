@@ -411,11 +411,27 @@ class CommandProcessor(Thread):
         return data
 
 
-class RGIConnection(object):
+class RGIConnection(Thread):
     def __init__(self, verbose=True):
+        super(RGIConnection, self).__init__()
+        self.daemon = True
+        self.cmdQueue = []
         self.socket = None
         self.host = None
         self.port = None
+        self.alive = True
+        self.start()
+        
+    def run(self):
+        super(RGIConnection, self).run()
+        while self.alive:
+            try:
+                cmd = self.cmdQueue.pop(0)
+            except IndexError:
+                time.sleep(.1)
+            else:
+                answer = self._send(cmd[0])
+                cmd[1](answer)
 
     def connect(self, host, port, validate=True):
         self.host = host
@@ -424,7 +440,7 @@ class RGIConnection(object):
         self.socket.settimeout(5.)
         self.socket.connect((host, port))
         if validate:
-            print(self.send('READY?'))
+            self.send('READY?', print)
 
     def disconnect(self):
         self.socket.close()
@@ -434,7 +450,10 @@ class RGIConnection(object):
         time.sleep(.5)
         self.socket.connect((self.host, self.port))
 
-    def send(self, message):
+    def send(self, message, target):
+        self.cmdQueue.append((message, target))
+
+    def _send(self, message):
         # print('[REQUEST] ' + message)
         msg = struct.pack('>I', len(message)) + message.encode('utf-8')
         self.socket.sendall(msg)
