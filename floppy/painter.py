@@ -1068,7 +1068,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def runCode(self, *args):
         self.drawer.graph.execute()
-        self.statusBar.showMessage('Code execution successful.', 2000)
+        self.statusBar.showMessage('Code execution started.', 2000)
 
     def loadGraph(self, *args):
         fileName = QFileDialog.getOpenFileName(self, 'Open File', '~/',
