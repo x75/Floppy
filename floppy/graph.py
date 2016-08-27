@@ -687,8 +687,9 @@ class NodeThread(Thread):
         super(NodeThread, self).run()
         try:
             self.node.run()
-        except:
+        except Exception as a:
             print('Something bad happened in when executing {}.'.format(str(self.node)))
+            print(a)
             self.node.unlock
             return
         self.node.notify()
