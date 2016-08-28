@@ -17,6 +17,8 @@ class SettingsDialog(QDialog):
                         ('Pin Size', PinSizeEdit(settings, globals, self)),
                         ('Temporary File Settings', None),
                         ('Work File Directory', WorkFileDirEdit(settings, globals, self)),
+                        ('Remote Interpreter Settings', None),
+                        ('Frame Rate', RGIFrameRateEdit(settings, globals, self)),
                         ]
         super(SettingsDialog, self).__init__(*args)
         self.setStyleSheet('''SettingsDialog {
@@ -266,3 +268,17 @@ class LocalInterpreterPortEdit(QSpinBox):
     def commit(self):
         self.settings.setValue('LocalPort', self.value())
         self.globals['LOCALPORT'] = self.value()
+
+
+class RGIFrameRateEdit(QLineEdit):
+    def __init__(self, settings, globals, parent):
+        self.parent = parent
+        self.globals = globals
+        self.settings = settings
+        super(RGIFrameRateEdit, self).__init__()
+        v = settings.value('FrameRate', type=float)
+        v = v if v else .1
+        self.setText(str(v))
+
+    def commit(self):
+        self.settings.setValue('FrameRate', float(self.text()))

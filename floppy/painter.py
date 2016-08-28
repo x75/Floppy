@@ -872,6 +872,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.createSubgraphAction.setIconVisibleInMenu(False)
         self.addAction(self.createSubgraphAction)
         
+        self.configureAction = QAction(QIcon(os.path.join(self.iconRoot, 'configure.png')), 'configure', self)
+        self.configureAction.setShortcut('Ctrl+Y')
+        self.configureAction.triggered.connect(self.configureInterpreter)
+        self.configureAction.setIconVisibleInMenu(False)
+        self.addAction(self.configureAction)
 
     def initMenus(self):
         fileMenu = self.menuBar.addMenu('&File')
@@ -927,6 +932,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def selectSubgraph(self):
         self.drawer.setSelectedSubgraph(self.macroSelector.currentText())
         self.drawer.update()
+
+    def configureInterpreter(self):
+        self.drawer.graph.configureInterpreter({'framerate': 0.01, 'foo': 'bar'})
 
     def getSubgraphList(self):
         new = self.drawer.getAllSubgraphs()

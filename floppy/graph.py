@@ -670,6 +670,9 @@ class Graph(object):
             self.removeConnection(out.ID)
         del self.nodes[node.ID]
 
+    def configureInterpreter(self, options):
+        self.rgiConnection.send('CONFIGURE{}'.format(json.dumps(options)), print)
+
 
 class NodeThread(Thread):
 

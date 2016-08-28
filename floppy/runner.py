@@ -109,6 +109,14 @@ class Runner(object):
         self.cmdQueue.put(ExecutionThread.kill)
         xLock.release()
 
+    def configure(self, options):
+        try:
+            framerate = options['framerate']
+        except KeyError:
+            pass
+        else:
+            self.executionThread.setFrameRate(framerate)
+
     def unpause(self):
         xLock.acquire()
         if not self.cmdQueue.empty():
@@ -151,7 +159,7 @@ class Runner(object):
 class ExecutionThread(Thread):
     def __init__(self, cmdQueue, master):
         self.graph = None
-
+        self.framerate = 0.1
         self.master = master
         self.paused = True
         self.alive = True
@@ -160,6 +168,9 @@ class ExecutionThread(Thread):
         self.daemon = True
         # self.updateGraph()
         self.start()
+
+    def setFrameRate(self, framerate):
+        self.framerate = framerate
 
     def run(self):
         while self.alive:
@@ -183,7 +194,7 @@ class ExecutionThread(Thread):
                 self.executeGraphStepPar()
                 self.master.updateRunningNodes(self.graph.runningNodes)
             else:
-                time.sleep(.5)
+                time.sleep(self.framerate)
         print('That\'s it. I\'m dead.')
 
     def pause(self):
@@ -269,32 +280,6 @@ class ExecutionThread(Thread):
                 print('Nothing to do here @ {}'.format(time.time()))
                 time.sleep(.1)
 
-    def execute(self):
-        """
-        Execute the Graph instance.
-
-        First, the execution loop will set itself up to terminate after the first iteration.
-        Next, every node is given the chance to run if all prerequisites are met.
-        If a node is executed, the loop termination criterion will be reset to allow an additional iteration over all
-        nodes.
-        If no node is execute during one iteration, the termination criterion will not be reset and the execution loop
-        terminates.
-        :return:
-        """
-        return self.testRun()
-        running = True
-        i = 0
-        while running:
-            i += 1
-            print('\nExecuting iteration {}.'.format(i))
-            running = False
-            for node in self.nodes.values():
-                checked = node.check()
-                running = checked if not running else True
-                if checked:
-                    node.run()
-                    # raise RuntimeError('Uncaught exception while executing node {}.'.format(node))
-                    node.notify()
 
 
 class Listener(Thread):
@@ -374,6 +359,9 @@ class CommandProcessor(Thread):
                     nextID = int(message[4:])
                     self.send('Runner jumping to node {}.'.format(nextID))
                     self.master.goto(nextID)
+                elif message.startswith('CONFIGURE'):
+                    msg = message[9:]
+                    self.master.configure(json.loads(msg))
                 elif message == 'STEP':
                     self.send('Runner is performing one step.')
                     self.master.step()
