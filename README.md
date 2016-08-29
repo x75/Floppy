@@ -38,3 +38,103 @@ check is required, the 'Node.check()' method can be overridden.
 
 After executing a node the node's 'notify()' method is called to notify all connected nodes about possible changes to
 the inputs they are waiting for. Custom post-execution behavior can be implemented here.
+
+##How To create a custom Node Step by step
+In order to use Floppy, a Python interpreter compatible with PyQt5 is required. This probably means Python3.4 is needed.
+To use the dynamic plotting nodes, matplotlib with all its dependencies is required. However, Floppy will still work as
+long as no plotting nodes are used.
+
+0. Add the cloned directory to your PYTHONPATH environment variable.
+Check if you can import 'floppy' in your Python3 console
+1. Create a new \<FileName\>.py file in the 'CustomNodes' subdirectory. This directory is automatically scanned for 
+custom nodes. Creating a new file prevents conflicts when pulling updates from Github.
+2. Start the file with importing the following objects:
+```python
+    from floppy.node import Node, Input, Output, Tag, abstractNode
+```
+3. Create your custom Node. (MyNode in this case)
+```python
+    class MyNode(Node):
+        pass
+```
+If the editor is started now the custom node class will be available in the list at the top-right widget.
+4. Define inputs and outputs.
+```python
+    class MyNode(Node):
+        Input('MyInput1', str)
+        Input('MyInput2', float, list=True)
+        Output('MyOutput1', int)
+        Output('MyOutput2', bool)
+```    
+This will create two inputs and two outputs of the type defined by the second argument. The optional 'list' argument indicates
+that a list of the appropriate type is expected. This will be visualized by a square icon instead of a circle one.
+The first argument - the Input/Output name - can be any legal Python variable name and must be unique within the scope of a Node class.
+5. Define the execution behavior by overriding the 'run()' method.
+```python
+    class MyNode(Node):
+        ...
+         def run(self):
+            super(MyNode, self).run()
+            self._MyInput1 # is a reference to the accordingly named input. The object will have the appropriate type.
+            self._MyInput2 # is a reference to the accordingly named input. The object will have the appropriate type.
+            self._MyOutput1(1) # will set the value of the output with the corresponding name to 1. The type must match.
+            self._MyOutput1(True) # will set the value of the output with the corresponding name to True. The type must match.
+```
+Within the body of the 'run' method any legal Python3 code can be executed. Keep in mind that the method will most likely be executed
+in a seperate thread. To get the most out of that feature it is recommended to use subprocesses and/or C-library calls whenever reasonable.
+The call of the parent class's implementation is recommended but not necessary. This may change in the future.
+6. The node should work now. Keep in mind that all outputs that are not set within the 'run' method's scope will have the value 'None'.
+Several ways to further customize nodes will be discussed next but will be unnecessary for most applications.
+7. Customize when a node is executed. 
+```python
+    class MyNode(Node):
+        ...
+        def check(self):
+            for inp in self.inputs.values():
+                if not inp.isAvailable():
+                    return False
+            return True
+```
+This is the default implementation that can be adjusted according to personal needs.
+For example a time.sleep('...') can be used in combination with probing a file to continously watch a file and
+analyze data streams put out by other applications.
+8. Initialize custom properties.
+```python
+    class MyNode(Node):
+        ...
+        def setup(self):
+            self.myCustomAttribute
+```
+This method is called after \__init\__ was executed. This is simply a convenient way to
+avoid annoying calls of super(MyNode, self).\__init\__(*args, **kwargs).
+9. Custom notification bahavior.
+8. Initialize custom properties.
+```python
+    class MyNode(Node):
+        ...
+        def notify(self):
+            ...
+```
+This method will be called after the 'run' method was executed. The method is responsible for
+transferring the output values of the custom node to the inputs of the nodes connected to it.
+The custom implementation looks rather confusing and will not be discussed here.
+The default implementation can be checked in the base class's implementation.
+An example for custom behavior that leads to branches similar to if/else constructs can be 
+seen in the 'Switch' node which is also found in the floppy.node module.
+Another non-standard behavior is can be observed in the case of the ForEach node.
+9. Custom report behavior.
+8. Initialize custom properties.
+```python
+    class MyNode(Node):
+        ...
+        def report(self):
+            r = super(MyNode, self).report()
+            r['template'] = 'myCustomTemplate
+            ...
+            return r 
+```
+The 'report' method is called by the editor-interpreter interface whenever
+a report about the nodes current status is requested by the editor. The reports
+are based on HTML templates. Look at the reportWidget module and templates module
+for details. However, keep in mind that the system will most likely change in the
+future.
