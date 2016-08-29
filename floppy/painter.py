@@ -61,7 +61,7 @@ class Painter2D(Painter):
         self.drawItemsOfNode = {}
         self.watchingItems = set()
         self.triggers = set()
-        self.contextSensitive = True
+        self.contextSensitive = False
         self.rightClickedNode = None
 
         self.mouseDownPos = None
@@ -89,7 +89,7 @@ class Painter2D(Painter):
         self.watchingItems = set()
         self.rightClickedNode = None
 
-        self.contextSensitive = True
+        self.contextSensitive = False
 
         self.mouseDownPos = None
         self.dialog = None

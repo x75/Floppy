@@ -11,7 +11,7 @@ class ShelxNode(CrystNode):
 class RunShelxl(ShelxNode):
     Input('INS', str)
     Input('HKL', str)
-    Input('List', int)
+    Input('List', int,  optional=True)
     Input('Cycles', int)
     Input('DAMP', int)
     Input('Type', str, select=('CGLS', 'L.S.'))
