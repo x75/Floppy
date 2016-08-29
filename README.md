@@ -44,20 +44,24 @@ In order to use Floppy, a Python interpreter compatible with PyQt5 is required. 
 To use the dynamic plotting nodes, matplotlib with all its dependencies is required. However, Floppy will still work as
 long as no plotting nodes are used.
 
-0. Add the cloned directory to your PYTHONPATH environment variable.
+Setup: Add the cloned directory to your PYTHONPATH environment variable.
 Check if you can import 'floppy' in your Python3 console
+
 1. Create a new \<FileName\>.py file in the 'CustomNodes' subdirectory. This directory is automatically scanned for 
 custom nodes. Creating a new file prevents conflicts when pulling updates from Github.
+
 2. Start the file with importing the following objects:
 ```python
     from floppy.node import Node, Input, Output, Tag, abstractNode
 ```
+
 3. Create your custom Node. (MyNode in this case)
 ```python
     class MyNode(Node):
         pass
 ```
 If the editor is started now the custom node class will be available in the list at the top-right widget.
+
 4. Define inputs and outputs.
 ```python
     class MyNode(Node):
@@ -69,6 +73,7 @@ If the editor is started now the custom node class will be available in the list
 This will create two inputs and two outputs of the type defined by the second argument. The optional 'list' argument indicates
 that a list of the appropriate type is expected. This will be visualized by a square icon instead of a circle one.
 The first argument - the Input/Output name - can be any legal Python variable name and must be unique within the scope of a Node class.
+
 5. Define the execution behavior by overriding the 'run()' method.
 ```python
     class MyNode(Node):
@@ -83,8 +88,10 @@ The first argument - the Input/Output name - can be any legal Python variable na
 Within the body of the 'run' method any legal Python3 code can be executed. Keep in mind that the method will most likely be executed
 in a seperate thread. To get the most out of that feature it is recommended to use subprocesses and/or C-library calls whenever reasonable.
 The call of the parent class's implementation is recommended but not necessary. This may change in the future.
+
 6. The node should work now. Keep in mind that all outputs that are not set within the 'run' method's scope will have the value 'None'.
 Several ways to further customize nodes will be discussed next but will be unnecessary for most applications.
+
 7. Customize when a node is executed. 
 ```python
     class MyNode(Node):
@@ -98,6 +105,7 @@ Several ways to further customize nodes will be discussed next but will be unnec
 This is the default implementation that can be adjusted according to personal needs.
 For example a time.sleep('...') can be used in combination with probing a file to continously watch a file and
 analyze data streams put out by other applications.
+
 8. Initialize custom properties.
 ```python
     class MyNode(Node):
@@ -107,6 +115,7 @@ analyze data streams put out by other applications.
 ```
 This method is called after \__init\__ was executed. This is simply a convenient way to
 avoid annoying calls of super(MyNode, self).\__init\__(*args, **kwargs).
+
 9. Custom notification bahavior.
 ```python
     class MyNode(Node):
@@ -121,6 +130,7 @@ The default implementation can be checked in the base class's implementation.
 An example for custom behavior that leads to branches similar to if/else constructs can be 
 seen in the 'Switch' node which is also found in the floppy.node module.
 Another non-standard behavior can be observed in the case of the ForEach node.
+
 10. Custom report behavior.
 ```python
     class MyNode(Node):
