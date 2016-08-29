@@ -39,7 +39,7 @@ check is required, the 'Node.check()' method can be overridden.
 After executing a node the node's 'notify()' method is called to notify all connected nodes about possible changes to
 the inputs they are waiting for. Custom post-execution behavior can be implemented here.
 
-##How To create a custom Node Step by step
+##How To Create a Custom Node Step by Step
 In order to use Floppy, a Python interpreter compatible with PyQt5 is required. This probably means Python3.4 is needed.
 To use the dynamic plotting nodes, matplotlib with all its dependencies is required. However, Floppy will still work as
 long as no plotting nodes are used.
@@ -108,7 +108,6 @@ analyze data streams put out by other applications.
 This method is called after \__init\__ was executed. This is simply a convenient way to
 avoid annoying calls of super(MyNode, self).\__init\__(*args, **kwargs).
 9. Custom notification bahavior.
-8. Initialize custom properties.
 ```python
     class MyNode(Node):
         ...
@@ -121,9 +120,8 @@ The custom implementation looks rather confusing and will not be discussed here.
 The default implementation can be checked in the base class's implementation.
 An example for custom behavior that leads to branches similar to if/else constructs can be 
 seen in the 'Switch' node which is also found in the floppy.node module.
-Another non-standard behavior is can be observed in the case of the ForEach node.
-9. Custom report behavior.
-8. Initialize custom properties.
+Another non-standard behavior can be observed in the case of the ForEach node.
+10. Custom report behavior.
 ```python
     class MyNode(Node):
         ...
