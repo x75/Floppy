@@ -101,16 +101,22 @@ class Painter2D(Painter):
 
     def createSubgraph(self, name):
         subgraph = set()
+        relayInputs = set()
         for node in self.groupSelection:
             node.subgraph = name
             subgraph.add(node)
         allInputs = [i for i in self.getAllInputsOfSubgraph(name)]
         for inp in allInputs:
+            if inp.name == 'TRIGGER':
+                continue
             con = self.graph.getConnectionOfInput(inp)
             if con:
                 outNode = con.outputNode
                 if not outNode in subgraph:
-                    print(outNode)
+                    relayInputs.add((inp, outNode, con.outputName))
+            else:
+                relayInputs.add((inp, None, None))
+        print([i for i in relayInputs])
 
     def setSelectedSubgraph(self, graph, parent=None):
         if not parent:

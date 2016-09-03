@@ -1,4 +1,5 @@
-from PyQt5 import QtCore, QtGui, QtWidgets, QtWebKitWidgets, QtWebKit
+from PyQt5 import QtCore, QtGui, QtWidgets#, QtWebKitWidgets, QtWebKit
+from PyQt5 import QtWebEngineWidgets, QtWebEngineCore
 from PyQt5.QtCore import Qt, QPoint, QSettings
 
 TEMPLATES = {}
@@ -15,7 +16,7 @@ def template(func):
 def defaultTemplate(data, cache):
         return """<h1 id="head">{nodeName} -- {nodeID}</h1>
         <style>
-          h1 {{ text-align:center; color: white}}
+          h1 {{ text-align:center; color: white}};
         </style>
 
         <style type="text/css">
@@ -36,7 +37,6 @@ def defaultTemplate(data, cache):
            color: white
         }}
         </style>
-
         <div id="wrap">
             <div id="left_col">
                 {inputs}
@@ -49,7 +49,8 @@ def defaultTemplate(data, cache):
                          outputs='<br>'.join(['{}[{}]:  {}'.format(name, varType, value) for name, varType, value in data['outputs']]))
 
 
-class ReportWidget(QtWebKitWidgets.QWebView):
+#class ReportWidget(QtWebKitWidgets.QWebView):
+class ReportWidget(QtWebEngineWidgets.QWebEngineView):
 
     def __init__(self, *args, **kwargs):
         super(ReportWidget, self).__init__(*args, **kwargs)
@@ -58,7 +59,7 @@ class ReportWidget(QtWebKitWidgets.QWebView):
         self.data = None
         self.cache = []
         self.setHtml('')
-        import floppy.templates
+        #import floppy.templates
 
     def updateReport(self, data):
         if data == self.data:
@@ -91,13 +92,14 @@ class ReportWidget(QtWebKitWidgets.QWebView):
 
         # url = QtCore.QUrl.fromLocalFile(self.fileBase)
         url = QtCore.QUrl.fromLocalFile(QtCore.QDir(self.fileBase).absoluteFilePath('dummy.html'))
-        QtWebKit.QWebSettings.clearMemoryCaches()
-        self.setHtml(tmplt(data, self.cache[:], self.fileBase), url)
+        # QtWebKit.QWebSettings.clearMemoryCaches()
+        #QtWebEngineCore.QWebSettings.clearMemoryCaches()
+        self.setHtml(tmplt(data, self.cache[:], self.fileBase, self.width()), url)
 
 
 @template
 def defaultTemplate(data, cache, fileBase):
-        return """<h1 id="head">{nodeName} -- {nodeID}</h1>
+        return """
         <style>
           h1 {{ text-align:center; color: white}}
         </style>
@@ -120,7 +122,8 @@ def defaultTemplate(data, cache, fileBase):
            color: white
         }}
         </style>
-
+        <HTML>
+        <h1 id="head">{nodeName} -- {nodeID}</h1>
         <div id="wrap">
             <div id="left_col">
                 {inputs}
@@ -128,9 +131,28 @@ def defaultTemplate(data, cache, fileBase):
             <div id="right_col">
                 {outputs}
             </div>
-        </div>
+        </div></HTML>
         """.format(nodeName=data['class'], nodeID=data['ID'],
                          inputs='<br>'.join(['{}[{}]:  {}'.format(name, varType, value) for name, varType, value in data['inputs']]),
                          outputs='<br>'.join(['{}[{}]:  {}'.format(name, varType, value) for name, varType, value in data['outputs']]))
+
+from floppy.quickPlot import test
+@template
+def defaultTemplate(data, cache, fileBase, width):
+    print(width)
+
+    return '''
+<HTML>
+
+    <BODY bgcolor="#606060">
+        <H1>{nodeName}</H1>
+        <div id=nodeID>ID: {ID} </div>
+        <P>This is very minimal "hello world" HTML document.</P>
+{plot}
+    </BODY>
+</HTML>
+    '''.format(nodeName=data['class'],
+               ID=data['ID'],
+               plot=test(width-30))
 
 

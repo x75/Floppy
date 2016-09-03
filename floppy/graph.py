@@ -2,7 +2,8 @@ import json
 import zlib
 import io
 import time
-from floppy.node import ControlNode
+from collections import OrderedDict
+from floppy.node import ControlNode, Node, MetaNode
 from floppy.runner import Runner, sendCommand, RGIConnection
 from socket import AF_INET, SOCK_STREAM, socket #, SHUT_RDWR, timeout, SHUT_RDWR, SO_REUSEADDR, SOL_SOCKET
 from floppy.node import NODECLASSES
@@ -139,6 +140,17 @@ class Graph(object):
         self.newestNode = newNode
 
         return newNode
+
+    def createCustomNodeClass(self, name, inputs, outputs, parents=(Node,)):
+        NodeClass = MetaNode(name, parents, {})
+        NodeClass.__inputs__ = OrderedDict()
+        NodeClass.__outputs__ = OrderedDict()
+        for inp in inputs:
+            NodeClass._addInput(data=inp, cls=NodeClass)
+        for out in outputs:
+            NodeClass._addOutput(data=out, cls=NodeClass)
+        NODECLASSES[name] = NodeClass
+
 
     def _spawnConnections(self, connections, newNode):
         try:
@@ -455,11 +467,18 @@ class Graph(object):
             try:
                 restoredNode = self.spawnNode(NODECLASSES[nodeData['class']], position=nodeData['position'], silent=True, useID=useID)
             except KeyError:
-                if callback:
-                    callback('Unknown Node class **{}**'.format(nodeData['class']))
+                try:
+                    dynamic = nodeData['dynamic']
+                except KeyError:
+                    dynamic = False
+                if not dynamic:
+                    if callback:
+                        callback('Unknown Node class **{}**'.format(nodeData['class']))
+                    else:
+                        raise Exception('Unknown Node class <{}>.'.format(nodeData['class']))
+                    continue
                 else:
-                    raise Exception('Unknown Node class <{}>.'.format(nodeData['class']))
-                continue
+                    print('I need to create a custom class now.')
             else:
                 try:
                     restoredNode.subgraph = nodeData['subgraph']

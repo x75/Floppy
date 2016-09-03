@@ -2,7 +2,6 @@ from matplotlib.pyplot import plot, savefig
 import matplotlib.pyplot as plt
 from floppy.reportWidget import template
 from numpy import array, arange
-import os
 
 _pointCache = None
 
