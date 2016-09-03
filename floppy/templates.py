@@ -1,9 +1,16 @@
 import floppy.quickPlot as qp
+
 TEMPLATES = {}
+TYPECOLORS = {'str': 'rgb(255, 190, 0)',
+              'int': 'rgb(0, 115, 130)',
+              'float': 'rgb(0, 200, 0)',
+              'object': 'rgb(190, 190, 190)',
+              'bool': 'rgb(190, 0, 0)',}
 
 
 class TemplateElement(object):
     pass
+
 
 class IOElement(TemplateElement):
     def __call__(self, data, cache, fileBase, width):
@@ -119,16 +126,24 @@ class IOElement(TemplateElement):
 
     </div>
         '''.format(width=width,
-                   ewidth=(width-80)/2,
-                   inputs='\n'.join(['<li><b>{}[{}]</b>  {}</li>'.format(name, varType, value) for name, varType, value in data['inputs']]),
-                   outputs='\n'.join(['<li><b>{}[{}]</b>  {}</li>'.format(name, varType, value) for name, varType, value in data['outputs']]))
+                   ewidth=(width - 80) / 2,
+                   inputs='\n'.join(['<li><b><span style="color:{}">{}</span></b>  {}</li>'.format(TYPECOLORS[
+                                                                                                       varType],
+                                                                                                   name,
+                                                                                                   value) for
+                                     name, varType, value in data['inputs']]),
+                   outputs='\n'.join(['<li><b><span style="color:{}">{}</span></b>  {}</li>'.format(TYPECOLORS[
+                                                                                                       varType],
+                                                                                                   name,
+                                                                                                   value) for
+                                     name, varType, value in data['outputs']]))
         return s
 
 
 class PlotElement(TemplateElement):
     def __init__(self):
         self.document = qp.LinePlot(430, 320, color='#707070')
-        self.document.setTicks(2,4)
+        self.document.setTicks(2, 4)
         self.document.addFrame()
 
     def __call__(self, data, cache, fileBase, width):
@@ -155,9 +170,9 @@ class MetaTemplate(type):
 
 class Template(object, metaclass=MetaTemplate):
     ELEMENTS = []
+
     def __init__(self):
         self.elements = [element() for element in self.ELEMENTS]
-
 
     def __call__(self, data, cache, fileBase, width):
         return '''
@@ -172,7 +187,18 @@ class Template(object, metaclass=MetaTemplate):
 
 
 class DefaultTemplate(Template):
-    pass
+    ELEMENTS = [IOElement]
+    def __call__(self, data, cache, fileBase, width):
+        width -= 40
+        return '''
+        <HTML>
+
+            <BODY bgcolor="#909090">
+                {body}
+            </BODY>
+        </HTML>
+            '''.format(body='\n<br>\n'.join([element(data, cache, fileBase, width) for element in self.elements]))
+
 
 class PlotTemplate(Template):
     ELEMENTS = [IOElement, PlotElement]
@@ -187,4 +213,3 @@ class PlotTemplate(Template):
             </BODY>
         </HTML>
             '''.format(body='\n<br>\n'.join([element(data, cache, fileBase, width) for element in self.elements]))
-
