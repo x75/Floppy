@@ -1,192 +1,190 @@
-from matplotlib.pyplot import plot, savefig
-import matplotlib.pyplot as plt
-from floppy.reportWidget import template
-from numpy import array, arange
+import floppy.quickPlot as qp
+TEMPLATES = {}
 
-_pointCache = None
 
-@template
-def plotTemplate(data, cache, fileBase):
-    points = data['points']
-    fileName = fileBase+'/_ppy_{}.svg'.format(data['ID'])
-    # print(cache)
+class TemplateElement(object):
+    pass
 
-    if not cache == globals()['_pointCache'] and cache:
-        x, y = zip(*cache)
-        plot(x, array(y), color='blue')
-        # fig = plt.figure()
-        savefig(__file__[:-12]+"/x.svg")
-        plt.close('all')
-        plt.clf()
-        globals()['_pointCache'] = cache[:]
-    return """<h1 id="head">{nodeName} -- {nodeID}</h1>
+class IOElement(TemplateElement):
+    def __call__(self, data, cache, fileBase, width):
+        s = '''
         <style>
-          h1 {{ text-align:center; color: white}}
-        </style>
+        body{{
+  background: #606060;
+}}
 
-        <style type="text/css">
-        #wrap {{
-           width:400;
-           margin:0 auto;
-        }}
-        #left_col {{
-           float:left;
-           width:200;
-           text-align:left;
-           color: white
-        }}
-        #right_col {{
-           float:right;
-           width:200;
-           text-align:right;
-           color: white
-        }}
-        img  {{
-            float: right;
-        }}
-        </style>
+#pricing-table {{
+	text-align: center;
+	background: #707070;
+	width: {width}px; /* total computed width = 222 x 3 + 226 */
+}}
 
-        <div id="wrap">
-            <div id="left_col">
+#pricing-table .plan {{
+	font: 12px 'Lucida Sans', 'trebuchet MS', Arial, Helvetica;
+	background: #707070;
+	color: #333;
+	padding: 20px;
+	width: {ewidth}px; /* plan width = 180 + 20 + 20 + 1 + 1 = 222px */
+	float: left;
+	position: relative;
+}}
+
+
+
+#pricing-table .plan:nth-child(1) {{
+	border-radius: 5px 0 0 5px;
+}}
+
+#pricing-table .plan:nth-child(2) {{
+	border-radius: 0 5px 5px 0;
+}}
+
+/* --------------- */
+
+#pricing-table h3 {{
+	font-size: 20px;
+	color: #eee;
+	font-weight: normal;
+	padding: 15px;
+	height: 35px;
+	margin: -20px -20px 50px -20px;
+	background-color: #505050;
+}}
+
+
+
+#pricing-table .plan:nth-child(1) h3 {{
+	border-radius: 5px 0 0 0;
+}}
+
+#pricing-table .plan:nth-child(2) h3 {{
+	border-radius: 0 5px 0 0;
+}}
+
+#pricing-table h3 span {{
+	display: block;
+	font: bold 15px/30px Helvetica, sans-serif;
+	color: #eee;
+	background: #707070;
+	border: 5px solid #606060;
+	height: 30px;
+	width: 75px;
+	margin: 10px auto -65px;
+	border-radius: 100px;
+	box-shadow: 0 5px 20px #505050 inset, 0 3px 0 #707070 inset;
+}}
+
+/* --------------- */
+
+#pricing-table ul {{
+	margin: 20px 0 0 0;
+	padding: 0;
+	list-style: none;
+}}
+
+#pricing-table li {{
+	border-top: 1px solid #aaa;
+	padding: 10px 0;
+}}
+
+/* --------------- */
+
+.clear:before, .clear:after {{
+  content:"";
+  display:table
+}}
+
+.clear:after {{
+  clear:both
+}}
+
+.clear {{
+  zoom:1
+}}
+        </style>
+    <div id="pricing-table" class="clear">
+        <div class="plan">
+            <h3>Input<span>Waiting</span></h3>
+            <ul>
                 {inputs}
-            </div>
-            <div id="right_col">
+            </ul>
+        </div>
+        <div class="plan">
+            <h3>Output<span>Waiting</span></h3>
+            <ul>
                 {outputs}
-            </div>
-            <br>
-            <br>
-                  <img id="plot" src="{fileName}" alt="Plotting did not work." width=400>
+
+            </ul>
         </div>
 
-        """.format(nodeName=data['class'], nodeID=data['ID'],
-                   inputs='<br>'.join(['{}[{}]:  {}'.format(name, varType, value) for
-                                       name, varType, value in data['inputs']]),
-                   outputs='<br>'.join(['{}[{}]:  {}'.format(name, varType, value) for
-                                       name, varType, value in data['outputs']]),
-                   fileName=fileName)
+    </div>
+        '''.format(width=width,
+                   ewidth=(width-80)/2,
+                   inputs='\n'.join(['<li><b>{}[{}]</b>  {}</li>'.format(name, varType, value) for name, varType, value in data['inputs']]),
+                   outputs='\n'.join(['<li><b>{}[{}]</b>  {}</li>'.format(name, varType, value) for name, varType, value in data['outputs']]))
+        return s
 
-@template
-def programTemplate(data, cache, fileBase):
-    return """<h1 id="head">{nodeName} -- {nodeID}</h1>
-        <style>
-          h1 {{ text-align:center; color: white}}
-        </style>
 
-        <style type="text/css">
-        #wrap {{
-           width:400;
-           margin:0 auto;
-        }}
-        #left_col {{
-           float:left;
-           width:200;
-           text-align:left;
-           color: white
-        }}
-        #right_col {{
-           float:right;
-           width:200;
-           text-align:right;
-           color: white
-        }}
-        #stdout {{
-           color: white;
-           font-size: 75%
-        }}
-        </style>
+class PlotElement(TemplateElement):
+    def __init__(self):
+        self.document = qp.LinePlot(430, 320, color='#707070')
+        self.document.setTicks(2,4)
+        self.document.addFrame()
 
-        <div id="wrap">
-            <div id="left_col">
-                {inputs}
-            </div>
-            <div id="right_col">
-                {outputs}
-            </div>
-            <br>
-            <br>
-            <div id="stdout">
-                  {stdout}
-            </div>
-        </div>
+    def __call__(self, data, cache, fileBase, width):
+        self.document.setWidth(width)
+        for x, y in data['points']:
+            if not type(y) == list:
+                y = [y]
+            self.document.addPoint(x, y)
+        try:
+            self.document.plot()
+        except ValueError:
+            return ''
+        else:
+            return str(self.document)
 
-        """.format(nodeName=data['class'], nodeID=data['ID'],
-                   inputs='<br>'.join(['{}[{}]:  {}'.format(name, varType, value) for
-                                       name, varType, value in data['inputs']]),
-                   outputs='<br>'.join(['{}[{}]:  {}'.format(name, varType, value) for
-                                       name, varType, value in data['outputs']]),
-                   stdout=data['stdout'].replace('\\n', '<br>'))
 
-@template
-def plotBarsGroupedTemplate(data, cache, fileBase):
-    points = data['points']
-    fileName = fileBase+'/_ppy_{}.svg'.format(data['ID'])
-    #fileName = os.path.join(fileBase, '_ppy_{}.svg'.format(data['ID']))
-    # fileName = '_ppy_{}.svg'.format(data['ID'])
-    # print(fileName)
+class MetaTemplate(type):
+    def __new__(cls, name, bases, classdict):
+        result = type.__new__(cls, name, bases, classdict)
+        # result.__dict__['Input'] = result._addInput
+        TEMPLATES[name] = result
+        return result
 
-    if not points == globals()['_pointCache'] and points:
-        x, y = zip(*points)
-        n_groups = len(x)
-        fig, ax = plt.subplots()
-        index = arange(n_groups)
-        bar_width = 0.35
-        opacity = .4
-        rects1 = plt.bar(index, x, bar_width,
-                         alpha=opacity,
-                         color='b',
-                         label='A')
-        rects2 = plt.bar(index + bar_width, y, bar_width,
-                         alpha=opacity,
-                         color='r',
-                         label='B')
-        plt.xticks(index+bar_width)
-        plt.legend()
-        plt.tight_layout()
-        savefig(fileName)
-        globals()['_pointCache'] = cache[:]
-    fileName = '_ppy_{}.svg'.format(data['ID'])
-    return """<h1 id="head">{nodeName} -- {nodeID}</h1>
-        <style>
-          h1 {{ text-align:center; color: white}}
-        </style>
 
-        <style type="text/css">
-        #wrap {{
-           width:400;
-           margin:0 auto;
-        }}
-        #left_col {{
-           float:left;
-           width:200;
-           text-align:left;
-           color: white
-        }}
-        #right_col {{
-           float:right;
-           width:200;
-           text-align:right;
-           color: white
-        }}
-        img  {{
-            float: right;
-        }}
-        </style>
+class Template(object, metaclass=MetaTemplate):
+    ELEMENTS = []
+    def __init__(self):
+        self.elements = [element() for element in self.ELEMENTS]
 
-        <div id="wrap">
-            <div id="left_col">
-                {inputs}
-            </div>
-            <div id="right_col">
-                {outputs}
-            </div>
-            <br>
-            <br>
-                  <img id="plot" src="{fileName}" alt="Plotting did not work." width=400>
-        </div>
 
-        """.format(nodeName=data['class'], nodeID=data['ID'],
-                   inputs='<br>'.join(['{}[{}]:  {}'.format(name, varType, value) for
-                                       name, varType, value in data['inputs']]),
-                   outputs='<br>'.join(['{}[{}]:  {}'.format(name, varType, value) for
-                                       name, varType, value in data['outputs']]),
-                   fileName=fileName)
+    def __call__(self, data, cache, fileBase, width):
+        return '''
+<HTML>
+
+    <BODY bgcolor="#606060">
+        <P>This is an abstract Base Template.
+        Please don't use me.</P>
+    </BODY>
+</HTML>
+    '''
+
+
+class DefaultTemplate(Template):
+    pass
+
+class PlotTemplate(Template):
+    ELEMENTS = [IOElement, PlotElement]
+
+    def __call__(self, data, cache, fileBase, width):
+        width -= 40
+        return '''
+        <HTML>
+
+            <BODY bgcolor="#909090">
+                {body}
+            </BODY>
+        </HTML>
+            '''.format(body='\n<br>\n'.join([element(data, cache, fileBase, width) for element in self.elements]))
+

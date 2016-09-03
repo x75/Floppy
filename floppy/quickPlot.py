@@ -11,11 +11,15 @@ PLOTCOLORS = [C1, C2, C3, C4]
 
 
 class SVG(object):
-    def __init__(self, width, height):
+    def __init__(self, width, height, color=None):
+        self.color = color
         self.width = width
         self.height = height
         self.elements = []
         self.frame = []
+
+    def setWidth(self, width):
+        self.width = width
 
     def addFrame(self, color=BLACK, width=2):
         self.frame = [
@@ -39,8 +43,9 @@ class SVG(object):
         self._pre()
         self.scaleElements()
 
-        s = '<svg height="{height}", width="{width}">\n   '.format(width=self.width, height=self.height)
-
+        s = '<svg height="{height}", width="{width}", {style}>\n   '.format(width=self.width, height=self.height,
+                                                                            style='style="stroke-width: 0px; background-color: {};"'.format(
+                                                                                self.color) if self.color else '')
         s += '\n   '.join([str(element) for element in self.elements])
         s += '\n</svg>\n'
         return s
@@ -119,7 +124,6 @@ class SVGText(SVGElement):
             self.yy = None
 
     def _scale(self, sizeX, sizeY, offsetX=0, offsetY=0):
-        print('xxx')
         if self.absolutePos:
             return
         self.xx = sizeX * self.x + offsetX * sizeX
@@ -137,14 +141,14 @@ class SVGText(SVGElement):
                                                                         id='id="{}"'.format(self.id) if self.id else '',
                                                                         text=self.text,
                                                                         transform='transform="rotate({},{},{})"'.format(
-                                                                            self.rotate,x, y) if self.rotate else '',
+                                                                            self.rotate, x, y) if self.rotate else '',
                                                                         size='style="font-size:{}px"'.format(
                                                                             self.size) if self.size else '')
 
 
 class LinePlot(SVG):
-    def __init__(self, width, height, rangeX=None, rangeY=None):
-        super(LinePlot, self).__init__(width, height)
+    def __init__(self, width, height, color, rangeX=None, rangeY=None):
+        super(LinePlot, self).__init__(width, height, color)
         self.minX = 0
         self.minY = 0
         self.maxX = 1
@@ -228,25 +232,33 @@ class LinePlot(SVG):
         while tickY < self.maxY:
             y = (tickY - self.minY) / self.rangeY
             self.points.append(SVGLine(self, 0, y, 0.02, y, ))
-            self.points.append(SVGText(self, '{:4.2f}'.format(tickY), -0.003, y-0.05, size=15, rotate=-90))
+            self.points.append(SVGText(self, '{:4.2f}'.format(tickY), -0.003, y - 0.05, size=15, rotate=-90))
             tickY += self.ticksY
 
         self.points.append(SVGLine(self, 0.005, -.01, 0.02, 0.02, ))
         self.points.append(SVGText(self, str(self.minX), -.01, -.06, size=15))
 
 
+from random import random
+
+count = 1
+
+
 def test(width):
     document = LinePlot(width, 320)
     document.addFrame()
+    global count
 
     # line = SVGLine(document, 0, 0, 1, 1, color=C1)
     # line = SVGLine(document, 0.5, 1, 1, 0, color=C2)
     # line = SVGLine(document, 0, 1, 1, 0, color=C3)
     # line = SVGLine(document, 0, 1, .5, 0, color=C4)
-    document.addPoint(x=0, y=(.2, .3, .5, 0.7))
-    document.addPoint(x=1, y=(.5, .1, .7, 0.5))
-    document.addPoint(x=2, y=(.6, .03, .5, 0.7))
-    document.addPoint(x=9, y=(.6, .2, .7, 0.5))
+    for _ in range(count):
+        document.addPoint(x=_, y=(random(), random(), random(), random()))
+    count += 1
+    # document.addPoint(x=1, y=(.5, .1, .7, 0.5))
+    # document.addPoint(x=2, y=(.6, .03, .5, 0.7))
+    # document.addPoint(x=9, y=(.6, .2, .7, 0.5))
 
     document.plot()
     return document

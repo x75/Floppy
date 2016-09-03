@@ -11,6 +11,7 @@ class MyNode(Node):
 class PlotNode2(Node):
     Input('XX', str)
     Output('YY', str)
+
     def __init__(self, *args, **kwargs):
         super(PlotNode2, self).__init__(*args, **kwargs)
         self.time = time.time()
@@ -30,7 +31,7 @@ class PlotNode2(Node):
 
     def report(self):
         r = super(PlotNode2, self).report()
-        r['template'] = 'plotTemplate'
+        r['template'] = 'PlotTemplate'
         r['points'] = self.points[:]
         r['keep'] = 'points'
         self.points = []

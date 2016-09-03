@@ -63,6 +63,7 @@ class Painter2D(Painter):
         self.triggers = set()
         self.contextSensitive = True
         self.rightClickedNode = None
+        self.lastReport = None
 
         self.mouseDownPos = None
         self.dialog = None
@@ -88,7 +89,7 @@ class Painter2D(Painter):
         self.drawItemsOfNode = {}
         self.watchingItems = set()
         self.rightClickedNode = None
-
+        self.lastReport = None
         self.contextSensitive = True
 
         self.mouseDownPos = None
@@ -392,7 +393,9 @@ class Painter2D(Painter):
         history, last = self.graph.getExecutionHistory()
         running = self.graph.getRunningNodes()
         report = self.graph.getReport()
-        self.reportWidget.updateReport(report)
+        if report and not report == self.lastReport:
+            self.reportWidget.updateReport(report)
+            self.lastReport = report
 
         lastDraws = []
         halfPinSize = PINSIZE//2

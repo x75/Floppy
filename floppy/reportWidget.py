@@ -1,7 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets#, QtWebKitWidgets, QtWebKit
 from PyQt5 import QtWebEngineWidgets, QtWebEngineCore
 from PyQt5.QtCore import Qt, QPoint, QSettings
-
+from floppy.templates import TEMPLATES
+'''
 TEMPLATES = {}
 
 
@@ -48,7 +49,7 @@ def defaultTemplate(data, cache):
                          inputs='<br>'.join(['{}[{}]:  {}'.format(name, varType, value) for name, varType, value in data['inputs']]),
                          outputs='<br>'.join(['{}[{}]:  {}'.format(name, varType, value) for name, varType, value in data['outputs']]))
 
-
+'''
 #class ReportWidget(QtWebKitWidgets.QWebView):
 class ReportWidget(QtWebEngineWidgets.QWebEngineView):
 
@@ -58,6 +59,7 @@ class ReportWidget(QtWebEngineWidgets.QWebEngineView):
         ''')
         self.data = None
         self.cache = []
+        self.templateCache = {}
         self.setHtml('')
         #import floppy.templates
 
@@ -84,19 +86,26 @@ class ReportWidget(QtWebEngineWidgets.QWebEngineView):
                 elif data[keep]:
                     self.cache += data[keep]
                     # print('xxxxx', self.cache)
-        try:
-            tmplt = TEMPLATES[data['template']]
-        except KeyError:
-            print('Error: {} template missing'.format(data['template']))
-            return
 
+        try:
+            tmplt = self.templateCache[data['ID']]
+        except KeyError:
+            try:
+                tmplt = TEMPLATES[data['template']]()
+            except KeyError:
+                print('Error: {} template missing'.format(data['template']))
+                return
+            else:
+                self.templateCache[data['ID']] = tmplt
+
+        #tmplt = defaultTemplate
         # url = QtCore.QUrl.fromLocalFile(self.fileBase)
         url = QtCore.QUrl.fromLocalFile(QtCore.QDir(self.fileBase).absoluteFilePath('dummy.html'))
         # QtWebKit.QWebSettings.clearMemoryCaches()
         #QtWebEngineCore.QWebSettings.clearMemoryCaches()
         self.setHtml(tmplt(data, self.cache[:], self.fileBase, self.width()), url)
 
-
+'''
 @template
 def defaultTemplate(data, cache, fileBase):
         return """
@@ -135,9 +144,8 @@ def defaultTemplate(data, cache, fileBase):
         """.format(nodeName=data['class'], nodeID=data['ID'],
                          inputs='<br>'.join(['{}[{}]:  {}'.format(name, varType, value) for name, varType, value in data['inputs']]),
                          outputs='<br>'.join(['{}[{}]:  {}'.format(name, varType, value) for name, varType, value in data['outputs']]))
-
+'''
 from floppy.quickPlot import test
-@template
 def defaultTemplate(data, cache, fileBase, width):
     print(width)
 
