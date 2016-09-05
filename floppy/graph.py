@@ -41,6 +41,7 @@ class Graph(object):
         self.STOREDVALUES = {}
         self.connections = {}
         self.runner = None
+        self.status = None
         self.reverseConnections = {}
         # self.statusLock = Lock()
         if painter:
@@ -103,13 +104,16 @@ class Graph(object):
         """
         if self.connected:
             # IDs = self.requestRemoteStatus()
-            status = self.requestRemoteStatus()
-            IDs = status['STATUS']['ran']
-            self.currentlyRunning = status['STATUS']['running']
-            self.currentReport = status['REPORT']
-            if IDs:
-                self.executedBuffer += IDs
-                return True
+            # status = self.requestRemoteStatus()
+            self.requestRemoteStatus()
+            status = self.status
+            if status:
+                IDs = status['STATUS']['ran']
+                self.currentlyRunning = status['STATUS']['running']
+                self.currentReport = status['REPORT']
+                if IDs:
+                    self.executedBuffer += IDs
+                    return True
         if self._requestUpdate:
             self._requestUpdate = False
             return True
@@ -330,17 +334,20 @@ class Graph(object):
     #     sendCommand('KILL')
     #     del r
 
+    def print(self, message):
+        print(message)
+
     def updateRunner(self):
         """
         Serializes the graph and sends it to the connected graph interpreter telling it to load the new data.
         :return:
         """
         # self.executedBuffer = []
-        print(self.rgiConnection.send('PAUSE'))
+        self.rgiConnection.send('PAUSE', self.print)
         message = self.serialize()
         # msg = struct.pack('>I', len(message)) + message.encode('utf-8')
         # self.sendUpdate(data)
-        print(self.rgiConnection.send('UPDATE'+message))
+        self.rgiConnection.send('UPDATE'+message, self.print)
 
     def push2Runner(self):
         """
@@ -349,11 +356,11 @@ class Graph(object):
         """
         self.executedBuffer = []
         self.STOREDVALUES = {}
-        print(self.rgiConnection.send('PAUSE'))
+        self.rgiConnection.send('PAUSE', self.print)
         message = self.serialize()
         # msg = struct.pack('>I', len(message)) + message.encode('utf-8')
         # self.sendUpdate(data)
-        print(self.rgiConnection.send('PUSH'+message))
+        self.rgiConnection.send('PUSH'+message, self.print)
 
     def serialize(self):
         """
@@ -389,7 +396,7 @@ class Graph(object):
         """
         if not self.slave:
             return
-        print(self.rgiConnection.send('KILL'))
+        self.rgiConnection.send('KILL', self.print)
         # sendCommand('KILL', self.cmdHost, self.cmdPort)
         # self.clientSocket.close()
         del self.runner
@@ -401,7 +408,7 @@ class Graph(object):
         Send PAUSE command to the graph interpreter.
         :return:
         """
-        print(self.rgiConnection.send('PAUSE'))
+        self.rgiConnection.send('PAUSE', self.print)
         # sendCommand('PAUSE', self.cmdHost, self.cmdPort)
 
     def unpauseRunner(self):
@@ -409,7 +416,7 @@ class Graph(object):
         Send UNPAUSE command to the graph interpreter.
         :return:
         """
-        print(self.rgiConnection.send('UNPAUSE'))
+        self.rgiConnection.send('UNPAUSE', self.print)
         # sendCommand('UNPAUSE', self.cmdHost, self.cmdPort)
 
     def stepRunner(self):
@@ -417,7 +424,7 @@ class Graph(object):
         Send Step command to the graph interpreter causing it to execute one node and then reenter the PAUSED state.
         :return:
         """
-        print(self.rgiConnection.send('STEP'))
+        self.rgiConnection.send('STEP', self.print)
 
     def gotoRunner(self, nextID):
         """
@@ -425,15 +432,18 @@ class Graph(object):
         :param nextID:
         :return:
         """
-        print(self.rgiConnection.send('GOTO1'))
+        self.rgiConnection.send('GOTO1', self.print)
 
     def dropGraph(self):
-        print(self.rgiConnection.send('DROP'))
+        self.rgiConnection.send('DROP', self.print)
+
+    def setStatus(self, status):
+        self.status = json.loads(status[10:])
 
     def requestRemoteStatus(self):
         if self.connected:
             try:
-                status = self.rgiConnection.send('STATUS***{}'.format(self._requestReport))
+                self.rgiConnection.send('STATUS***{}'.format(self._requestReport), self.setStatus)
                 # status = json.loads(status[10:])
             except BrokenPipeError:
                 self.connected = False
@@ -445,7 +455,8 @@ class Graph(object):
                 self.connected = False
                 return []
             else:
-                return json.loads(status[10:])
+                # return json.loads(status[10:])
+                return []
         else:
             return []
 
@@ -678,6 +689,9 @@ class Graph(object):
             self.removeConnection(out.ID)
         del self.nodes[node.ID]
 
+    def configureInterpreter(self, options):
+        self.rgiConnection.send('CONFIGURE{}'.format(json.dumps(options)), print)
+
 
 class NodeThread(Thread):
 
@@ -695,8 +709,9 @@ class NodeThread(Thread):
         super(NodeThread, self).run()
         try:
             self.node.run()
-        except:
+        except Exception as a:
             print('Something bad happened in when executing {}.'.format(str(self.node)))
+            print(a)
             self.node.unlock
             return
         self.node.notify()
@@ -753,6 +768,8 @@ class StatusListener(Thread):
                     self.master.executedBuffer.append(int(ID))
                 self.statusLock.release()
                 self.master.requestUpdate()
+
+
 
 
 

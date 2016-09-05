@@ -215,6 +215,7 @@ class ContextNodeList(NodeList):
         pos /= self.graph.painter.scale
         self.graph.spawnNode(self.selectedClass, position=(pos.x(), pos.y()))
         self.down = False
+        self.graph.requestUpdate()
         self.dialog.close(True)
 
     def keyPressEvent(self, event):
@@ -226,10 +227,16 @@ class ContextNodeList(NodeList):
         super(ContextNodeList, self).keyPressEvent(event)
         if event.key() == Qt.Key_Return:
             name = self.filter.listView.selectedIndexes()[0].data()
-            self.selectedClass = self.filter.nodeScanner.getClass(name)
-            pos = self.parent().parent().pos() - self.graph.app.mainWindow.pos() - QPoint(50, 150)
-            self.graph.spawnNode(self.selectedClass, (pos.x()-5, pos.y()-40))
+            self.selectedClass = NODECLASSES[name]
+            pos = self.parent().mapToGlobal(self.parent().pos())
+            topLeft = self.graph.painter.mapToGlobal(self.graph.painter.pos())
+            pos -= topLeft
+
+            pos -= self.graph.painter.center
+            pos /= self.graph.painter.scale
+            self.graph.spawnNode(self.selectedClass, position=(pos.x()-5, pos.y()-40))
             self.down = False
+            self.graph.requestUpdate()
             self.dialog.close(True)
 
 

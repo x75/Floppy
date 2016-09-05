@@ -61,7 +61,7 @@ class Painter2D(Painter):
         self.drawItemsOfNode = {}
         self.watchingItems = set()
         self.triggers = set()
-        self.contextSensitive = True
+        self.contextSensitive = False
         self.rightClickedNode = None
         self.lastReport = None
 
@@ -91,6 +91,8 @@ class Painter2D(Painter):
         self.rightClickedNode = None
         self.lastReport = None
         self.contextSensitive = True
+
+        self.contextSensitive = False
 
         self.mouseDownPos = None
         self.dialog = None
@@ -889,6 +891,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.createSubgraphAction.setIconVisibleInMenu(False)
         self.addAction(self.createSubgraphAction)
         
+        self.configureAction = QAction(QIcon(os.path.join(self.iconRoot, 'configure.png')), 'configure', self)
+        self.configureAction.setShortcut('Ctrl+Y')
+        self.configureAction.triggered.connect(self.configureInterpreter)
+        self.configureAction.setIconVisibleInMenu(False)
+        self.addAction(self.configureAction)
 
     def initMenus(self):
         fileMenu = self.menuBar.addMenu('&File')
@@ -944,6 +951,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def selectSubgraph(self):
         self.drawer.setSelectedSubgraph(self.macroSelector.currentText())
         self.drawer.update()
+
+    def configureInterpreter(self):
+        self.drawer.graph.configureInterpreter({'framerate': 0.01, 'foo': 'bar'})
 
     def getSubgraphList(self):
         new = self.drawer.getAllSubgraphs()
@@ -1085,7 +1095,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def runCode(self, *args):
         self.drawer.graph.execute()
-        self.statusBar.showMessage('Code execution successful.', 2000)
+        self.statusBar.showMessage('Code execution started.', 2000)
 
     def loadGraph(self, *args):
         fileName = QFileDialog.getOpenFileName(self, 'Open File', '~/',

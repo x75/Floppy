@@ -114,7 +114,8 @@ class PDB2INS(CrystNode):
                 ' -a ' if self._ANIS else '-a',
                 ' -b ' if self._MakeHKL else '-b',
                 ' -r ' if self._REDO else '',
-                ' -z ' + str(self._Z) if self._Z else '')
+                ' -z ' + str(self._Z) if self._Z else '',
+                (' -d '+ self._FileName+'.sf') if not '@' in self._FileName else '')
         opt = ' '.join(opt)
         print(opt)
         # opt = [o for o in ' '.join(opt).split(' ') if o]
@@ -131,8 +132,14 @@ class PDB2INS(CrystNode):
         try:
             self._HKL(open('__pdb2ins__.hkl', 'r').read())
         except IOError:
-            self._HKL('')
-        self._PDB(open('__pdb2ins__.pdb', 'r').read())
+            try:
+                self._HKL(open('{}.hkl'.format(self._FileName), 'r').read())
+            except IOError:
+                self._HKL('')
+        try:
+            self._PDB(open('__pdb2ins__.pdb', 'r').read())
+        except IOError:
+            self._PDB(open('{}.pdb'.format(self._FileName), 'r').read())
         for file in os.listdir():
             if file.startswith('__pdb2ins__'):
                 os.remove(file)

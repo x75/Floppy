@@ -288,6 +288,16 @@ class Node(object, metaclass=MetaNode):
             raise AttributeError('Nodes without any input are not valid.')
         if len(self.inputs.keys()) == 2:
             self.inputs[list(self.inputs.keys())[1]].setPure()
+        self.setup()
+
+    def setup(self):
+        """
+        This method will be called after a node instance is initialized.
+        Override this to initialize attributes required for custom node behavior.
+        This way the annoying calls of super(Node, self).__init__(*args, **kwargs) calls can be avoided.
+        :return:
+        """
+        pass
 
     def __str__(self):
         return '{}-{}'.format(self.__class__.__name__, self.ID)
@@ -381,7 +391,7 @@ class Node(object, metaclass=MetaNode):
         in the editor.
 
         """
-        return {'template': 'DefaultTemplate',
+        return {'template': 'defaultTemplate',
                 'class': self.__class__.__name__,
                 'ID': self.ID,
                 'inputs': [(i, v.varType.__name__, str(v.value) if len(str(v.value)) < 10 else str(v.value)[:10]+'...') for i, v in self.inputs.items()],

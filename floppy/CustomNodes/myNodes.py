@@ -1,11 +1,41 @@
-from floppy.node import Node, Input, Output, Tag
+from floppy.node import Node, Input, Output, Tag, abstractNode
 import time
 import random
 
-
 class MyNode(Node):
-    Input('AAA', int)
-    Output('BBB', int)
+    Input('Int1', int)
+    Output('Int2', int)
+
+    def run(self):
+        self._Int1
+        self._Int2(self._Int1 + 1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class PlotNode2(Node):
