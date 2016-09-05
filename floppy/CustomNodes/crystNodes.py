@@ -22,7 +22,9 @@ class ReadAtoms(CrystNode):
         from lauescript.laueio.loader import Loader
         loader = Loader()
         loader.create(self._FileName)
+        print('1')
         mol = loader.load('quickloadedMolecule')
+        print('2')
         self._Atoms(mol.atoms)
 
 

@@ -1,11 +1,24 @@
 import floppy.quickPlot as qp
 
+class ColorDict(object):
+
+    def __init__(self, d):
+        self.dict = d
+
+
+    def __getitem__(self, item):
+        try:
+            return self.dict[item]
+        except KeyError:
+            return 'rgb(255,255,255'
+
 TEMPLATES = {}
-TYPECOLORS = {'str': 'rgb(255, 190, 0)',
+TYPECOLORS = ColorDict({'str': 'rgb(255, 190, 0)',
               'int': 'rgb(0, 115, 130)',
               'float': 'rgb(0, 200, 0)',
               'object': 'rgb(190, 190, 190)',
-              'bool': 'rgb(190, 0, 0)',}
+              'bool': 'rgb(190, 0, 0)',
+              })
 
 
 class TemplateElement(object):
