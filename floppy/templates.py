@@ -144,7 +144,7 @@ class PlotElement(TemplateElement):
     def __init__(self):
         self.document = qp.LinePlot(430, 320, color='#707070')
         self.document.setTicks(2, 4)
-        self.document.addFrame()
+        #self.document.addFrame()
 
     def __call__(self, data, cache, fileBase, width):
         self.document.setWidth(width)

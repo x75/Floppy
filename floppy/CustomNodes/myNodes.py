@@ -27,7 +27,8 @@ class PlotNode2(Node):
     def run(self):
         super(PlotNode2, self).run()
         self.counts += 1
-        self.points.append((self.counts, random.randint(5,20)))
+        self.points.append(
+            (self.counts, (random.randint(5, 20), random.randint(5, 20), random.randint(5, 20), random.randint(5, 20))))
 
     def report(self):
         r = super(PlotNode2, self).report()
@@ -36,4 +37,3 @@ class PlotNode2(Node):
         r['keep'] = 'points'
         self.points = []
         return r
-        

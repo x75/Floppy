@@ -103,6 +103,7 @@ class ReportWidget(QtWebEngineWidgets.QWebEngineView):
         url = QtCore.QUrl.fromLocalFile(QtCore.QDir(self.fileBase).absoluteFilePath('dummy.html'))
         # QtWebKit.QWebSettings.clearMemoryCaches()
         #QtWebEngineCore.QWebSettings.clearMemoryCaches()
+        #scrollValue = self.page().scrollPosition()
         self.setHtml(tmplt(data, self.cache[:], self.fileBase, self.width()), url)
 
 '''
