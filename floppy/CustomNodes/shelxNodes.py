@@ -63,7 +63,7 @@ class RunShelxl(ShelxNode):
 
     def report(self):
         r = super(RunShelxl, self).report()
-        r['template'] = 'programTemplate'
+        r['template'] = 'ProgramTemplate'
         r['stdout'] = self.stdout
         return r
 

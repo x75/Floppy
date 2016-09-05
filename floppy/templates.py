@@ -159,6 +159,10 @@ class PlotElement(TemplateElement):
         else:
             return str(self.document)
 
+class StdoutElement(TemplateElement):
+    def __call__(self, data, cache, fileBase, width):
+        return data['stdout'].replace('\\n', '<br>')
+
 
 class MetaTemplate(type):
     def __new__(cls, name, bases, classdict):
@@ -213,3 +217,7 @@ class PlotTemplate(Template):
             </BODY>
         </HTML>
             '''.format(body='\n<br>\n'.join([element(data, cache, fileBase, width) for element in self.elements]))
+
+
+class ProgramTemplate(DefaultTemplate):
+    ELEMENTS = [IOElement, StdoutElement]

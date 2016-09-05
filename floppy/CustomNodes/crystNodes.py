@@ -147,7 +147,7 @@ class PDB2INS(CrystNode):
     def report(self):
         r = super(PDB2INS, self).report()
         r['stdout'] = self.stdout
-        r['template'] = 'programTemplate'
+        r['template'] = 'ProgramTemplate'
         return r
 
 
