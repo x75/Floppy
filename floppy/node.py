@@ -391,7 +391,7 @@ class Node(object, metaclass=MetaNode):
         in the editor.
 
         """
-        return {'template': 'defaultTemplate',
+        return {'template': 'DefaultTemplate',
                 'class': self.__class__.__name__,
                 'ID': self.ID,
                 'inputs': [(i, v.varType.__name__, str(v.value) if len(str(v.value)) < 10 else str(v.value)[:10]+'...') for i, v in self.inputs.items()],
