@@ -482,7 +482,7 @@ class Painter2D(Painter):
                         painter.drawRect(x-halfPinSize, y+drawOffset+PINSIZE, PINSIZE, PINSIZE)
                     else:
                         painter.drawEllipse(x-halfPinSize, y+drawOffset+PINSIZE, PINSIZE, PINSIZE)
-                    point = QPoint(x, y+drawOffset+6+PINSIZE) * painter.transform()
+                    point = QPoint(x, y+drawOffset+4+PINSIZE) * painter.transform()
                 # self.pinPositions.append((point, i+j))
                 self.inputPinPositions.append((point, inputPin.ID))
                 # drawOffset += 16
@@ -523,7 +523,7 @@ class Painter2D(Painter):
                         painter.drawRect(x + w-halfPinSize, y+drawOffset+PINSIZE, PINSIZE, PINSIZE)
                     else:
                         painter.drawEllipse(x + w-halfPinSize, y+drawOffset+PINSIZE, PINSIZE, PINSIZE)
-                    point = QPoint(x + w-4, y+drawOffset+6+PINSIZE) * painter.transform()
+                    point = QPoint(x + w-4, y+drawOffset+4+PINSIZE) * painter.transform()
                 # drawOffset += 16
                 drawOffset += (8 + PINSIZE)
                 self.outputPinPositions.append((point, outputPin.ID))
@@ -1186,7 +1186,7 @@ class DrawItem(object):
         xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18, self.w-18, 4+PINSIZE
         painter.setFont(QFont('Helvetica', LINEEDITFONTSIZE))
         painter.setPen(pen)
-        painter.drawText(xx+5, yy-3, ww-10, hh+5, alignment, text)
+        painter.drawText(xx+5, yy-3 + TEXTYOFFSET, ww-10, hh+5, alignment, text)
 
     def run(self):
         pass
@@ -1336,7 +1336,7 @@ class LineEdit(DrawItem):
             xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18, self.w-18, 4+PINSIZE
             painter.setFont(QFont('Helvetica', LINEEDITFONTSIZE))
             painter.setPen(pen)
-            painter.drawText(xx+5, yy-3, ww-10, hh+5, alignment, text)
+            painter.drawText(xx+5, yy-3 + TEXTYOFFSET, ww-10, hh+5, alignment, text)
             return
         text = str(text)
         if not self.state:
