@@ -1,9 +1,15 @@
 from PyQt5 import QtCore, QtGui, QtWidgets#, QtWebKitWidgets, QtWebKit
-from PyQt5 import QtWebEngineWidgets, QtWebEngineCore
+try:
+    from PyQt5 import QtWebEngineWidgets, QtWebEngineCore
+except ImportError:
+    from PyQt5 import QtWebKitWidgets, QtWebKit
+    WebView = QtWebKitWidgets.QWebView
+else:
+    WebView = QtWebEngineWidgets.QWebEngineView
 from PyQt5.QtCore import Qt, QPoint, QSettings
 from floppy.templates import TEMPLATES
 
-class ReportWidget(QtWebEngineWidgets.QWebEngineView):
+class ReportWidget(WebView):
 
     def __init__(self, *args, **kwargs):
         super(ReportWidget, self).__init__(*args, **kwargs)
@@ -54,7 +60,10 @@ class ReportWidget(QtWebEngineWidgets.QWebEngineView):
         # url = QtCore.QUrl.fromLocalFile(self.fileBase)
         url = QtCore.QUrl.fromLocalFile(QtCore.QDir(self.fileBase).absoluteFilePath('dummy.html'))
         # QtWebKit.QWebSettings.clearMemoryCaches()
-        #QtWebEngineCore.QWebSettings.clearMemoryCaches()
+        try:
+            QtWebEngineCore.QWebSettings.clearMemoryCaches()
+        except:
+            pass
         #scrollValue = self.page().scrollPosition()
         self.setHtml(tmplt(data, self.cache[:], self.fileBase, self.width()), url)
 
