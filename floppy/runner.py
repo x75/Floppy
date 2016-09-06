@@ -512,10 +512,9 @@ def sendCommand(cmd, host, port):
     clientSocket.close()
 
 
-def spawnRunner():
-    pass
-
-if __name__ == '__main__':
+def spawnRunner(listenPort):
+    global port
+    port = listenPort
     import os
     from importlib.machinery import SourceFileLoader
     customNodesPath = os.path.join(os.path.realpath(__file__)[:-10], 'CustomNodes')
@@ -526,4 +525,9 @@ if __name__ == '__main__':
             except Exception as e:
                 print('Warning: error in custom node:\n{}'.format(str(e)))
     r = Runner()
+    print('Remote Graph Interpreter Initialized.'
+          'Listening on port {}'.format(port))
     r.join()
+
+if __name__ == '__main__':
+    spawnRunner()

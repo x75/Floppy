@@ -51,3 +51,23 @@ class PlotBarsGrouped(PlotNode):
         # r['keep'] = 'points'
         # self.data = []
         return r
+
+
+class PairedLinePlot(PlotNode):
+    Input('A', float)
+    Input('B', float)
+    Output('Trigger', object)
+
+    def setup(self):
+        self.points = []
+
+    def run(self):
+        super(PairedLinePlot, self).run()
+        self.points.append((None, (self._A, self._B)))
+
+    def report(self):
+        r = super(PairedLinePlot, self).report()
+        r['template'] = 'PlotTemplate'
+        r['points'] = self.points[:]
+        self.points = []
+        return r

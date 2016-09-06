@@ -47,22 +47,22 @@ long as no plotting nodes are used.
 Setup: Add the cloned directory to your PYTHONPATH environment variable.
 Check if you can import 'floppy' in your Python3 console
 
-1. Create a new \<FileName\>.py file in the 'CustomNodes' subdirectory. This directory is automatically scanned for 
+ * Create a new \<FileName\>.py file in the 'CustomNodes' subdirectory. This directory is automatically scanned for 
 custom nodes. Creating a new file prevents conflicts when pulling updates from Github.
 
-2. Start the file with importing the following objects:
+ * Start the file with importing the following objects:
 ```python
     from floppy.node import Node, Input, Output, Tag, abstractNode
 ```
 
-3. Create your custom Node. (MyNode in this case)
+ * Create your custom Node. (MyNode in this case)
 ```python
     class MyNode(Node):
         pass
 ```
 If the editor is started now the custom node class will be available in the list at the top-right widget.
 
-4. Define inputs and outputs.
+ * Define inputs and outputs.
 ```python
     class MyNode(Node):
         Input('MyInput1', str)
@@ -74,7 +74,7 @@ This will create two inputs and two outputs of the type defined by the second ar
 that a list of the appropriate type is expected. This will be visualized by a square icon instead of a circle one.
 The first argument - the Input/Output name - can be any legal Python variable name and must be unique within the scope of a Node class.
 
-5. Define the execution behavior by overriding the 'run()' method.
+ * Define the execution behavior by overriding the 'run()' method.
 ```python
     class MyNode(Node):
         ...
@@ -89,10 +89,10 @@ Within the body of the 'run' method any legal Python3 code can be executed. Keep
 in a seperate thread. To get the most out of that feature it is recommended to use subprocesses and/or C-library calls whenever reasonable.
 The call of the parent class's implementation is recommended but not necessary. This may change in the future.
 
-6. The node should work now. Keep in mind that all outputs that are not set within the 'run' method's scope will have the value 'None'.
+ * The node should work now. Keep in mind that all outputs that are not set within the 'run' method's scope will have the value 'None'.
 Several ways to further customize nodes will be discussed next but will be unnecessary for most applications.
 
-7. Customize when a node is executed. 
+ * Customize when a node is executed. 
 ```python
     class MyNode(Node):
         ...
@@ -106,7 +106,7 @@ This is the default implementation that can be adjusted according to personal ne
 For example a time.sleep('...') can be used in combination with probing a file to continously watch a file and
 analyze data streams put out by other applications.
 
-8. Initialize custom properties.
+ * Initialize custom properties.
 ```python
     class MyNode(Node):
         ...
@@ -116,7 +116,7 @@ analyze data streams put out by other applications.
 This method is called after \__init\__ was executed. This is simply a convenient way to
 avoid annoying calls of super(MyNode, self).\__init\__(*args, **kwargs).
 
-9. Custom notification bahavior.
+ * Custom notification bahavior.
 ```python
     class MyNode(Node):
         ...
@@ -131,7 +131,7 @@ An example for custom behavior that leads to branches similar to if/else constru
 seen in the 'Switch' node which is also found in the floppy.node module.
 Another non-standard behavior can be observed in the case of the ForEach node.
 
-10. Custom report behavior.
+ * Custom report behavior.
 ```python
     class MyNode(Node):
         ...
@@ -146,3 +146,16 @@ a report about the nodes current status is requested by the editor. The reports
 are based on HTML templates. Look at the reportWidget module and templates module
 for details. However, keep in mind that the system will most likely change in the
 future.
+
+##Running the Graph Interpreter Remotely
+Disclaimer: The remote graph interpreter uses exactly the same code as an interpreter spawned locally by the editor's
+'Spawn' action. The only difference is that the local interpreter will accept only connections from 127.0.0.1.
+This also means that the remote feature is not thoroughly tested because most of the testing was done with a locally
+spawned interpreter. Theoretically, the interpreter should work remotely as well but there are cases where the latency
+of a real network connection might cause unforeseen problems.
+
+To spawn an independent remote interpreter simply run the 'RemoteInterpreter.py <portNumber>' module. The last argument
+must be the port number. All other arguments are ignored.
+
+A connection can then be established by clicking the 'Connect' button in the editor and putting in the appropriate
+connection information.
