@@ -293,8 +293,14 @@ class Painter2D(Painter):
         self.downOverNode = False
 
         if self.selectFrame and self.selectFrame_End:
-            self.groupSelection = self.massNodeCollide(self.selectFrame.x(), self.selectFrame.y(),
-                                                       self.selectFrame_End.x(), self.selectFrame_End.y())
+            x1, x2 = self.selectFrame.x(), self.selectFrame_End.x()
+            if x1 > x2:
+                x2, x1 = x1, x2
+            y1, y2 = self.selectFrame.y(), self.selectFrame_End.y()
+            if y1 > y2:
+                y2, y1 = y1, y2
+            self.groupSelection = self.massNodeCollide(x1, y1,
+                                                       x2, y2)
         self.selectFrame = None
         self.selectFrame_End = None
         self.repaint()
