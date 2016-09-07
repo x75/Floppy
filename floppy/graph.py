@@ -145,6 +145,9 @@ class Graph(object):
 
         return newNode
 
+    def createSubGraphNode(self, subgraphSave):
+        pass
+
     def createCustomNodeClass(self, name, inputs, outputs, parents=(Node,)):
         NodeClass = MetaNode(name, parents, {})
         NodeClass.__inputs__ = OrderedDict()
@@ -381,13 +384,16 @@ class Graph(object):
         with open(fileName, 'w') as fp:
             fp.write(saveState)
 
-    def toJson(self):
+    def toJson(self, subgraph=None):
         """
         Encodes the graph as a JSON string and returns the string.
+        :param subgraph: Returns whole graph is 'subgraph=None' else only the nodes corresponding to the subgraph.
         :return:
         """
+        if subgraph:
+            return json.dumps([(node.ID, node.save()) for node in self.nodes.values() if node.subgraph == subgraph])
         return json.dumps([(node.ID, node.save()) for node in self.nodes.values()])
-        return json.dumps({node.ID: node.save() for node in self.nodes.values()})
+        #return json.dumps({node.ID: node.save() for node in self.nodes.values()})
 
     def killRunner(self):
         """

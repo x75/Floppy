@@ -569,6 +569,17 @@ class ProxyNode(Node):
     A dummy node without any functionality used as a place holder for subgraphs.
     """
 
+    def __init__(self, *args, **kwargs):
+        super(ProxyNode, self).__init__(*args, **kwargs)
+        self.__proxies__ = {}
+        self.__ready__ = {inp: False for inp in self.inputs.keys()}
+
+    def setInput(self, inputName, value, override=False, loopLevel=False):
+        self.loopLevel = max([self.loopLevel, loopLevel])
+        proxy = self.__proxies__[inputName]
+        proxy.setInput(inputName, value, override, loopLevel)
+        self.__ready__[inputName] = True
+
     def addProxyInput(self, name, output, input, varType):
         pass
 

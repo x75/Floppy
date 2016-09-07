@@ -119,6 +119,7 @@ class Painter2D(Painter):
                     relayInputs.add((inp, outNode, con.outputName))
             else:
                 relayInputs.add((inp, None, None))
+        print('xxx', self.graph.toJson(subgraph=name))
         print([i for i in relayInputs])
 
     def setSelectedSubgraph(self, graph, parent=None):
