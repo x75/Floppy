@@ -248,7 +248,7 @@ class Painter2D(Painter):
                     self.downOverNode = event.pos()
                     return
             self.groupSelection = []
-            self.selectFrame = event.pos()
+            self.selectFrame = event.pos() + (event.pos() - self.center) * (1-self.scale) * 1/self.scale
 
 
     def getOutputPinAt(self, pos):
@@ -356,7 +356,7 @@ class Painter2D(Painter):
             self.drawLooseConnection(event.pos())
             self.update()
         if self.selectFrame:
-            self.selectFrame_End = event.pos()
+            self.selectFrame_End = event.pos() + (event.pos() - self.center) * (1-self.scale) * 1/self.scale
 
     def getSelectedNode(self):
         return self.clickedNode
