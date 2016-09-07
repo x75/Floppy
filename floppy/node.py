@@ -134,7 +134,13 @@ class InputInfo(Info):
     def setConnected(self, value: bool):
         self.connected = value
 
-    def isAvailable(self):
+    def isAvailable(self, info=False):
+        if info:
+            if self.valueSet:
+                return True
+            elif self.default != None and not self.connected and not self.usedDefault and self.pure < 2:
+                return True
+            return False
         if self.valueSet:
             # print('^^^^^^^^^^^^^^^^^^', self.name, self.value, self.valueSet)
             return True
@@ -390,13 +396,17 @@ class Node(object, metaclass=MetaNode):
         'CLEAR' the editors cache will be purged. This can be useful for plotting an ongoing stream of data points
         in the editor.
 
+        The 'ready' item is set to True when all inputs are available. This is mainly useful for debugging graph
+        applications.
         """
+        ready = all([inp.isAvailable(info=True) for inp in self.inputs.values()])
         return {'template': 'DefaultTemplate',
                 'class': self.__class__.__name__,
                 'ID': self.ID,
                 'inputs': [(i, v.varType.__name__, str(v.value) if len(str(v.value)) < 10 else str(v.value)[:10]+'...') for i, v in self.inputs.items()],
                 'outputs': [(i, v.varType.__name__, str(v.value) if len(str(v.value)) < 10 else str(v.value)[:10]+'...') for i, v in self.outputs.items()],
-                'keep': None}
+                'keep': None,
+                'ready': 'Ready' if ready else 'Waiting'}
 
     # def prepare(self):
     #     """

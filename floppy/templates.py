@@ -124,7 +124,7 @@ class IOElement(TemplateElement):
         </style>
     <div id="pricing-table" class="clear">
         <div class="plan">
-            <h3>Input<span>Waiting</span></h3>
+            <h3>Input<span>{ready}</span></h3>
             <ul>
                 {inputs}
             </ul>
@@ -139,6 +139,7 @@ class IOElement(TemplateElement):
 
     </div>
         '''.format(width=width,
+                   ready=data['ready'],
                    ewidth=(width - 80) / 2,
                    inputs='\n'.join(['<li><b><span style="color:{}">{}</span></b>  {}</li>'.format(TYPECOLORS[
                                                                                                        varType],
