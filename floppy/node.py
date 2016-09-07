@@ -930,6 +930,12 @@ class ForLoop(ControlNode):
             self.fresh = True
             self.done = False
 
+    def report(self):
+        r = super(ForLoop, self).report()
+        ready = any((self.inputs['Control'].isAvailable(info=True), self.inputs['Start'].isAvailable(info=True)))
+        r['ready'] = 'Ready' if ready else 'Waiting'
+        return r
+
 
 class ForEach(ForLoop):
     Input('Start', object, list=True)
