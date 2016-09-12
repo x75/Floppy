@@ -145,8 +145,36 @@ class Graph(object):
 
         return newNode
 
-    def createSubGraphNode(self, subgraphSave):
-        pass
+    def createSubGraphNode(self, name, subgraphSave, inputRelays, outputRelays):
+        inps = []
+        names = set()
+        for info, x, y in inputRelays:
+            iName = info.name
+            while iName in names:
+                iName += '_'
+            names.add(iName)
+            inps.append({'name': iName,
+                         'varType': info.varType,
+                         'hints': info.hints,
+                         'default': None,
+                         'select': info.select,
+                         'list': info.list,
+                         'optional': info.optional})
+        outs = []
+        names = set()
+        for info, x, y in outputRelays:
+            oName = info.name
+            while oName in names:
+                oName += '_'
+            names.add(oName)
+            outs.append({'name': oName,
+                         'varType': info.varType,
+                         'hints': info.hints,
+                         'default': None,
+                         'select': info.select,
+                         'list': info.list,
+                         'optional': info.optional})
+        nodeClass = self.createCustomNodeClass(name, inps, outs)
 
     def createCustomNodeClass(self, name, inputs, outputs, parents=(Node,)):
         NodeClass = MetaNode(name, parents, {})

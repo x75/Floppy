@@ -119,8 +119,23 @@ class Painter2D(Painter):
                     relayInputs.add((inp, outNode, con.outputName))
             else:
                 relayInputs.add((inp, None, None))
+
+        relayOutputs = set()
+        allOutputs = self.getAllOutputsOfSubgraph(name)
+        for out in allOutputs:
+            cons = self.graph.getConnectionsOfOutput(out)
+            if cons:
+                for con in cons:
+                    inpNode = con.inputNode
+                    if not inpNode in subgraph:
+                        relayOutputs.add((out, inpNode, con.inputName))
+                        break
+            else:
+                relayOutputs.add((out, None, None))
         print('xxx', self.graph.toJson(subgraph=name))
         print([i for i in relayInputs])
+        self.graph.createSubGraphNode(name, self.graph.toJson(subgraph=name), relayInputs, relayOutputs)
+
 
     def setSelectedSubgraph(self, graph, parent=None):
         if not parent:
@@ -139,7 +154,8 @@ class Painter2D(Painter):
     def getAllOutputsOfSubgraph(self, subgraph=None):
         if not subgraph:
             subgraph = self.selectedSubgraph[0]
-        nodes = {node for node in self.nodes if node.subgraph == subgraph}
+        outputs = {node.outputs.values() for node in self.nodes if node.subgraph == subgraph}
+        return [j for i in outputs for j in i]
 
     def checkGraph(self):
         if self.graph.needsUpdate():
