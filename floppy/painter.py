@@ -249,6 +249,7 @@ class Painter2D(Painter):
                     return
             self.groupSelection = []
             self.selectFrame = event.pos() + (event.pos() - self.center) * (1-self.scale) * 1/self.scale
+            self._selectFrame = event.pos()
 
 
     def getOutputPinAt(self, pos):
@@ -293,12 +294,17 @@ class Painter2D(Painter):
         self.downOverNode = False
 
         if self.selectFrame and self.selectFrame_End:
-            x1, x2 = self.selectFrame.x(), self.selectFrame_End.x()
+            x1, x2 = self._selectFrame.x(), self._selectFrame_End.x()
             if x1 > x2:
                 x2, x1 = x1, x2
-            y1, y2 = self.selectFrame.y(), self.selectFrame_End.y()
+            y1, y2 = self._selectFrame.y(), self._selectFrame_End.y()
             if y1 > y2:
                 y2, y1 = y1, y2
+            # x1 += self.globalOffset.x()
+            # print(x1, '     ', self.globalOffset.x(), '    ', event.pos().x())
+            # x2 += self.globalOffset.x()
+            # y1 += self.globalOffset.y()
+            # y2 += self.globalOffset.y()
             self.groupSelection = self.massNodeCollide(x1, y1,
                                                        x2, y2)
         self.selectFrame = None
@@ -310,6 +316,7 @@ class Painter2D(Painter):
         nodes = []
         for nodePoints in self.nodePoints:
             x1 = nodePoints[0].x()
+            print(self.selectFrame.x(),'   ',x1)
             x2 = nodePoints[1].x() #+ x1
             y1 = nodePoints[0].y()
             y2 = nodePoints[1].y() #+ y1
@@ -357,6 +364,7 @@ class Painter2D(Painter):
             self.update()
         if self.selectFrame:
             self.selectFrame_End = event.pos() + (event.pos() - self.center) * (1-self.scale) * 1/self.scale
+            self._selectFrame_End = event.pos()
 
     def getSelectedNode(self):
         return self.clickedNode
