@@ -316,7 +316,6 @@ class Painter2D(Painter):
         nodes = []
         for nodePoints in self.nodePoints:
             x1 = nodePoints[0].x()
-            print(self.selectFrame.x(),'   ',x1)
             x2 = nodePoints[1].x() #+ x1
             y1 = nodePoints[0].y()
             y2 = nodePoints[1].y() #+ y1
@@ -1191,7 +1190,7 @@ class DrawItem(object):
         self._xx = point.x()
         self._yy = point.y()
 
-    def draw(self, painter):
+    def draw(self, painter, asLabel=False):
         alignment = self.__class__.alignment
         text = self.data.name
         pen = QPen(Qt.darkGray)
@@ -1263,7 +1262,18 @@ class Selector(DrawItem):
             self.state = 0
         return super(Selector, self).collide(pos)
 
-    def draw(self, painter, last=False):
+    def draw(self, painter, last=False, asLabel=False):
+        if asLabel:
+            text = asLabel
+            alignment = self.__class__.alignment
+            pen = QPen(Qt.darkGray)
+            painter.setPen(pen)
+            painter.setBrush(QColor(40, 40, 40))
+            xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18, self.w-18, 4+PINSIZE
+            painter.setFont(QFont('Helvetica', LINEEDITFONTSIZE))
+            painter.setPen(pen)
+            painter.drawText(xx+5, yy-3 + TEXTYOFFSET, ww-10, hh+5, alignment, text)
+            return
         if not self.state:
             alignment = self.alignment
             text = self.data.name
