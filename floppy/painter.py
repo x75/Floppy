@@ -1225,6 +1225,7 @@ class DrawItem(object):
 
 
 class Selector(DrawItem):
+    alignment = Qt.AlignLeft
     def __init__(self, *args, **kwargs):
         super(Selector, self).__init__(*args, **kwargs)
         self.highlight = 0
@@ -1243,7 +1244,7 @@ class Selector(DrawItem):
     def watch(self, pos):
         scale = self.painter.scale
         for i in range(1, len(self.items)+1):
-            if self._x < pos.x() < self._xx and self._y + 12*i*scale < pos.y() + 15*scale < self._yy + 12*i*scale:
+            if self._x < pos.x() < self._xx and self._y + 12*i*scale < pos.y()  < self._y + (i+1)*scale*PINSIZE:
                 self.highlight = i
                 return
 
@@ -1264,35 +1265,35 @@ class Selector(DrawItem):
 
     def draw(self, painter, last=False):
         if not self.state:
-            alignment = Qt.AlignRight
+            alignment = self.alignment
             text = self.data.name
             if self.select:
                 text = str(self.select)
             pen = QPen(Qt.darkGray)
             painter.setPen(pen)
             painter.setBrush(QColor(40, 40, 40))
-            xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18, self.w-25, 12
+            xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18, self.w-25, 4+PINSIZE
             painter.drawRoundedRect(xx, yy, ww, hh, 2, 20)
-            painter.setFont(QFont('Helvetica', 8))
+            painter.setFont(QFont('Helvetica', LINEEDITFONTSIZE))
             painter.setPen(pen)
-            painter.drawText(xx-5, yy-3, ww-20, hh+5, alignment, text)
+            painter.drawText(xx+5, yy-3+TEXTYOFFSET, ww-20, hh+5, alignment, text)
             pen.setColor(Qt.gray)
             # pen.setWidth(3)
             painter.setPen(pen)
             painter.setBrush(QBrush(Qt.gray))
-            points = QPoint(xx+self.w-40, yy+2), QPoint(xx+10-40 + self.w, yy+2), QPoint(xx+5+self.w-40, yy+9)
+            points = QPoint(xx+self.w-40, yy-2+PINSIZE/2), QPoint(xx+10-40 + self.w, yy-2+PINSIZE/2), QPoint(xx+5+self.w-40, yy+4+PINSIZE/2)
             painter.drawPolygon(*points)
         else:
             if not last:
                 return self
-            alignment = Qt.AlignRight
+            alignment = self.alignment
             text = self.data.name
             pen = QPen(Qt.darkGray)
             painter.setPen(pen)
             painter.setBrush(QColor(40, 40, 40))
-            xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18 + 12, self.w-25, 12 * len(self.items)
-            painter.drawRoundedRect(xx, yy, ww, hh, 2, 20)
-            painter.setFont(QFont('Helvetica', 8))
+            xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-26 + 12, self.w-25, (4+PINSIZE) * len(self.items)
+            painter.drawRoundedRect(xx, yy+PINSIZE, ww, hh, 2, 20+PINSIZE)
+            painter.setFont(QFont('Helvetica', LINEEDITFONTSIZE))
             painter.setPen(pen)
 
             for i, item in enumerate(self.items):
@@ -1303,16 +1304,16 @@ class Selector(DrawItem):
                 else:
                     pen = QPen(Qt.darkGray)
                     painter.setPen(pen)
-                painter.drawText(xx-5, yy-3+i*12, ww-20, hh+5, alignment, item)
+                painter.drawText(xx+5, yy+PINSIZE-3+i*(4+PINSIZE)+TEXTYOFFSET, ww-20, hh+5+PINSIZE, alignment, item)
             # painter.drawText(xx-5, yy-3+0, ww-20, hh+5, alignment, 'True')
             # painter.drawText(xx-5, yy-3+12, ww-20, hh+5, alignment, 'False')
 
             pen = QPen(Qt.darkGray)
             painter.setPen(pen)
             painter.setBrush(QColor(60, 60, 60))
-            xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18, self.w-25, 12
+            xx, yy, ww, hh = self.x+(self.w)/2.-(self.w-25)/2., self.y-18, self.w-25, 4+PINSIZE
             painter.drawRoundedRect(xx, yy, ww, hh, 2, 20)
-            painter.drawText(xx-5, yy-3, ww-20, hh+5, alignment, text)
+            painter.drawText(xx+5, yy-3+TEXTYOFFSET, ww-20, hh+5, alignment, text)
 
 
 class LineEdit(DrawItem):
