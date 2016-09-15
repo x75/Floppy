@@ -758,22 +758,27 @@ class WaitAll(Node):
         [inp.reset(self.loopLevel) for inp in self.inputs.values()]
 
 
-class WaitAny(WaitAll):
+class WaitAny(Node):
     """
     Waits for any inputs to be set. This doesn't make much sense, does it?
     """
+    Input('Wait1', object)
+    Input('Wait2', object)
+    Output('Out', object)
+
+    def setup(self):
+        self.useInput = None
 
     def check(self):
         for inp in self.inputs.values():
             if inp.valueSet:
                 # print('        {}: Prerequisites not met.'.format(str(self)))
+                self.useInput = inp
                 return True
 
     def run(self):
         super(WaitAny, self).run()
-        for inp in self.inputs.values():
-            if inp.valueSet:
-                self._out(inp.value)
+        self._Out(self.useInput())
 
 
 class Test(Node):
