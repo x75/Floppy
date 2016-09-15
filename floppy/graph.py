@@ -145,7 +145,7 @@ class Graph(object):
 
         return newNode
 
-    def createSubGraphNode(self, name, subgraphSave, inputRelays, outputRelays):
+    def createSubGraphNode(self, name, subgraphSave, inputRelays, outputRelays, spawnAt=None):
         inps = []
         names = set()
         for info, x, y in inputRelays:
@@ -175,6 +175,8 @@ class Graph(object):
                          'list': info.list,
                          'optional': info.optional})
         nodeClass = self.createCustomNodeClass(name, inps, outs)
+        if spawnAt:
+            return self.spawnNode(nodeClass, position=spawnAt)
 
     def createCustomNodeClass(self, name, inputs, outputs, parents=(Node,)):
         NodeClass = MetaNode(name, parents, {})
@@ -185,6 +187,7 @@ class Graph(object):
         for out in outputs:
             NodeClass._addOutput(data=out, cls=NodeClass)
         NODECLASSES[name] = NodeClass
+        return NodeClass
 
 
     def _spawnConnections(self, connections, newNode):
