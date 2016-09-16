@@ -44,7 +44,7 @@ def startUI(app, painter):
 def parseArgv():
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', action='store_true', required=False)
-    parser.add_argument('--test', action='store_true', required=False, default=False)
+    parser.add_argument('--test', nargs=1, required=False, default=False)
     args = parser.parse_args()
     return args
 

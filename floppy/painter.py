@@ -797,7 +797,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def setArgs(self, args):
         if args.test:
             logger.info('Performing test.')
-            self.loadGraph(override='pairs.ppy')
+            self.loadGraph(override=args.test[0])
+            self.runCode()
 
     def initActions(self):
         self.exitAction = QAction(QIcon(os.path.join(self.iconRoot, 'quit.png')), 'Quit', self)
