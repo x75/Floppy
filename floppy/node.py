@@ -1159,4 +1159,14 @@ class MakeTable(Node):
         self._Table(table)
 
 
+class TestReturn(Node):
+    Input('Value', object)
+    Input('Reference', object, optional=True)
+
+    def run(self):
+        super(TestReturn, self).run()
+        val = 0 if self._Value == self._Reference else 1
+        import os
+        os._exit(val)
+
 # TODO Cleanup this mess. Prepare method and probably a lot of other stuff is no longer needed.
