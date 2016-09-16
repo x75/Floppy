@@ -10,6 +10,9 @@ from PyQt5.QtCore import Qt, QPoint, QSettings
 from PyQt5.QtGui import *
 from PyQt5.Qt import QTimer
 import platform
+import logging
+
+logger = logging.getLogger('Floppy')
 
 
 LOCALPORT = 8080
@@ -793,6 +796,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def setArgs(self, args):
         if args.test:
+            logger.info('Performing test.')
             self.loadGraph(override='pairs.ppy')
 
     def initActions(self):
@@ -1106,9 +1110,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.statusBar.showMessage('Cannot Unpause Interpreter. No Interpreter Available.', 2000)
 
     def spawnRunner(self):
-        print('Spawning new Runner.')
+        logger.debug('Spawning new Runner.')
         self.statusBar.showMessage('New Remote Interpreter spawned.', 2000)
         self.drawer.graph.spawnAndConnect(LOCALPORT)
+        logger.debug('Connected to Runner.')
 
     def runCode(self, *args):
         self.drawer.graph.execute()
@@ -1121,12 +1126,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             fileName = override
         if fileName:
+            logger.debug('Attempting to load graph: {}'.format(fileName))
             self.drawer.graph.load(fileName, callback=self.raiseErrorMessage)
             self.statusBar.showMessage('Graph loaded from {}.'.format(fileName), 2000)
+            logger.info('Successfully loaded graph: {}'.format(fileName))
 
     def raiseErrorMessage(self, message):
         err = QErrorMessage(self)
         err.showMessage(message)
+        logger.error(message)
 
     def saveGraph(self, *args):
         """
@@ -1139,8 +1147,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return
         if not fileName.endswith('.ppy'):
              fileName += '.ppy'
+        logger.debug('Attempting to save graph as {}'.format(fileName))
         self.drawer.graph.save(fileName)
         self.statusBar.showMessage('Graph saved as {}.'.format(fileName), 2000)
+        logger.info('Save graph as {}'.format(fileName))
 
     def resizeEvent(self, event):
         super(MainWindow, self).resizeEvent(event)
@@ -1151,7 +1161,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.NodeListView.setup(self.FilterEdit, self.drawer.graph)
 
     def closeEvent(self, event):
+        logger.debug('Attempting to kill interpreter.')
         self.killRunner()
+        logger.debug('MainWindow is shutting down.')
         super(MainWindow, self).closeEvent(event)
 
     def keyPressEvent(self, event):

@@ -3,25 +3,37 @@ from floppy.painter import Painter2D, MainWindow
 import sys
 from PyQt5.QtWidgets import QApplication
 import argparse
+import logging
+
+logger = logging.getLogger('Floppy')
+logger.setLevel(logging.DEBUG)
+fh = logging.FileHandler('floppy.log')
+fh.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+logger.addHandler(fh)
+
 
 
 def run():
+    logger.info('Starting Floppy Application with '+' '.join(sys.argv))
     app = QApplication(sys.argv)
-    painter = test()
-    testUI(app, painter)
+    painter = initializePainter()
+    startUI(app, painter)
 
 
-def test():
+def initializePainter():
     painter = Painter2D()
     Graph(painter=painter)
 
     return painter
 
 
-def testUI(app, painter):
+def startUI(app, painter):
     win = MainWindow(painter=painter)
     win.setArgs(parseArgv())
     win.show()
+    logger.debug('Startup successful. Handing main thread control to Qt main loop.')
     sys.exit(app.exec_())
     # try:
     #     sys.exit(app.exec_())

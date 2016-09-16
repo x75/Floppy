@@ -11,6 +11,15 @@ from queue import Queue
 from socket import AF_INET, SOCK_STREAM, socket, SHUT_RDWR, timeout, SHUT_RDWR, SO_REUSEADDR, SOL_SOCKET
 import json
 import struct
+import logging
+
+logger = logging.getLogger('Floppy-Interpreter')
+logger.setLevel(logging.DEBUG)
+fh = logging.FileHandler('floppy.log')
+fh.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+logger.addHandler(fh)
 
 
 # host = '127.0.0.1'
@@ -27,6 +36,7 @@ xLock = Lock()
 class Runner(object):
 
     def __init__(self):
+        logger.info('Creating new interpreter.')
         self.status = []
         self.runningNodes = []
         self.conn = None
@@ -150,14 +160,16 @@ class Runner(object):
 
     def getReport(self, nodeID):
         if self.executionThread.graph and nodeID in self.executionThread.graph.nodes:
-            return (self.executionThread.graph.nodes[nodeID].report())
-            return ''
+            report = self.executionThread.graph.nodes[nodeID].report()
+            logger.debug('Generated node instance report: {}'.format(report))
+            return report
         else:
             return ''
 
 
 class ExecutionThread(Thread):
     def __init__(self, cmdQueue, master):
+        logger.debug('Creating new ExecutionThread.')
         self.graph = None
         self.framerate = 0.1
         self.master = master
@@ -171,6 +183,7 @@ class ExecutionThread(Thread):
 
     def setFrameRate(self, framerate):
         self.framerate = framerate
+        logger.info('Framerate set to {}'.format(framerate))
 
     def run(self):
         while self.alive:
@@ -196,34 +209,43 @@ class ExecutionThread(Thread):
             else:
                 time.sleep(self.framerate)
         print('That\'s it. I\'m dead.')
+        logger.info('ExecutionThread terminating')
 
     def pause(self):
+        logger.info('Pausing')
         self.paused = True
 
     def unpause(self):
+        logger.info('Unpausing')
         self.paused = False
 
     def kill(self):
+        logger.info('Exiting')
         self.alive = False
 
     def step(self):
         print('Stepping up.')
+        logger.debug('Performing single step')
         if self.executeGraphStep():
             self.master.updateRunningNodes(self.graph.runningNodes)
         # self.executeGraphStepPar()
 
     def loadGraph(self):
         from floppy.graph import Graph
+        logger.debug('Attempting to load graph instance.')
         self.graph = Graph()
         # print(type(self.master.graph))
         self.graph.loadState(self.master.graphData, reuseIDs=True)
+        logger.info('Successfully loaded graph instance.')
         #self.resetPointers()
 
     def updateGraph(self):
         from floppy.graph import Graph
         # self.graph = Graph()
         # print(type(self.master.graph))
+        logger.debug('Attempting to update graph instance.')
         self.graph.updateState(self.master.graphData, reuseIDs=True)
+        logger.info('Successfully updated graph instance.')
         #self.resetPointers()
 
     def executeGraphStep(self):
@@ -291,6 +313,7 @@ class Listener(Thread):
         self.listenSocket.settimeout(1)
         self.listenSocket.bind((host, port))
         self.listenSocket.listen(1)
+        logger.info('Interpreter listening on {}:{}'.format(host, port))
         self.master = master
         self.daemon = True
         self.start()
@@ -307,6 +330,7 @@ class Listener(Thread):
             try:
                 cSocket, address = self.listenSocket.accept()
                 print('++++++++++client accepted.')
+                logger.info('Client Connection from {} accepted'.format(address))
             except OSError as x:
                 continue
             # if str(address[0]) == '127.0.0.1':
@@ -332,6 +356,7 @@ class CommandProcessor(Thread):
             # message = self.cSocket.recv(1024).decode()
             message = self.receive()
             if message:
+                # logger.debug('Received command: {}...'.format(message[:10]))
                 if message == 'KILL':
                     # print('Killing myself')
                     self.send('Runner is terminating.')
