@@ -1166,6 +1166,7 @@ class TestReturn(Node):
     def run(self):
         super(TestReturn, self).run()
         val = 0 if self._Value == self._Reference else 1
+        print(self._Value, self._Reference)
         import os
         os._exit(val)
 
