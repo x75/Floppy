@@ -791,6 +791,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         settingsDialog = SettingsDialog(self, settings=self.settings, globals=globals())
         settingsDialog.close()
 
+    def setArgs(self, args):
+        if args.test:
+            self.loadGraph(override='pairs.ppy')
+
     def initActions(self):
         self.exitAction = QAction(QIcon(os.path.join(self.iconRoot, 'quit.png')), 'Quit', self)
         self.exitAction.setShortcut('Ctrl+Q')
@@ -1110,9 +1114,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.drawer.graph.execute()
         self.statusBar.showMessage('Code execution started.', 2000)
 
-    def loadGraph(self, *args):
-        fileName = QFileDialog.getOpenFileName(self, 'Open File', '~/',
-                                               filter='Floppy Files (*.ppy);; Any (*.*)')[0]
+    def loadGraph(self, *args, override=False):
+        if not override:
+            fileName = QFileDialog.getOpenFileName(self, 'Open File', '~/',
+                                                   filter='Floppy Files (*.ppy);; Any (*.*)')[0]
+        else:
+            fileName = override
         if fileName:
             self.drawer.graph.load(fileName, callback=self.raiseErrorMessage)
             self.statusBar.showMessage('Graph loaded from {}.'.format(fileName), 2000)
