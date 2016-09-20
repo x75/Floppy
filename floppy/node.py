@@ -898,6 +898,8 @@ class ForLoop(ControlNode):
             for inp in self.inputs.values():
                 if inp.name == 'Control':
                     continue
+                if inp.name == 'TRIGGER' and not inp.connected:
+                    continue
                 if not inp.isAvailable():
                     # print('        {}: Prerequisites not met.'.format(str(self)))
                     return False
