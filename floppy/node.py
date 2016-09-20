@@ -633,6 +633,8 @@ class Switch(ControlNode):
             for inp in self.inputs.values():
                 if inp.name == 'Control':
                     continue
+                if inp.name == 'TRIGGER' and not inp.connected:
+                    continue
                 if not inp.isAvailable():
                     # print('        {}: Prerequisites not met.'.format(str(self)))
                     return False
@@ -658,7 +660,7 @@ class Switch(ControlNode):
                 outputName = con['outputName']
                 nextNode = con['inputNode']
                 nextInput = con['inputName']
-                nextNode.setInput(nextInput, self.outputs[outputName].value)
+                nextNode.setInput(nextInput, self.outputs[outputName].value, loopLevel=self.loopLevel)
             self.fresh = False
             self.inputs['Start'].reset()
             self.inputs['Switch'].reset()
@@ -668,9 +670,10 @@ class Switch(ControlNode):
                 outputName = con['outputName']
                 nextNode = con['inputNode']
                 nextInput = con['inputName']
-                nextNode.setInput(nextInput, self.outputs[outputName].value)
+                nextNode.setInput(nextInput, self.outputs[outputName].value, loopLevel=self.loopLevel)
             self.fresh = True
         self.inputs['Control'].reset()
+        [Info.reset(inp, self.loopLevel) for inp in self.inputs.values()]
 
 #
 # class Loop(ControlNode):
