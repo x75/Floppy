@@ -662,8 +662,8 @@ class Switch(ControlNode):
                 nextInput = con['inputName']
                 nextNode.setInput(nextInput, self.outputs[outputName].value, loopLevel=self.loopLevel)
             self.fresh = False
-            self.inputs['Start'].reset()
-            self.inputs['Switch'].reset()
+            self.inputs['Start'].reset(self.loopLevel)
+            self.inputs['Switch'].reset(self.loopLevel)
         else:
             output = self.outputs['Final']
             for con in self.graph.getConnectionsOfOutput(output):
