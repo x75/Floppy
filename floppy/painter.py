@@ -1435,10 +1435,15 @@ class LineEdit(DrawItem):
         if event.key() == 16777219:
             self.text = self.text[:-1]
         else:
-            self.text += event.text()
+            self.text += LineEdit.sanitizeInputString(event.text())
         self.painter.update()
         self.parent.inputs[self.data.name].setDefault(self.text)
         # print(event.key())
+
+    @staticmethod
+    def sanitizeInputString(string):
+        string = string.strip('\r\n')
+        return string
 
 
 class InputLabel(DrawItem):
