@@ -234,15 +234,16 @@ class Painter2D(Painter):
                 self.drag = event.pos()
 
         if event.button() == Qt.LeftButton:
+
             for item in self.watchingItems:
                 item.watchDown(event.pos())
+                item.collide(event.pos())
+                return
+
             for drawItem in self.drawItems:
                 if issubclass(type(drawItem), Selector) or issubclass(type(drawItem), LineEdit):
-                    # print(drawItem.data.name, drawItem._x,drawItem._y, event.pos())
-                    # print(drawItem.data.name, drawItem._xx,drawItem._yy)
                     if drawItem.collide(event.pos()):
-                        # print(drawItem)
-                        pass
+                        break
 
             for point, i in self.inputPinPositions:
                 # print(event.pos(), point, i)
@@ -1236,6 +1237,8 @@ class DrawItem(object):
         self._xx = point.x()
         self._yy = point.y()
 
+        self._yy = self._y + PINSIZE
+
     def draw(self, painter, asLabel=False):
         alignment = self.__class__.alignment
         text = self.data.name
@@ -1287,7 +1290,6 @@ class Selector(DrawItem):
                 self.select = str(self.data.info.default)
 
     def watch(self, pos):
-        print('watch')
         scale = self.painter.scale
         for i in range(1, len(self.items)+1):
             if self._x < pos.x() < self._xx and self._y+4*scale + PINSIZE*i*scale < pos.y() < (self._y+4*scale + (i+1)*scale*PINSIZE):
@@ -1295,19 +1297,24 @@ class Selector(DrawItem):
                 return
 
     def watchDown(self, pos):
-        print('watchdown', self)
         self.select = str(self.items[self.highlight-1])
         self.parent.inputs[self.data.name].setDefault(self.select)
         # self.parent._Boolean.setDefault(self.select)
-        self.painter.removeWatchingItem(self)
+        # self.painter.removeWatchingItem(self)
 
     def collide(self, pos):
         if self._x < pos.x() < self._xx+16 and self._y < pos.y() < self._yy:
             self.state = (self.state + 1) % 2
-            self.painter.registerWatchingItem(self)
+            try:
+                self.painter.registerWatchingItem(self)
+            except ValueError:
+                pass
         else:
             if self.state:
-                self.painter.removeWatchingItem(self)
+                try:
+                    self.painter.removeWatchingItem(self)
+                except ValueError:
+                    pass
             self.state = 0
         return super(Selector, self).collide(pos)
 
@@ -1438,14 +1445,17 @@ class LineEdit(DrawItem):
         if event.key() == 16777219:
             self.text = self.text[:-1]
         else:
-            self.text += LineEdit.sanitizeInputString(event.text())
+            self.text += self.sanitizeInputString(event.text())
         self.painter.update()
         self.parent.inputs[self.data.name].setDefault(self.text)
         # print(event.key())
 
-    @staticmethod
-    def sanitizeInputString(string):
+    def sanitizeInputString(self, string):
         string = string.strip('\r\n')
+        try:
+            self.data.info.varType(string)
+        except ValueError:
+            return ''
         return string
 
 

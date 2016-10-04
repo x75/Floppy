@@ -2,8 +2,11 @@ from floppy.node import Node, Input, Output, Tag, abstractNode
 import time
 import random
 
-class MyNode(Node):
+class AMyNode(Node):
+    Input('Inta', int)
+    Input('Intb', int)
     Input('Int1', int, select=[1,2,3,4])
+    Input('Int3', int, select=[1,2,3,4])
     Output('Int2', int)
 
     def run(self):
