@@ -3,7 +3,7 @@ import time
 import random
 
 class MyNode(Node):
-    Input('Int1', int)
+    Input('Int1', int, select=[1,2,3,4])
     Output('Int2', int)
 
     def run(self):

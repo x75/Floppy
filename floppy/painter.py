@@ -62,7 +62,7 @@ class Painter2D(Painter):
         self.pinPositions = {}
         self.drawItems = []
         self.drawItemsOfNode = {}
-        self.watchingItems = set()
+        self.watchingItems = []
         self.triggers = set()
         self.contextSensitive = False
         self.rightClickedNode = None
@@ -90,7 +90,7 @@ class Painter2D(Painter):
         self.pinPositions = {}
         self.drawItems = []
         self.drawItemsOfNode = {}
-        self.watchingItems = set()
+        self.watchingItems = []
         self.rightClickedNode = None
         self.lastReport = None
         self.contextSensitive = True
@@ -181,7 +181,7 @@ class Painter2D(Painter):
             self.relayTo = None
 
     def registerWatchingItem(self, item):
-        self.watchingItems.add(item)
+        self.watchingItems.append(item)
 
     def removeWatchingItem(self, item):
         self.watchingItems.remove(item)
@@ -1287,6 +1287,7 @@ class Selector(DrawItem):
                 self.select = str(self.data.info.default)
 
     def watch(self, pos):
+        print('watch')
         scale = self.painter.scale
         for i in range(1, len(self.items)+1):
             if self._x < pos.x() < self._xx and self._y+4*scale + PINSIZE*i*scale < pos.y() < (self._y+4*scale + (i+1)*scale*PINSIZE):
@@ -1294,9 +1295,11 @@ class Selector(DrawItem):
                 return
 
     def watchDown(self, pos):
+        print('watchdown', self)
         self.select = str(self.items[self.highlight-1])
         self.parent.inputs[self.data.name].setDefault(self.select)
         # self.parent._Boolean.setDefault(self.select)
+        self.painter.removeWatchingItem(self)
 
     def collide(self, pos):
         if self._x < pos.x() < self._xx+16 and self._y < pos.y() < self._yy:
