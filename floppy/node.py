@@ -569,6 +569,17 @@ class ProxyNode(Node):
     A dummy node without any functionality used as a place holder for subgraphs.
     """
 
+    def __init__(self, *args, **kwargs):
+        super(ProxyNode, self).__init__(*args, **kwargs)
+        self.__proxies__ = {}
+        self.__ready__ = {inp: False for inp in self.inputs.keys()}
+
+    def setInput(self, inputName, value, override=False, loopLevel=False):
+        self.loopLevel = max([self.loopLevel, loopLevel])
+        proxy = self.__proxies__[inputName]
+        proxy.setInput(inputName, value, override, loopLevel)
+        self.__ready__[inputName] = True
+
     def addProxyInput(self, name, output, input, varType):
         pass
 
@@ -622,6 +633,8 @@ class Switch(ControlNode):
             for inp in self.inputs.values():
                 if inp.name == 'Control':
                     continue
+                if inp.name == 'TRIGGER' and not inp.connected:
+                    continue
                 if not inp.isAvailable():
                     # print('        {}: Prerequisites not met.'.format(str(self)))
                     return False
@@ -647,19 +660,20 @@ class Switch(ControlNode):
                 outputName = con['outputName']
                 nextNode = con['inputNode']
                 nextInput = con['inputName']
-                nextNode.setInput(nextInput, self.outputs[outputName].value)
+                nextNode.setInput(nextInput, self.outputs[outputName].value, loopLevel=self.loopLevel)
             self.fresh = False
-            self.inputs['Start'].reset()
-            self.inputs['Switch'].reset()
+            self.inputs['Start'].reset(self.loopLevel)
+            self.inputs['Switch'].reset(self.loopLevel)
         else:
             output = self.outputs['Final']
             for con in self.graph.getConnectionsOfOutput(output):
                 outputName = con['outputName']
                 nextNode = con['inputNode']
                 nextInput = con['inputName']
-                nextNode.setInput(nextInput, self.outputs[outputName].value)
+                nextNode.setInput(nextInput, self.outputs[outputName].value, loopLevel=self.loopLevel)
             self.fresh = True
         self.inputs['Control'].reset()
+        [Info.reset(inp, self.loopLevel) for inp in self.inputs.values()]
 
 #
 # class Loop(ControlNode):
@@ -747,22 +761,27 @@ class WaitAll(Node):
         [inp.reset(self.loopLevel) for inp in self.inputs.values()]
 
 
-class WaitAny(WaitAll):
+class WaitAny(Node):
     """
     Waits for any inputs to be set. This doesn't make much sense, does it?
     """
+    Input('Wait1', object)
+    Input('Wait2', object)
+    Output('Out', object)
+
+    def setup(self):
+        self.useInput = None
 
     def check(self):
         for inp in self.inputs.values():
             if inp.valueSet:
                 # print('        {}: Prerequisites not met.'.format(str(self)))
+                self.useInput = inp
                 return True
 
     def run(self):
         super(WaitAny, self).run()
-        for inp in self.inputs.values():
-            if inp.valueSet:
-                self._out(inp.value)
+        self._Out(self.useInput())
 
 
 class Test(Node):
@@ -881,6 +900,8 @@ class ForLoop(ControlNode):
         if self.fresh:
             for inp in self.inputs.values():
                 if inp.name == 'Control':
+                    continue
+                if inp.name == 'TRIGGER' and not inp.connected:
                     continue
                 if not inp.isAvailable():
                     # print('        {}: Prerequisites not met.'.format(str(self)))

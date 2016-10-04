@@ -122,7 +122,32 @@ class Painter2D(Painter):
                     relayInputs.add((inp, outNode, con.outputName))
             else:
                 relayInputs.add((inp, None, None))
-        print([i for i in relayInputs])
+
+        relayOutputs = set()
+        allOutputs = self.getAllOutputsOfSubgraph(name)
+        for out in allOutputs:
+            cons = self.graph.getConnectionsOfOutput(out)
+            if cons:
+                for con in cons:
+                    inpNode = con.inputNode
+                    if not inpNode in subgraph:
+                        relayOutputs.add((out, inpNode, con.inputName))
+                        break
+            else:
+                relayOutputs.add((out, None, None))
+        # print('xxx', self.graph.toJson(subgraph=name))
+        # print([i for i in relayInputs])
+        relayOutputs = sorted(relayOutputs, key=lambda item: item[0].name)
+        relayInputs = sorted(relayInputs, key=lambda item: item[0].name)
+        pos = self.mapToGlobal(self.parent().pos())
+        topLeft = self.mapToGlobal(self.pos())
+        pos -= topLeft
+        # pos -= self.center
+        pos /= self.scale
+        newNode = self.graph.createSubGraphNode(name, self.graph.toJson(subgraph=name), relayInputs,
+                                                relayOutputs, spawnAt=(pos.x(), pos.y()))
+        self.update()
+
 
     def setSelectedSubgraph(self, graph, parent=None):
         if not parent:
@@ -141,7 +166,8 @@ class Painter2D(Painter):
     def getAllOutputsOfSubgraph(self, subgraph=None):
         if not subgraph:
             subgraph = self.selectedSubgraph[0]
-        nodes = {node for node in self.nodes if node.subgraph == subgraph}
+        outputs = {node.outputs.values() for node in self.nodes if node.subgraph == subgraph}
+        return [j for i in outputs for j in i]
 
     def checkGraph(self):
         if self.graph.needsUpdate():
@@ -1263,7 +1289,7 @@ class Selector(DrawItem):
     def watch(self, pos):
         scale = self.painter.scale
         for i in range(1, len(self.items)+1):
-            if self._x < pos.x() < self._xx and self._y + 12*i*scale < pos.y()  < self._y + (i+1)*scale*PINSIZE:
+            if self._x < pos.x() < self._xx and self._y+4*scale + PINSIZE*i*scale < pos.y() < (self._y+4*scale + (i+1)*scale*PINSIZE):
                 self.highlight = i
                 return
 
