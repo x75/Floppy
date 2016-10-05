@@ -683,41 +683,6 @@ class Painter2D(Painter):
                 path.cubicTo(p21, p22, p31, p32, end.x(), end.y())
                 painter.drawPath(path)
 
-    # def drawLineEdit(self, x, y, w, h, text, painter, alignment):
-    #     text = str(text)
-    #     pen = QPen(Qt.darkGray)
-    #     painter.setPen(pen)
-    #     xx, yy, ww, hh = x+(w)/2.-(w-25)/2., y-18, w-25, 12
-    #     painter.drawRoundedRect(xx, yy, ww, hh, 2, 20)
-    #     pen.setColor(Qt.gray)
-    #     painter.setFont(QFont('Helvetica', 8))
-    #     painter.setPen(pen)
-    #     painter.drawText(xx+5, yy-3, ww-10, hh+5, alignment, text)
-    #
-    # def drawLabel(self, x, y, w, h, text, painter, alignment):
-    #     text = str(text)
-    #     pen = QPen(Qt.gray)
-    #     painter.setPen(pen)
-    #     xx, yy, ww, hh = x+(w)/2.-(w-25)/2., y-18, w-18, 12
-    #     painter.setFont(QFont('Helvetica', 8))
-    #     painter.setPen(pen)
-    #     painter.drawText(xx+5, yy-3, ww-10, hh+5, alignment, text)
-    #
-    # def drawSelector(self, x, y, w, h, text, painter, alignment):
-    #     text = str(text)
-    #     pen = QPen(Qt.darkGray)
-    #     painter.setPen(pen)
-    #     xx, yy, ww, hh = x+(w)/2.-(w-25)/2., y-18, w-25, 12
-    #     painter.drawRoundedRect(xx, yy, ww, hh, 2, 20)
-    #     painter.setFont(QFont('Helvetica', 8))
-    #     painter.setPen(pen)
-    #     painter.drawText(xx-5, yy-3, ww-20, hh+5, alignment, text)
-    #     pen.setColor(Qt.gray)
-    #     # pen.setWidth(3)
-    #     painter.setPen(pen)
-    #     painter.setBrush(QBrush(Qt.gray))
-    #     points = QPoint(xx+w-40, yy+2), QPoint(xx+10-40 +w, yy+2), QPoint(xx+5+w-40, yy+9)
-    #     painter.drawPolygon(*points)
 
     def registerNode(self, node, position, silent=False):
         if not silent:
@@ -1349,6 +1314,7 @@ class Selector(DrawItem):
             painter.setBrush(QBrush(Qt.gray))
             points = QPoint(xx+self.w-40, yy-2+PINSIZE/2), QPoint(xx+10-40 + self.w, yy-2+PINSIZE/2), QPoint(xx+5+self.w-40, yy+4+PINSIZE/2)
             painter.drawPolygon(*points)
+            painter.setBrush(QColor(40, 40, 40))
         else:
             if not last:
                 return self
