@@ -241,9 +241,14 @@ class Graph(object):
                     self.reverseConnections[inpNode].remove(oldCon)
                     self.connections[oldCon['outputNode']].remove(oldCon)
                     break
+
         inpInfo.setConnected(True)
         self.connections[outNode].add(conn)
         self.reverseConnections[inpNode].add(conn)
+        if inp == 'Control':
+            # print(self.getConnectionsOfControlInput(inpInfo))
+            inpInfo.setMultiConn(len(self.getConnectionsOfControlInput(inpInfo)))
+
         # self.update()
 
     def getConnectionsFrom(self, node):
@@ -272,6 +277,12 @@ class Graph(object):
         for con in self.getConnectionsTo(self.nodes[int(inp.ID.partition(':')[0])]):
             if con['inputName'] == inp.name:
                 return con
+
+    def getConnectionsOfControlInput(self, inp):
+        if not inp.name == 'Control':
+            raise TypeError('Method only valid vor "Control" inputs.')
+        node = self.nodes[int(inp.ID.partition(':')[0])]
+        return [con for con in self.getConnectionsTo(node) if con['inputName'] == inp.name]
 
     def getConnectionsOfOutput(self, output):
         """
@@ -745,16 +756,19 @@ class NodeThread(Thread):
     def run(self):
         super(NodeThread, self).run()
         try:
+            self.node.runLock.acquire()
             self.node.run()
         except Exception as a:
             print('Something bad happened in when executing {}.'.format(str(self.node)))
             print(a)
-            self.node.unlock
+            self.node.unlock()
+            self.node.runLock.release()
             return
         self.node.notify()
         if self.cb:
             self.cb(self.arg)
         self.node.unlock()
+        self.node.runLock.release()
 
 
 class Connection(object):

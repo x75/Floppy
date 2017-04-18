@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from copy import copy
 from floppy.FloppyTypes import Type, MetaType
+from threading import Lock
 
 NODECLASSES = {}
 # STOREDVALUES = {}
@@ -43,6 +44,8 @@ class Info(object):
     Class for handling all information related to both inputs and outputs.
     """
     def __init__(self, name, varType, hints=None, default='', select=None, owner=False, list=False, optional=False):
+        self.multiConn = 0
+        self.multiCounter = 0
         self.name = name
         self.connected = False
         self.varType = varType
@@ -92,6 +95,7 @@ class Info(object):
         self.default = None
         self.valueSet = False
         self.value = None
+        self.multiCounter = 0
 
 
 class InputInfo(Info):
@@ -127,6 +131,8 @@ class InputInfo(Info):
         self.valueSet = True
         if not self.name == 'Control':
             self.loopLevel = loopLevel
+        else:
+            self.multiCounter += 1
 
     def setPure(self):
         self.pure = 1
@@ -134,8 +140,34 @@ class InputInfo(Info):
     def setConnected(self, value: bool):
         self.connected = value
 
+    def setMultiConn(self, value):
+        self.multiConn = value
+
     def isAvailable(self, info=False):
+        if self.name == 'Control':
+            return self._isAvailableControl(info)
         if info:
+            if self.valueSet:
+                return True
+            elif self.default != None and not self.connected and not self.usedDefault and self.pure < 2:
+                return True
+            return False
+        if self.valueSet:
+            # print('^^^^^^^^^^^^^^^^^^', self.name, self.value, self.valueSet)
+            return True
+        elif self.default != None and not self.connected and not self.usedDefault and self.pure < 2:
+            if self.pure == 1:
+                self.pure = 2
+            # self.usedDefault = True
+            # print('+++++++++++++++++', self.name, self.value, self.valueSet, self.owner, self.usedDefault, self.pure)
+            return True
+        return False
+
+    def _isAvailableControl(self, info):
+        if self.multiCounter < self.multiConn:
+            return False
+        if info:
+
             if self.valueSet:
                 return True
             elif self.default != None and not self.connected and not self.usedDefault and self.pure < 2:
@@ -262,6 +294,8 @@ class Node(object, metaclass=MetaNode):
     Tag('Node')
 
     def __init__(self, nodeID, graph):
+        self.inputLock = Lock()
+        self.runLock = Lock()
         self.loopLevel = 0
         self.__pos__ = (0, 0)
         self.graph = graph
@@ -359,8 +393,9 @@ class Node(object, metaclass=MetaNode):
         node itself. Defaults to False.
         :return: None
         """
-        self.loopLevel = max([self.loopLevel, loopLevel])
-        self.inputs[inputName].set(value, override=override, loopLevel=loopLevel)
+        with self.inputLock:
+            self.loopLevel = max([self.loopLevel, loopLevel])
+            self.inputs[inputName].set(value, override=override, loopLevel=loopLevel)
         # print('%%%%%%%%%%%%%%%%', str(self), inputName, value)
 
     def check(self) -> bool:

@@ -16,6 +16,14 @@ class AMyNode(Node):
 
 
 
+class FakeWorkNode(Node):
+    Input('inp', object)
+    Output('out', object)
+
+    def run(self):
+        print('Working @ {}'.format(str(self._inp)))
+        time.sleep(random.randrange(1,5))
+        print('Done')
 
 
 

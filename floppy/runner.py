@@ -256,24 +256,26 @@ class ExecutionThread(Thread):
             nextNode = self.graph.nodes[self.master.nextNodePointer]
             self.master.nextNodePointer = None
             if nextNode.check():
-                nextNode.run()
-                nextNode.notify()
-                self.master.sendStatus(nextNode.ID)
+                with nextNode.runLock:
+                    nextNode.run()
+                    nextNode.notify()
+                    self.master.sendStatus(nextNode.ID)
         else:
             running = False
             for node in self.graph.nodes.values():
                 checked = node.check()
                 running = checked if not running else True
                 if checked:
-                    node.run()
-                    # self.graph.runNodePar(node)
-                    # raise RuntimeError('Uncaught exception while executing node {}.'.format(node))
-                    node.notify()
-                    # self.master.sendStatus(node.ID)
-                    self.master.updateStatus(node.ID)
+                    with node.runLock:
+                        node.run()
+                        # self.graph.runNodePar(node)
+                        # raise RuntimeError('Uncaught exception while executing node {}.'.format(node))
+                        node.notify()
+                        # self.master.sendStatus(node.ID)
+                        self.master.updateStatus(node.ID)
                     break
             if not running:
-                print('Nothing to do here @ {}'.format(time.time()))
+                # print('Nothing to do here @ {}'.format(time.time()))
                 time.sleep(.5)
         return True
 
@@ -283,8 +285,9 @@ class ExecutionThread(Thread):
             nextNode = self.graph.nodes[self.master.nextNodePointer]
             self.master.nextNodePointer = None
             if nextNode.check():
-                nextNode.run()
-                nextNode.notify()
+                with nextNode.runLock:
+                    nextNode.run()
+                    nextNode.notify()
                 self.master.sendStatus(nextNode.ID)
         else:
             running = False
@@ -299,7 +302,7 @@ class ExecutionThread(Thread):
             for node in readyNodes:
                 self.graph.runNodePar(node, cb=self.master.updateStatus, arg=node.ID)
             if not running:
-                print('Nothing to do here @ {}'.format(time.time()))
+                # print('Nothing to do here @ {}'.format(time.time()))
                 time.sleep(.1)
 
 
