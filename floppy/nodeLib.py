@@ -133,6 +133,8 @@ class NodeList(QListView):
             self.selectedClass = NODECLASSES[name]
             # self.blockSignals(True)
             # self.selectionChanged()
+            self.graph.painter.reportWidget.updateReport(self.selectedClass.classReport())
+
 
     def mouseReleaseEvent(self, event):
         """

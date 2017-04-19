@@ -173,9 +173,15 @@ class PlotElement(TemplateElement):
         else:
             return str(self.document)
 
+
 class StdoutElement(TemplateElement):
     def __call__(self, data, cache, fileBase, width):
         return data['stdout'].replace('\\n', '<br>')
+
+
+class DocElement(TemplateElement):
+    def __call__(self, data, cache, fileBase, width):
+        return '<p>Node Documentation:</p>' + data['doc'] if data['doc'] else ''
 
 
 class MetaTemplate(type):
@@ -235,3 +241,7 @@ class PlotTemplate(Template):
 
 class ProgramTemplate(DefaultTemplate):
     ELEMENTS = [IOElement, StdoutElement]
+
+
+class ClassTemplate(DefaultTemplate):
+    ELEMENTS = [IOElement, DocElement]

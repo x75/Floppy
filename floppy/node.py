@@ -443,6 +443,22 @@ class Node(object, metaclass=MetaNode):
                 'keep': None,
                 'ready': 'Ready' if ready else 'Waiting'}
 
+
+    @classmethod
+    def classReport(cls):
+        return {'template': 'ClassTemplate',
+                'class': cls.__name__,
+                'ID': '',
+                'inputs': [
+                    (i, v.varType.__name__, str(v.value) if len(str(v.value)) < 10 else str(v.value)[:10] + '...') for
+                    i, v in cls.__inputs__.items()],
+                'outputs': [
+                    (i, v.varType.__name__, str(v.value) if len(str(v.value)) < 10 else str(v.value)[:10] + '...') for
+                    i, v in cls.__outputs__.items()],
+                'keep': None,
+                'ready': 'Waiting',
+                'doc': cls.__doc__}
+
     # def prepare(self):
     #     """
     #     Method for preparing a node for execution.
