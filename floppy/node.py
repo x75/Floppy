@@ -962,15 +962,7 @@ class ForLoop(ControlNode):
             if self.inputs['Control'].isAvailable():
                 return True
 
-    def run(self):
-        super(ForLoop, self).run()
-        self.fresh = False
-        try:
-            self._ListElement(self._Start[self.counter])
-        except IndexError:
-            self._Final(self._Start)
-            self.done = True
-        self.counter += 1
+
 
     def notify(self):
         if not self.done:
@@ -1012,6 +1004,16 @@ class ForLoop(ControlNode):
 class ForEach(ForLoop):
     Input('Start', object, list=True)
     Output('ListElement', object)
+
+    def run(self):
+        super(ForLoop, self).run()
+        self.fresh = False
+        try:
+            self._ListElement(self._Start[self.counter])
+        except IndexError:
+            self._Final(self._Start)
+            self.done = True
+        self.counter += 1
 
 
 class IsEqual(Node):
