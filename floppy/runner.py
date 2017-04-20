@@ -200,7 +200,9 @@ class ExecutionThread(Thread):
                 time.sleep(1)
                 continue
             if self.alive and self.graph:
-
+                if not self.graph.returnValue == -1:
+                    # print(self.graph.returnPriority)
+                    self.pause()
                 # print(self.graph.nodes)
                 #print('Doing stuff.')
                 # self.executeGraphStep()
@@ -394,6 +396,11 @@ class CommandProcessor(Thread):
                     self.send('Runner is performing one step.')
                     self.master.step()
                 elif message.startswith('STATUS'):
+                    if self.master.executionThread.graph:
+                        if not self.master.executionThread.graph.returnValue == -1:
+
+                            self.send(json.dumps({'STATUS': 'RETURN', 'REPORT': self.master.executionThread.graph.returnValue}))
+                            continue
                     reportNode = message.split('***')[-1]
                     report = ''
                     if reportNode:

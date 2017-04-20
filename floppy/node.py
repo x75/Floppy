@@ -195,6 +195,8 @@ class OutputInfo(Info):
         self.valueSet = True
 
 
+
+
 class MetaNode(type):
     """
     Meta class for the Node class. Makes node declaration objects available in the class's scope and registers each
@@ -213,7 +215,7 @@ class MetaNode(type):
                 'Output': MetaNode.addOutput,
                 'output': MetaNode.addOutput,
                 'Tag': MetaNode.addTag,
-                'tag': MetaNode.addTag}
+                'tag': MetaNode.addTag,}
 
     def addTag(*args):
         for arg in args:
@@ -338,6 +340,9 @@ class Node(object, metaclass=MetaNode):
         :return:
         """
         pass
+
+    def _return(self, value=0, priority=0):
+        self.graph.setReturnValue(value, priority)
 
     def __str__(self):
         return '{}-{}'.format(self.__class__.__name__, self.ID)

@@ -439,8 +439,17 @@ class Painter2D(Painter):
         running = self.graph.getRunningNodes()
         report = self.graph.getReport()
         if report and not report == self.lastReport:
-            self.reportWidget.updateReport(report)
-            self.lastReport = report
+            try:
+                returnValue = report[1]
+                mb = QMessageBox(self)
+                mb.setText(str(returnValue))
+                mb.setWindowTitle('Return Value')
+                mb.setStandardButtons(QMessageBox.Ok)
+                mb.show()
+                self.lastReport = report
+            except TypeError:
+                self.reportWidget.updateReport(report)
+                self.lastReport = report
 
         lastDraws = []
         halfPinSize = PINSIZE//2

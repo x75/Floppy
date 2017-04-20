@@ -24,6 +24,7 @@ class FakeWorkNode(Node):
         print('Working @ {}'.format(str(self._inp)))
         time.sleep(random.randrange(1,5))
         print('Done')
+        self._return('Test Return Value')
 
 
 

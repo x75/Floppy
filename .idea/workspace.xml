@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="ff7e5034-55ba-4c8b-8b21-611e8bea7099" name="Default" comment="">
+    <list default="true" id="ff7e5034-55ba-4c8b-8b21-611e8bea7099" name="Default" comment="Node classes will now generate reports that are displayed in the report widget upon clicking on them in the node list widget.&#10;The class reports include a list of all inputs and outputs and the doc string if available.&#10;&#10;This closes #6">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/CustomNodes/myNodes.py" afterPath="$PROJECT_DIR$/floppy/CustomNodes/myNodes.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/graph.py" afterPath="$PROJECT_DIR$/floppy/graph.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/node.py" afterPath="$PROJECT_DIR$/floppy/node.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/nodeLib.py" afterPath="$PROJECT_DIR$/floppy/nodeLib.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/templates.py" afterPath="$PROJECT_DIR$/floppy/templates.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/painter.py" afterPath="$PROJECT_DIR$/floppy/painter.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/runner.py" afterPath="$PROJECT_DIR$/floppy/runner.py" />
     </list>
-    <ignored path="floppy.iws" />
-    <ignored path=".idea/workspace.xml" />
-    <ignored path=".idea/dataSources.local.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -18,14 +17,11 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/floppy$Floppy.coverage" NAME="Floppy Coverage Results" MODIFIED="1492623354006" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/bin" />
+    <SUITE FILE_PATH="coverage/floppy$Floppy.coverage" NAME="Floppy Coverage Results" MODIFIED="1492716795564" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/bin" />
     <SUITE FILE_PATH="coverage/floppy$RemoteInterpreter.coverage" NAME="RemoteInterpreter Coverage Results" MODIFIED="1473181794157" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/bin" />
     <SUITE FILE_PATH="coverage/floppy$runner.coverage" NAME="runner Coverage Results" MODIFIED="1460144415323" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/floppy" />
     <SUITE FILE_PATH="coverage/floppy$quickPlot.coverage" NAME="quickPlot Coverage Results" MODIFIED="1472917137347" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/floppy" />
     <SUITE FILE_PATH="coverage/floppy$testest.coverage" NAME="testest Coverage Results" MODIFIED="1473281520637" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/floppy" />
-  </component>
-  <component name="CreatePatchCommitExecutor">
-    <option name="PATCH_PATH" value="" />
   </component>
   <component name="DockManager">
     <window id="1">
@@ -35,11 +31,71 @@
             <file leaf-file-name="node.py" pinned="false" current-in-tab="true">
               <entry file="file://$PROJECT_DIR$/floppy/node.py">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="496">
-                    <caret line="448" column="42" lean-forward="false" selection-start-line="448" selection-start-column="42" selection-end-line="448" selection-end-column="42" />
+                  <state relative-caret-position="442">
+                    <caret line="344" column="49" lean-forward="false" selection-start-line="344" selection-start-column="49" selection-end-line="344" selection-end-column="49" />
                     <folding>
                       <element signature="e#0#35#0" expanded="true" />
                     </folding>
+                  </state>
+                </provider>
+              </entry>
+            </file>
+            <file leaf-file-name="Python/floppy.node.ForLoop" pinned="false" current-in-tab="false">
+              <entry file="uml://Python/floppy.node.ForLoop">
+                <provider selected="true" editor-type-id="UmlEditorProvider">
+                  <state>
+                    <ID>Python</ID>
+                    <OriginalElement>floppy.node.ForLoop</OriginalElement>
+                    <nodes>
+                      <node x="100.60714285714286" y="79.0">floppy.node.MetaNode</node>
+                      <node x="8.0" y="237.0">floppy.node.ControlNode</node>
+                      <node x="20.5" y="316.0">floppy.node.ForLoop</node>
+                      <node x="0.0" y="0.0">_collections_abc.Hashable</node>
+                      <node x="14.607142857142861" y="79.0">object</node>
+                      <node x="28.0" y="158.0">floppy.node.Node</node>
+                    </nodes>
+                    <notes />
+                    <edges>
+                      <edge source="floppy.node.Node" target="floppy.node.MetaNode">
+                        <point x="42.66666666666666" y="-14.5" />
+                        <point x="134.66666666666666" y="133.0" />
+                        <point x="178.10714285714286" y="133.0" />
+                        <point x="0.0" y="14.5" />
+                      </edge>
+                      <edge source="object" target="_collections_abc.Hashable">
+                        <point x="0.0" y="-14.5" />
+                        <point x="47.10714285714286" y="54.0" />
+                        <point x="35.25" y="54.0" />
+                        <point x="-35.25" y="14.5" />
+                      </edge>
+                      <edge source="floppy.node.ControlNode" target="floppy.node.Node">
+                        <point x="0.0" y="-14.5" />
+                        <point x="0.0" y="14.5" />
+                      </edge>
+                      <edge source="floppy.node.Node" target="object">
+                        <point x="-42.66666666666666" y="-14.5" />
+                        <point x="49.33333333333334" y="133.0" />
+                        <point x="47.10714285714286" y="133.0" />
+                        <point x="0.0" y="14.5" />
+                      </edge>
+                      <edge source="floppy.node.Node" target="_collections_abc.Hashable">
+                        <point x="0.0" y="-14.5" />
+                        <point x="92.0" y="133.0" />
+                        <point x="90.10714285714286" y="133.0" />
+                        <point x="90.10714285714286" y="54.0" />
+                        <point x="105.75" y="54.0" />
+                        <point x="35.25" y="14.5" />
+                      </edge>
+                      <edge source="floppy.node.ForLoop" target="floppy.node.ControlNode">
+                        <point x="0.0" y="-14.5" />
+                        <point x="0.0" y="14.5" />
+                      </edge>
+                    </edges>
+                    <settings layout="Hierarchic Group" zoom="1.0" x="-592.0" y="-65.5" />
+                    <SelectedNodes>
+                      <node>floppy.node.ForLoop</node>
+                    </SelectedNodes>
+                    <Categories />
                   </state>
                 </provider>
               </entry>
@@ -58,11 +114,11 @@
       <file leaf-file-name="graph.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/floppy/graph.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="323">
-              <caret line="253" column="39" lean-forward="true" selection-start-line="253" selection-start-column="39" selection-end-line="253" selection-end-column="39" />
+            <state relative-caret-position="322">
+              <caret line="114" column="69" lean-forward="false" selection-start-line="114" selection-start-column="69" selection-end-line="114" selection-end-column="69" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
-                <marker date="1492545247634" expanded="true" signature="16485:16558" ph="..." />
+                <marker date="1492705373855" expanded="true" signature="16977:17050" ph="..." />
               </folding>
             </state>
           </provider>
@@ -71,8 +127,8 @@
       <file leaf-file-name="myNodes.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/floppy/CustomNodes/myNodes.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="15" column="0" lean-forward="false" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
+            <state relative-caret-position="442">
+              <caret line="26" column="39" lean-forward="false" selection-start-line="26" selection-start-column="39" selection-end-line="26" selection-end-column="39" />
               <folding>
                 <element signature="e#0#62#0" expanded="true" />
               </folding>
@@ -80,13 +136,13 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="painter.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="painter.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/floppy/painter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
-              <caret line="441" column="25" lean-forward="false" selection-start-line="441" selection-start-column="25" selection-end-line="441" selection-end-column="25" />
+            <state relative-caret-position="271">
+              <caret line="448" column="38" lean-forward="false" selection-start-line="448" selection-start-column="38" selection-end-line="448" selection-end-column="38" />
               <folding>
-                <marker date="1492622710448" expanded="true" signature="0:409" ph="import ..." />
+                <marker date="1492716819126" expanded="true" signature="0:409" ph="import ..." />
               </folding>
             </state>
           </provider>
@@ -95,8 +151,8 @@
       <file leaf-file-name="runner.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/floppy/runner.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4607">
-              <caret line="277" column="32" lean-forward="false" selection-start-line="277" selection-start-column="25" selection-end-line="277" selection-end-column="32" />
+            <state relative-caret-position="186">
+              <caret line="202" column="51" lean-forward="false" selection-start-line="202" selection-start-column="51" selection-end-line="202" selection-end-column="51" />
               <folding />
             </state>
           </provider>
@@ -125,7 +181,7 @@
       <file leaf-file-name="nodeLib.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/floppy/nodeLib.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="287">
+            <state relative-caret-position="2210">
               <caret line="135" column="34" lean-forward="false" selection-start-line="135" selection-start-column="34" selection-end-line="135" selection-end-column="34" />
               <folding />
             </state>
@@ -135,28 +191,28 @@
       <file leaf-file-name="reportWidget.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/floppy/reportWidget.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="332">
+            <state relative-caret-position="1139">
               <caret line="67" column="0" lean-forward="false" selection-start-line="67" selection-start-column="0" selection-end-line="67" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="templates.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="templates.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/floppy/templates.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="264">
-              <caret line="185" column="0" lean-forward="true" selection-start-line="185" selection-start-column="0" selection-end-line="185" selection-end-column="0" />
+            <state relative-caret-position="232">
+              <caret line="213" column="21" lean-forward="false" selection-start-line="213" selection-start-column="21" selection-end-line="213" selection-end-column="21" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="testest.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/floppy/testest.py">
+      <file leaf-file-name="crystNodes.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/floppy/CustomNodes/crystNodes.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="34">
-              <caret line="3" column="0" lean-forward="false" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="59" />
+            <state relative-caret-position="300">
+              <caret line="167" column="31" lean-forward="true" selection-start-line="167" selection-start-column="31" selection-end-line="167" selection-end-column="31" />
               <folding />
             </state>
           </provider>
@@ -164,57 +220,36 @@
       </file>
     </leaf>
   </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Python Script" />
-      </list>
-    </option>
-  </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>def run</find>
       <find>ForLoop</find>
-      <find>Nothing</find>
-      <find>mousePress</find>
-      <find>painter</find>
+      <find>(ForLoop)</find>
+      <find>reset</find>
+      <find>setRe</find>
+      <find>returnValue</find>
+      <find>Listener</find>
+      <find>Connection</find>
+      <find>report</find>
+      <find>STATUS</find>
+      <find>Painter</find>
+      <find>Painter2D(</find>
+      <find>raiseErrorMessage</find>
+      <find>returnVa</find>
+      <find>load</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-    <option name="RECENT_BRANCH_BY_REPOSITORY">
-      <map>
-        <entry key="$PROJECT_DIR$" value="TestingAndLogging" />
-      </map>
-    </option>
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="D:/Laue-Script/lauescript/cryst/transformations.py" />
-        <option value="$PROJECT_DIR$/floppy/mainwindow.py" />
-        <option value="$PROJECT_DIR$/floppy/CustomNodes/mathNodes.py" />
-        <option value="$PROJECT_DIR$/floppy/floppySettings.py" />
-        <option value="$PROJECT_DIR$/floppy/quickPlot.py" />
-        <option value="F:/Laue-Script/lauescript/core/apd_printer.py" />
-        <option value="F:/Laue-Script/lauescript/laueio/shelxl_iop.py" />
-        <option value="F:/Laue-Script/lauescript/laueio/io.py" />
-        <option value="F:/Laue-Script/lauescript/laueio/cif_iop.py" />
-        <option value="F:/Laue-Script/lauescript/cryst/crystgeom.py" />
-        <option value="$PROJECT_DIR$/floppy/CustomNodes/crystNodes.py" />
-        <option value="$PROJECT_DIR$/floppy/CustomNodes/shelxNodes.py" />
-        <option value="$PROJECT_DIR$/floppy/CustomNodes/infoNodes.py" />
-        <option value="$PROJECT_DIR$/bin/RemoteInterpreter.py" />
-        <option value="$PROJECT_DIR$/README.md" />
-        <option value="$PROJECT_DIR$/floppy/testest.py" />
-        <option value="$PROJECT_DIR$/floppy/runner.py" />
-        <option value="$PROJECT_DIR$/floppy/CustomNodes/myNodes.py" />
-        <option value="$PROJECT_DIR$/floppy/graph.py" />
-        <option value="$PROJECT_DIR$/floppy/reportWidget.py" />
-        <option value="$PROJECT_DIR$/floppy/painter.py" />
-        <option value="$PROJECT_DIR$/floppy/nodeLib.py" />
-        <option value="$PROJECT_DIR$/floppy/node.py" />
         <option value="$PROJECT_DIR$/floppy/templates.py" />
+        <option value="$PROJECT_DIR$/floppy/node.py" />
+        <option value="$PROJECT_DIR$/floppy/graph.py" />
+        <option value="$PROJECT_DIR$/floppy/CustomNodes/myNodes.py" />
+        <option value="$PROJECT_DIR$/floppy/runner.py" />
+        <option value="$PROJECT_DIR$/floppy/painter.py" />
       </list>
     </option>
   </component>
@@ -245,8 +280,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -337,17 +372,6 @@
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
-    <property name="last_opened_file_path" value="F:/" />
-    <property name="settings.editor.splitter.proportion" value="0.2" />
-    <property name="SearchEverywhereHistoryKey" value="import floppy.templates&#9;null&#9;null&#10;Node Draw Test&#9;null&#9;null" />
-  </component>
-  <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="F:\floppy\bin" />
-      <recent name="D:\floppy\work" />
-      <recent name="D:\floppy\floppy\ressources" />
-    </key>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -376,82 +400,6 @@
       <module name="floppy" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/bin/Floppy.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="runner" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/floppy" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="floppy" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/floppy/runner.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="testest" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/floppy" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="floppy" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/floppy/testest.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="quickPlot" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/floppy" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="floppy" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/floppy/quickPlot.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="RemoteInterpreter" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/bin" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="floppy" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/bin/RemoteInterpreter.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -589,23 +537,6 @@
       <option name="USE_PATTERN" value="false" />
       <method />
     </configuration>
-    <configuration default="true" type="tests" factoryName="Nosetests">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="floppy" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="_new_regexPattern" value="&quot;&quot;" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;.&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
-      <method />
-    </configuration>
     <configuration default="true" type="tests" factoryName="Unittests">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -622,59 +553,14 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method />
     </configuration>
-    <configuration default="true" type="tests" factoryName="py.test">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="floppy" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="_new_keywords" value="&quot;&quot;" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;.&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
-      <method />
-    </configuration>
-    <list size="5">
+    <list size="1">
       <item index="0" class="java.lang.String" itemvalue="Python.Floppy" />
-      <item index="1" class="java.lang.String" itemvalue="Python.runner" />
-      <item index="2" class="java.lang.String" itemvalue="Python.testest" />
-      <item index="3" class="java.lang.String" itemvalue="Python.quickPlot" />
-      <item index="4" class="java.lang.String" itemvalue="Python.RemoteInterpreter" />
     </list>
     <recent_temporary>
-      <list size="5">
+      <list size="1">
         <item index="0" class="java.lang.String" itemvalue="Python.Floppy" />
-        <item index="1" class="java.lang.String" itemvalue="Python.testest" />
-        <item index="2" class="java.lang.String" itemvalue="Python.RemoteInterpreter" />
-        <item index="3" class="java.lang.String" itemvalue="Python.quickPlot" />
-        <item index="4" class="java.lang.String" itemvalue="Python.runner" />
       </list>
     </recent_temporary>
-    <configuration default="true" type="tests" factoryName="Attests">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="floppy" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_SCRIPT" />
-      <option name="PATTERN" value="" />
-      <option name="USE_PATTERN" value="false" />
-      <method />
-    </configuration>
   </component>
   <component name="ShelveChangesManager" show_recycled="false">
     <option name="remove_strategy" value="false" />
@@ -683,251 +569,32 @@
     <configuration />
   </component>
   <component name="TaskManager">
-    <task active="true" id="Default" summary="Default task">
-      <changelist id="ff7e5034-55ba-4c8b-8b21-611e8bea7099" name="Default" comment="" />
-      <created>1457628453558</created>
-      <option name="number" value="Default" />
-      <option name="presentableId" value="Default" />
-      <updated>1457628453558</updated>
-    </task>
-    <task id="LOCAL-00001" summary="Added a new experimental .ui file.">
-      <created>1457628575370</created>
+    <task id="LOCAL-00001" summary="Node classes will now generate reports that are displayed in the report widget upon clicking on them in the node list widget.&#10;The class reports include a list of all inputs and outputs and the doc string if available.&#10;&#10;This closes #6">
+      <created>1492623694008</created>
       <option name="number" value="00001" />
       <option name="presentableId" value="LOCAL-00001" />
       <option name="project" value="LOCAL" />
-      <updated>1457628575370</updated>
+      <updated>1492623694008</updated>
     </task>
-    <task id="LOCAL-00002" summary="When executing Graphs, a Runner is spawned which creates a Graph instance based to data send to it via socket.">
-      <created>1460147565661</created>
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ff7e5034-55ba-4c8b-8b21-611e8bea7099" name="Default" comment="Node classes will now generate reports that are displayed in the report widget upon clicking on them in the node list widget.&#10;The class reports include a list of all inputs and outputs and the doc string if available.&#10;&#10;This closes #6" />
+      <created>1492623748889</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1492623748889</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Re-arranged some code in the Loop nodes. Closes #2.">
+      <created>1492702191879</created>
       <option name="number" value="00002" />
       <option name="presentableId" value="LOCAL-00002" />
       <option name="project" value="LOCAL" />
-      <updated>1460147565661</updated>
+      <updated>1492702191879</updated>
     </task>
-    <task id="LOCAL-00003" summary="The remote runner will now execute graphs when not paused.">
-      <created>1460402789791</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1460402789791</updated>
-    </task>
-    <task id="LOCAL-00004" summary="Changed a lot of StyleSheets.">
-      <created>1469890980158</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1469890980158</updated>
-    </task>
-    <task id="LOCAL-00005" summary="Changed save state data structure from dictionary to list to make sure node IDs stay the same after pushing a graph to a remote interpreter.">
-      <created>1469944920168</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1469944920168</updated>
-    </task>
-    <task id="LOCAL-00006" summary="Added a DROP command to remote interpreters (untested)&#10;TODO: Implement a loop body notification system. Fix concurrent loop node problem. Add features to STATUS command. Add dynamic UPDATE command.">
-      <created>1469947866687</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1469947866687</updated>
-    </task>
-    <task id="LOCAL-00007" summary="Dynamic Graph updates seem to be working. Former UPDATE command was renamed to PUSH. UPDATE is now only adding new Nodes to the graph without reistantiating already existing ones. Also, all connections are deleted and then recreated. So far, UPDATES are purely constructive meaning Nodes removed in the editor are not deleted at the remote interpreter side. This is only an issue if it is a root Node that requires no inputs.&#10;TODO: Implement a loop body notification system. Fix concurrent loop node problem. Add features to STATUS command. Add removal of deleted Nodes on the remote interpreter side.">
-      <created>1469973055935</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1469973055935</updated>
-    </task>
-    <task id="LOCAL-00008" summary="The UPDATE command now also updates Nodes's deault values. &#10;TODO: Implement a loop body notification system. Fix concurrent loop node problem. Add features to STATUS command. Add removal of deleted Nodes on the remote interpreter side.">
-      <created>1469978844824</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1469978844824</updated>
-    </task>
-    <task id="LOCAL-00009" summary="Deleted Nodes are now deleted on the interpreter side.&#10;TODO: Implement a loop body notification system. Fix concurrent loop node problem. Add features to STATUS command.">
-      <created>1469987844658</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1469987844658</updated>
-    </task>
-    <task id="LOCAL-00010" summary="Restyled the settings dialog.">
-      <created>1471283475679</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1471283475679</updated>
-    </task>
-    <task id="LOCAL-00011" summary="Fixed an issue with ForEach nodes.&#10;Showing plots now works on Windows machines, too. Hopefully it still works on Linux systems.">
-      <created>1471540753518</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1471540753519</updated>
-    </task>
-    <task id="LOCAL-00012" summary="Did some testing on how to dynamically create Node classes at run time.">
-      <created>1471893882690</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1471893882690</updated>
-    </task>
-    <task id="LOCAL-00013" summary="Ported to QtWebEngine and added quickPlot.py to draw simple plots without library overhead.">
-      <created>1472917405235</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
-      <option name="project" value="LOCAL" />
-      <updated>1472917405235</updated>
-    </task>
-    <task id="LOCAL-00014" summary="Started implementing a more flexible template system.">
-      <created>1472934961996</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1472934961996</updated>
-    </task>
-    <task id="LOCAL-00015" summary="Added color coding to templates.">
-      <created>1472936959528</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1472936959528</updated>
-    </task>
-    <task id="LOCAL-00016" summary="Small changes for testing purposes.">
-      <created>1473099953534</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1473099953534</updated>
-    </task>
-    <task id="LOCAL-00017" summary="Fixed missing color value error in templates.py module.">
-      <created>1473102811430</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1473102811430</updated>
-    </task>
-    <task id="LOCAL-00018" summary="Merge branch 'master' of https://github.com/JLuebben/floppy&#10;&#10;# Conflicts:&#10;#&#9;floppy/node.py&#10;#&#9;floppy/painter.py&#10;#&#9;floppy/reportWidget.py&#10;#&#9;floppy/templates.py&#10;">
-      <created>1473103798445</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1473103798445</updated>
-    </task>
-    <task id="LOCAL-00019" summary="Reimplemented the ProgramTemplate with the new template system. WIP.">
-      <created>1473104294223</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
-      <option name="project" value="LOCAL" />
-      <updated>1473104294223</updated>
-    </task>
-    <task id="LOCAL-00020" summary="Hopefully successfully merged the branches.">
-      <created>1473104676193</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1473104676193</updated>
-    </task>
-    <task id="LOCAL-00021" summary="Added remote interpreter 'executable' and a short description how to use the interpreter remotely.">
-      <created>1473183384031</created>
-      <option name="number" value="00021" />
-      <option name="presentableId" value="LOCAL-00021" />
-      <option name="project" value="LOCAL" />
-      <updated>1473183384031</updated>
-    </task>
-    <task id="LOCAL-00022" summary="Box selection is now working while being zoomed in or out. &#10;Fixes #1.">
-      <created>1473268508241</created>
-      <option name="number" value="00022" />
-      <option name="presentableId" value="LOCAL-00022" />
-      <option name="project" value="LOCAL" />
-      <updated>1473268508241</updated>
-    </task>
-    <task id="LOCAL-00023" summary="The Node.report method will now also return information about whether a node is ready to be executed. This information is then displayed in the ReportWidget. This is not working for ControlNodes yet.">
-      <created>1473278095153</created>
-      <option name="number" value="00023" />
-      <option name="presentableId" value="LOCAL-00023" />
-      <option name="project" value="LOCAL" />
-      <updated>1473278095153</updated>
-    </task>
-    <task id="LOCAL-00024" summary="The ready report now works for Loops as well.">
-      <created>1473278454379</created>
-      <option name="number" value="00024" />
-      <option name="presentableId" value="LOCAL-00024" />
-      <option name="project" value="LOCAL" />
-      <updated>1473278454379</updated>
-    </task>
-    <task id="LOCAL-00025" summary="More stuff for getting macros to work.">
-      <created>1473283903501</created>
-      <option name="number" value="00025" />
-      <option name="presentableId" value="LOCAL-00025" />
-      <option name="project" value="LOCAL" />
-      <updated>1473283903501</updated>
-    </task>
-    <task id="LOCAL-00026" summary="Creating Subgraphs will now create a custom node class with the appropriate inputs and outputs.">
-      <created>1473703806324</created>
-      <option name="number" value="00026" />
-      <option name="presentableId" value="LOCAL-00026" />
-      <option name="project" value="LOCAL" />
-      <updated>1473703806324</updated>
-    </task>
-    <task id="LOCAL-00027" summary="Selector offset issue seems to be resolved. Missed a hard-coded margin value.&#10; Fixes #3">
-      <created>1473960804900</created>
-      <option name="number" value="00027" />
-      <option name="presentableId" value="LOCAL-00027" />
-      <option name="project" value="LOCAL" />
-      <updated>1473960804900</updated>
-    </task>
-    <task id="LOCAL-00028" summary="WaitAny Node should now work correctly.&#10;Fixes #4">
-      <created>1473961661087</created>
-      <option name="number" value="00028" />
-      <option name="presentableId" value="LOCAL-00028" />
-      <option name="project" value="LOCAL" />
-      <updated>1473961661087</updated>
-    </task>
-    <task id="LOCAL-00029" summary="Fixed issue with re-executing loop nodes and the optional TRIGGER input.">
-      <created>1474381000391</created>
-      <option name="number" value="00029" />
-      <option name="presentableId" value="LOCAL-00029" />
-      <option name="project" value="LOCAL" />
-      <updated>1474381000391</updated>
-    </task>
-    <task id="LOCAL-00030" summary="Switch Nodes will now work within Loops.&#10;Fixes #9">
-      <created>1474382800232</created>
-      <option name="number" value="00030" />
-      <option name="presentableId" value="LOCAL-00030" />
-      <option name="project" value="LOCAL" />
-      <updated>1474382800232</updated>
-    </task>
-    <task id="LOCAL-00031" summary="Fixed error in SwitchNode's notify method that prevented correct behavior when the node was placed within a loop.&#10;Fixes #9">
-      <created>1474476300229</created>
-      <option name="number" value="00031" />
-      <option name="presentableId" value="LOCAL-00031" />
-      <option name="project" value="LOCAL" />
-      <updated>1474476300229</updated>
-    </task>
-    <task id="LOCAL-00032" summary="Control inputs now support multiple connections. The corresponding availability check will only return True if the input was set as many times as the input has connections.">
-      <created>1492545698658</created>
-      <option name="number" value="00032" />
-      <option name="presentableId" value="LOCAL-00032" />
-      <option name="project" value="LOCAL" />
-      <updated>1492545698658</updated>
-    </task>
-    <option name="localTasksCounter" value="33" />
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
-  <component name="TodoView">
-    <todo-panel id="selected-file">
-      <is-autoscroll-to-source value="true" />
-    </todo-panel>
-    <todo-panel id="all">
-      <are-packages-shown value="true" />
-      <is-autoscroll-to-source value="true" />
-    </todo-panel>
-  </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936078" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -976,44 +643,13 @@
   <component name="TypeScriptGeneratedFilesManager">
     <option name="processedProjectFiles" value="true" />
   </component>
-  <component name="Vcs.Log.UiProperties">
-    <option name="RECENTLY_FILTERED_USER_GROUPS">
-      <collection />
-    </option>
-    <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
-      <collection />
-    </option>
-  </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="The UPDATE command now also updates Nodes's deault values. &#10;TODO: Implement a loop body notification system. Fix concurrent loop node problem. Add features to STATUS command. Add removal of deleted Nodes on the remote interpreter side." />
-    <MESSAGE value="Deleted Nodes are now deleted on the interpreter side.&#10;TODO: Implement a loop body notification system. Fix concurrent loop node problem. Add features to STATUS command." />
-    <MESSAGE value="Restyled the settings dialog." />
-    <MESSAGE value="Fixed an issue with ForEach nodes.&#10;Showing plots now works on Windows machines, too. Hopefully it still works on Linux systems." />
-    <MESSAGE value="Did some testing on how to dynamically create Node classes at run time." />
-    <MESSAGE value="Ported to QtWebEngine and added quickPlot.py to draw simple plots without library overhead." />
-    <MESSAGE value="Started implementing a more flexible template system." />
-    <MESSAGE value="Added color coding to templates." />
-    <MESSAGE value="Small changes for testing purposes." />
-    <MESSAGE value="Fixed missing color value error in templates.py module." />
-    <MESSAGE value="Merge branch 'master' of https://github.com/JLuebben/floppy&#10;&#10;# Conflicts:&#10;#&#9;floppy/node.py&#10;#&#9;floppy/painter.py&#10;#&#9;floppy/reportWidget.py&#10;#&#9;floppy/templates.py&#10;" />
-    <MESSAGE value="Reimplemented the ProgramTemplate with the new template system. WIP." />
-    <MESSAGE value="Hopefully successfully merged the branches." />
-    <MESSAGE value="Added remote interpreter 'executable' and a short description how to use the interpreter remotely." />
-    <MESSAGE value="Box selection is now working while being zoomed in or out. &#10;Fixes #1." />
-    <MESSAGE value="The Node.report method will now also return information about whether a node is ready to be executed. This information is then displayed in the ReportWidget. This is not working for ControlNodes yet." />
-    <MESSAGE value="The ready report now works for Loops as well." />
-    <MESSAGE value="More stuff for getting macros to work." />
-    <MESSAGE value="Creating Subgraphs will now create a custom node class with the appropriate inputs and outputs." />
-    <MESSAGE value="Selector offset issue seems to be resolved. Missed a hard-coded margin value.&#10; Fixes #3" />
-    <MESSAGE value="WaitAny Node should now work correctly.&#10;Fixes #4" />
-    <MESSAGE value="Fixed issue with re-executing loop nodes and the optional TRIGGER input." />
-    <MESSAGE value="Switch Nodes will now work within Loops.&#10;Fixes #9" />
-    <MESSAGE value="Fixed error in SwitchNode's notify method that prevented correct behavior when the node was placed within a loop.&#10;Fixes #9" />
-    <MESSAGE value="Control inputs now support multiple connections. The corresponding availability check will only return True if the input was set as many times as the input has connections." />
-    <option name="LAST_COMMIT_MESSAGE" value="Control inputs now support multiple connections. The corresponding availability check will only return True if the input was set as many times as the input has connections." />
+    <MESSAGE value="Node classes will now generate reports that are displayed in the report widget upon clicking on them in the node list widget.&#10;The class reports include a list of all inputs and outputs and the doc string if available.&#10;&#10;This closes #6" />
+    <MESSAGE value="Re-arranged some code in the Loop nodes. Closes #2." />
+    <option name="LAST_COMMIT_MESSAGE" value="Re-arranged some code in the Loop nodes. Closes #2." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1033,13 +669,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/floppy/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/floppy/node.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -1195,13 +824,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/floppy/CustomNodes/crystNodes.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2482">
-          <caret line="151" column="26" lean-forward="false" selection-start-line="151" selection-start-column="26" selection-end-line="151" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://F:/Laue-Script/lauescript/laueio/shelxl_iop.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="6341">
@@ -1262,7 +884,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1290,76 +911,142 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/floppy/runner.py">
+    <entry file="file://$PROJECT_DIR$/floppy/nodeLib.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4607">
-          <caret line="277" column="32" lean-forward="false" selection-start-line="277" selection-start-column="25" selection-end-line="277" selection-end-column="32" />
+        <state relative-caret-position="2210">
+          <caret line="135" column="34" lean-forward="false" selection-start-line="135" selection-start-column="34" selection-end-line="135" selection-end-column="34" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/floppy/reportWidget.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1139">
+          <caret line="67" column="0" lean-forward="false" selection-start-line="67" selection-start-column="0" selection-end-line="67" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="uml://Python/floppy.node.ForLoop">
+      <provider selected="true" editor-type-id="UmlEditorProvider">
+        <state>
+          <ID>Python</ID>
+          <OriginalElement>floppy.node.ForLoop</OriginalElement>
+          <nodes>
+            <node x="100.60714285714286" y="79.0">floppy.node.MetaNode</node>
+            <node x="8.0" y="237.0">floppy.node.ControlNode</node>
+            <node x="20.5" y="316.0">floppy.node.ForLoop</node>
+            <node x="0.0" y="0.0">_collections_abc.Hashable</node>
+            <node x="14.607142857142861" y="79.0">object</node>
+            <node x="28.0" y="158.0">floppy.node.Node</node>
+          </nodes>
+          <notes />
+          <edges>
+            <edge source="floppy.node.Node" target="floppy.node.MetaNode">
+              <point x="42.66666666666666" y="-14.5" />
+              <point x="134.66666666666666" y="133.0" />
+              <point x="178.10714285714286" y="133.0" />
+              <point x="0.0" y="14.5" />
+            </edge>
+            <edge source="object" target="_collections_abc.Hashable">
+              <point x="0.0" y="-14.5" />
+              <point x="47.10714285714286" y="54.0" />
+              <point x="35.25" y="54.0" />
+              <point x="-35.25" y="14.5" />
+            </edge>
+            <edge source="floppy.node.ControlNode" target="floppy.node.Node">
+              <point x="0.0" y="-14.5" />
+              <point x="0.0" y="14.5" />
+            </edge>
+            <edge source="floppy.node.Node" target="object">
+              <point x="-42.66666666666666" y="-14.5" />
+              <point x="49.33333333333334" y="133.0" />
+              <point x="47.10714285714286" y="133.0" />
+              <point x="0.0" y="14.5" />
+            </edge>
+            <edge source="floppy.node.Node" target="_collections_abc.Hashable">
+              <point x="0.0" y="-14.5" />
+              <point x="92.0" y="133.0" />
+              <point x="90.10714285714286" y="133.0" />
+              <point x="90.10714285714286" y="54.0" />
+              <point x="105.75" y="54.0" />
+              <point x="35.25" y="14.5" />
+            </edge>
+            <edge source="floppy.node.ForLoop" target="floppy.node.ControlNode">
+              <point x="0.0" y="-14.5" />
+              <point x="0.0" y="14.5" />
+            </edge>
+          </edges>
+          <settings layout="Hierarchic Group" zoom="1.0" x="-592.0" y="-65.5" />
+          <SelectedNodes>
+            <node>floppy.node.ForLoop</node>
+          </SelectedNodes>
+          <Categories />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/floppy/templates.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="232">
+          <caret line="213" column="21" lean-forward="false" selection-start-line="213" selection-start-column="21" selection-end-line="213" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/floppy/CustomNodes/crystNodes.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="300">
+          <caret line="167" column="31" lean-forward="true" selection-start-line="167" selection-start-column="31" selection-end-line="167" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/floppy/graph.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="322">
+          <caret line="114" column="69" lean-forward="false" selection-start-line="114" selection-start-column="69" selection-end-line="114" selection-end-column="69" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+            <marker date="1492705373855" expanded="true" signature="16977:17050" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/floppy/CustomNodes/myNodes.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="15" column="0" lean-forward="false" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
+        <state relative-caret-position="442">
+          <caret line="26" column="39" lean-forward="false" selection-start-line="26" selection-start-column="39" selection-end-line="26" selection-end-column="39" />
           <folding>
             <element signature="e#0#62#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/floppy/graph.py">
+    <entry file="file://$PROJECT_DIR$/floppy/runner.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="253" column="39" lean-forward="true" selection-start-line="253" selection-start-column="39" selection-end-line="253" selection-end-column="39" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-            <marker date="1492545247634" expanded="true" signature="16485:16558" ph="..." />
-          </folding>
+        <state relative-caret-position="186">
+          <caret line="202" column="51" lean-forward="false" selection-start-line="202" selection-start-column="51" selection-end-line="202" selection-end-column="51" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/floppy/painter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="441" column="25" lean-forward="false" selection-start-line="441" selection-start-column="25" selection-end-line="441" selection-end-column="25" />
+        <state relative-caret-position="271">
+          <caret line="448" column="38" lean-forward="false" selection-start-line="448" selection-start-column="38" selection-end-line="448" selection-end-column="38" />
           <folding>
-            <marker date="1492622710448" expanded="true" signature="0:409" ph="import ..." />
+            <marker date="1492716819126" expanded="true" signature="0:409" ph="import ..." />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/floppy/nodeLib.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="287">
-          <caret line="135" column="34" lean-forward="false" selection-start-line="135" selection-start-column="34" selection-end-line="135" selection-end-column="34" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/floppy/node.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="496">
-          <caret line="448" column="42" lean-forward="false" selection-start-line="448" selection-start-column="42" selection-end-line="448" selection-end-column="42" />
+        <state relative-caret-position="442">
+          <caret line="344" column="49" lean-forward="false" selection-start-line="344" selection-start-column="49" selection-end-line="344" selection-end-column="49" />
           <folding>
             <element signature="e#0#35#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/floppy/reportWidget.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="332">
-          <caret line="67" column="0" lean-forward="false" selection-start-line="67" selection-start-column="0" selection-end-line="67" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/floppy/templates.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="264">
-          <caret line="185" column="0" lean-forward="true" selection-start-line="185" selection-start-column="0" selection-end-line="185" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>

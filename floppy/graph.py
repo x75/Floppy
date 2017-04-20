@@ -27,6 +27,8 @@ class Graph(object):
     nodes = {}
 
     def __init__(self, painter=None):
+        self.returnValue = -1
+        self.returnPriority = -1
         self.slave = False
         self._requestUpdate = False
         self._requestReport = ''
@@ -107,6 +109,13 @@ class Graph(object):
             # status = self.requestRemoteStatus()
             self.requestRemoteStatus()
             status = self.status
+            try:
+                if status['STATUS'] == 'RETURN':
+                    # print(status)
+                    self.currentReport = ('RETURN', status['REPORT'])
+                    return True
+            except TypeError:
+                pass
             if status:
                 IDs = status['STATUS']['ran']
                 self.currentlyRunning = status['STATUS']['running']
@@ -324,6 +333,10 @@ class Graph(object):
     def getRunningNodes(self):
         return self.currentlyRunning
 
+    def setReturnValue(self, value=0, priority=0):
+        if priority > self.returnPriority:
+            self.returnValue = value
+            self.returnPriority = priority
 
     def execute(self):
         """
