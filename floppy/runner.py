@@ -399,7 +399,7 @@ class CommandProcessor(Thread):
                     if self.master.executionThread.graph:
                         if not self.master.executionThread.graph.returnValue == -1:
 
-                            self.send(json.dumps({'STATUS': 'RETURN', 'REPORT': self.master.executionThread.graph.returnValue}))
+                            self.send(json.dumps({'STATUS': 'RETURN', 'REPORT': (self.master.executionThread.graph.returnValue, self.master.executionThread.graph.returningNode)}))
                             continue
                     reportNode = message.split('***')[-1]
                     report = ''

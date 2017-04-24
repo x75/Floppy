@@ -14,6 +14,7 @@ import logging
 
 logger = logging.getLogger('Floppy')
 
+mainWindow = None
 
 LOCALPORT = 8080
 PINSIZE = 8
@@ -442,10 +443,12 @@ class Painter2D(Painter):
             try:
                 returnValue = report[1]
                 mb = QMessageBox(self)
-                mb.setText(str(returnValue))
+                v, n = returnValue
+                mb.setText('"{}"'.format(str(v)) + '\nby {}'.format(n))
                 mb.setWindowTitle('Return Value')
                 mb.setStandardButtons(QMessageBox.Ok)
                 mb.show()
+                mainWindow.setFloppyReturnValue(returnValue)
                 self.lastReport = report
             except TypeError:
                 self.reportWidget.updateReport(report)
@@ -760,6 +763,11 @@ class Painter2D(Painter):
 class MainWindow(QMainWindow, Ui_MainWindow):
 
     def __init__(self, parent=None, painter=None):
+        self.closeOnReturn = False
+        self.overrideReturn = False
+        self.returnValue = None
+        global mainWindow
+        mainWindow = self
         super(MainWindow, self).__init__(parent)
 
         iconRoot = os.path.realpath(__file__)
@@ -795,9 +803,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         settingsDialog = SettingsDialog(self, settings=self.settings, globals=globals())
         settingsDialog.close()
 
+
+    def setFloppyReturnValue(self, value):
+        self.overrideReturn = True
+        self.returnValue = value
+        if self.closeOnReturn:
+            self.close()
+
+    def getFloppyReturnValue(self):
+        return (self.overrideReturn, self.returnValue)
+
     def setArgs(self, args):
         if args.test:
             logger.info('Performing test.')
+            self.closeOnReturn = True
             self.loadGraph(override=args.test[0])
             self.runCode()
 

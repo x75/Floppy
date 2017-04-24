@@ -296,6 +296,7 @@ class Node(object, metaclass=MetaNode):
     Tag('Node')
 
     def __init__(self, nodeID, graph):
+        self.waitForAllControlls = False
         self.inputLock = Lock()
         self.runLock = Lock()
         self.loopLevel = 0
@@ -342,7 +343,7 @@ class Node(object, metaclass=MetaNode):
         pass
 
     def _return(self, value=0, priority=0):
-        self.graph.setReturnValue(value, priority)
+        self.graph.setReturnValue(value, priority, str(self))
 
     def __str__(self):
         return '{}-{}'.format(self.__class__.__name__, self.ID)
@@ -942,6 +943,7 @@ class ForLoop(ControlNode):
     def __init__(self, *args, **kwargs):
         super(ForLoop, self).__init__(*args, **kwargs)
         self.fresh = True
+        self.waitForAllControlls = True
         self.counter = 0
         self.done = False
         self.loopLevel = 0

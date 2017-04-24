@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="ff7e5034-55ba-4c8b-8b21-611e8bea7099" name="Default" comment="Node classes will now generate reports that are displayed in the report widget upon clicking on them in the node list widget.&#10;The class reports include a list of all inputs and outputs and the doc string if available.&#10;&#10;This closes #6">
+    <list default="true" id="ff7e5034-55ba-4c8b-8b21-611e8bea7099" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/CustomNodes/myNodes.py" afterPath="$PROJECT_DIR$/floppy/CustomNodes/myNodes.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/graph.py" afterPath="$PROJECT_DIR$/floppy/graph.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/main.py" afterPath="$PROJECT_DIR$/floppy/main.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/node.py" afterPath="$PROJECT_DIR$/floppy/node.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/painter.py" afterPath="$PROJECT_DIR$/floppy/painter.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/runner.py" afterPath="$PROJECT_DIR$/floppy/runner.py" />
@@ -17,7 +17,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/floppy$Floppy.coverage" NAME="Floppy Coverage Results" MODIFIED="1492716795564" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/bin" />
+    <SUITE FILE_PATH="coverage/floppy$Floppy.coverage" NAME="Floppy Coverage Results" MODIFIED="1493061467197" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/bin" />
     <SUITE FILE_PATH="coverage/floppy$RemoteInterpreter.coverage" NAME="RemoteInterpreter Coverage Results" MODIFIED="1473181794157" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/bin" />
     <SUITE FILE_PATH="coverage/floppy$runner.coverage" NAME="runner Coverage Results" MODIFIED="1460144415323" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/floppy" />
     <SUITE FILE_PATH="coverage/floppy$quickPlot.coverage" NAME="quickPlot Coverage Results" MODIFIED="1472917137347" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/floppy" />
@@ -31,71 +31,11 @@
             <file leaf-file-name="node.py" pinned="false" current-in-tab="true">
               <entry file="file://$PROJECT_DIR$/floppy/node.py">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="442">
-                    <caret line="344" column="49" lean-forward="false" selection-start-line="344" selection-start-column="49" selection-end-line="344" selection-end-column="49" />
+                  <state relative-caret-position="466">
+                    <caret line="945" column="32" lean-forward="false" selection-start-line="945" selection-start-column="13" selection-end-line="945" selection-end-column="32" />
                     <folding>
                       <element signature="e#0#35#0" expanded="true" />
                     </folding>
-                  </state>
-                </provider>
-              </entry>
-            </file>
-            <file leaf-file-name="Python/floppy.node.ForLoop" pinned="false" current-in-tab="false">
-              <entry file="uml://Python/floppy.node.ForLoop">
-                <provider selected="true" editor-type-id="UmlEditorProvider">
-                  <state>
-                    <ID>Python</ID>
-                    <OriginalElement>floppy.node.ForLoop</OriginalElement>
-                    <nodes>
-                      <node x="100.60714285714286" y="79.0">floppy.node.MetaNode</node>
-                      <node x="8.0" y="237.0">floppy.node.ControlNode</node>
-                      <node x="20.5" y="316.0">floppy.node.ForLoop</node>
-                      <node x="0.0" y="0.0">_collections_abc.Hashable</node>
-                      <node x="14.607142857142861" y="79.0">object</node>
-                      <node x="28.0" y="158.0">floppy.node.Node</node>
-                    </nodes>
-                    <notes />
-                    <edges>
-                      <edge source="floppy.node.Node" target="floppy.node.MetaNode">
-                        <point x="42.66666666666666" y="-14.5" />
-                        <point x="134.66666666666666" y="133.0" />
-                        <point x="178.10714285714286" y="133.0" />
-                        <point x="0.0" y="14.5" />
-                      </edge>
-                      <edge source="object" target="_collections_abc.Hashable">
-                        <point x="0.0" y="-14.5" />
-                        <point x="47.10714285714286" y="54.0" />
-                        <point x="35.25" y="54.0" />
-                        <point x="-35.25" y="14.5" />
-                      </edge>
-                      <edge source="floppy.node.ControlNode" target="floppy.node.Node">
-                        <point x="0.0" y="-14.5" />
-                        <point x="0.0" y="14.5" />
-                      </edge>
-                      <edge source="floppy.node.Node" target="object">
-                        <point x="-42.66666666666666" y="-14.5" />
-                        <point x="49.33333333333334" y="133.0" />
-                        <point x="47.10714285714286" y="133.0" />
-                        <point x="0.0" y="14.5" />
-                      </edge>
-                      <edge source="floppy.node.Node" target="_collections_abc.Hashable">
-                        <point x="0.0" y="-14.5" />
-                        <point x="92.0" y="133.0" />
-                        <point x="90.10714285714286" y="133.0" />
-                        <point x="90.10714285714286" y="54.0" />
-                        <point x="105.75" y="54.0" />
-                        <point x="35.25" y="14.5" />
-                      </edge>
-                      <edge source="floppy.node.ForLoop" target="floppy.node.ControlNode">
-                        <point x="0.0" y="-14.5" />
-                        <point x="0.0" y="14.5" />
-                      </edge>
-                    </edges>
-                    <settings layout="Hierarchic Group" zoom="1.0" x="-592.0" y="-65.5" />
-                    <SelectedNodes>
-                      <node>floppy.node.ForLoop</node>
-                    </SelectedNodes>
-                    <Categories />
                   </state>
                 </provider>
               </entry>
@@ -111,14 +51,14 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="graph.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="graph.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/floppy/graph.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="322">
-              <caret line="114" column="69" lean-forward="false" selection-start-line="114" selection-start-column="69" selection-end-line="114" selection-end-column="69" />
+            <state relative-caret-position="170">
+              <caret line="240" column="117" lean-forward="true" selection-start-line="240" selection-start-column="117" selection-end-line="240" selection-end-column="117" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
-                <marker date="1492705373855" expanded="true" signature="16977:17050" ph="..." />
+                <marker date="1493061467135" expanded="true" signature="17074:17147" ph="..." />
               </folding>
             </state>
           </provider>
@@ -127,7 +67,7 @@
       <file leaf-file-name="myNodes.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/floppy/CustomNodes/myNodes.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="442">
+            <state relative-caret-position="408">
               <caret line="26" column="39" lean-forward="false" selection-start-line="26" selection-start-column="39" selection-end-line="26" selection-end-column="39" />
               <folding>
                 <element signature="e#0#62#0" expanded="true" />
@@ -136,14 +76,34 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="painter.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="painter.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/floppy/painter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="271">
-              <caret line="448" column="38" lean-forward="false" selection-start-line="448" selection-start-column="38" selection-end-line="448" selection-end-column="38" />
+            <state relative-caret-position="237">
+              <caret line="818" column="37" lean-forward="true" selection-start-line="818" selection-start-column="37" selection-end-line="818" selection-end-column="37" />
               <folding>
-                <marker date="1492716819126" expanded="true" signature="0:409" ph="import ..." />
+                <marker date="1493061047931" expanded="true" signature="0:409" ph="import ..." />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="testSwitch.ppy" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test/testSwitch.ppy">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/floppy/main.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="349">
+              <caret line="47" column="4" lean-forward="false" selection-start-line="47" selection-start-column="4" selection-end-line="47" selection-end-column="4" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -151,28 +111,8 @@
       <file leaf-file-name="runner.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/floppy/runner.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="186">
-              <caret line="202" column="51" lean-forward="false" selection-start-line="202" selection-start-column="51" selection-end-line="202" selection-end-column="51" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="FloppyTypes.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/floppy/FloppyTypes.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="18" column="0" lean-forward="false" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="mathNodes.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/floppy/CustomNodes/mathNodes.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1445">
-              <caret line="86" column="26" lean-forward="false" selection-start-line="86" selection-start-column="26" selection-end-line="86" selection-end-column="26" />
+            <state relative-caret-position="219">
+              <caret line="401" column="175" lean-forward="false" selection-start-line="401" selection-start-column="175" selection-end-line="401" selection-end-column="175" />
               <folding />
             </state>
           </provider>
@@ -201,7 +141,7 @@
       <file leaf-file-name="templates.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/floppy/templates.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="232">
+            <state relative-caret-position="3621">
               <caret line="213" column="21" lean-forward="false" selection-start-line="213" selection-start-column="21" selection-end-line="213" selection-end-column="21" />
               <folding />
             </state>
@@ -211,8 +151,8 @@
       <file leaf-file-name="crystNodes.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/floppy/CustomNodes/crystNodes.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="300">
-              <caret line="167" column="31" lean-forward="true" selection-start-line="167" selection-start-column="31" selection-end-line="167" selection-end-column="31" />
+            <state relative-caret-position="2754">
+              <caret line="167" column="31" lean-forward="false" selection-start-line="167" selection-start-column="31" selection-end-line="167" selection-end-column="31" />
               <folding />
             </state>
           </provider>
@@ -226,7 +166,6 @@
       <find>(ForLoop)</find>
       <find>reset</find>
       <find>setRe</find>
-      <find>returnValue</find>
       <find>Listener</find>
       <find>Connection</find>
       <find>report</find>
@@ -236,6 +175,15 @@
       <find>raiseErrorMessage</find>
       <find>returnVa</find>
       <find>load</find>
+      <find>QMessage</find>
+      <find>class Main</find>
+      <find>self.returnValue</find>
+      <find>returnValue</find>
+      <find>setFloppyReturnValue</find>
+      <find>def setArg</find>
+      <find>connect</find>
+      <find>def connect</find>
+      <find>class Loop</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -245,11 +193,12 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/floppy/templates.py" />
-        <option value="$PROJECT_DIR$/floppy/node.py" />
-        <option value="$PROJECT_DIR$/floppy/graph.py" />
         <option value="$PROJECT_DIR$/floppy/CustomNodes/myNodes.py" />
+        <option value="$PROJECT_DIR$/floppy/main.py" />
         <option value="$PROJECT_DIR$/floppy/runner.py" />
         <option value="$PROJECT_DIR$/floppy/painter.py" />
+        <option value="$PROJECT_DIR$/floppy/node.py" />
+        <option value="$PROJECT_DIR$/floppy/graph.py" />
       </list>
     </option>
   </component>
@@ -305,6 +254,24 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="floppy" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="floppy" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="floppy" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="floppy" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="test" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -553,8 +520,28 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method />
     </configuration>
-    <list size="1">
-      <item index="0" class="java.lang.String" itemvalue="Python.Floppy" />
+    <configuration default="false" name="FloppyTest1" type="PythonConfigurationType" factoryName="Python">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/bin" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="floppy" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/bin/Floppy.py" />
+      <option name="PARAMETERS" value="--test F:\floppy\test\testSwitch.ppy" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <method />
+    </configuration>
+    <list size="2">
+      <item index="0" class="java.lang.String" itemvalue="Python.FloppyTest1" />
+      <item index="1" class="java.lang.String" itemvalue="Python.Floppy" />
     </list>
     <recent_temporary>
       <list size="1">
@@ -590,7 +577,14 @@
       <option name="project" value="LOCAL" />
       <updated>1492702191879</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Added _return methods to nodes.&#10;TODO: Add calling node reference to return messages.">
+      <created>1492716894148</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1492716894148</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -649,7 +643,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Node classes will now generate reports that are displayed in the report widget upon clicking on them in the node list widget.&#10;The class reports include a list of all inputs and outputs and the doc string if available.&#10;&#10;This closes #6" />
     <MESSAGE value="Re-arranged some code in the Loop nodes. Closes #2." />
-    <option name="LAST_COMMIT_MESSAGE" value="Re-arranged some code in the Loop nodes. Closes #2." />
+    <MESSAGE value="Added _return methods to nodes.&#10;TODO: Add calling node reference to return messages." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added _return methods to nodes.&#10;TODO: Add calling node reference to return messages." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -669,16 +664,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/floppy/node.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#35#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/floppy/main.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -873,13 +858,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/floppy/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="18" column="4" lean-forward="false" selection-start-line="18" selection-start-column="4" selection-end-line="18" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/floppy/test.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -891,7 +869,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="34">
           <caret line="3" column="0" lean-forward="false" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="59" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -977,17 +954,18 @@
               <point x="0.0" y="14.5" />
             </edge>
           </edges>
-          <settings layout="Hierarchic Group" zoom="1.0" x="-592.0" y="-65.5" />
+          <settings layout="Hierarchic Group" zoom="1.0" x="-592.0" y="-65.0" />
           <SelectedNodes>
             <node>floppy.node.ForLoop</node>
           </SelectedNodes>
           <Categories />
+          <SCOPE>All</SCOPE>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/floppy/templates.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="232">
+        <state relative-caret-position="3621">
           <caret line="213" column="21" lean-forward="false" selection-start-line="213" selection-start-column="21" selection-end-line="213" selection-end-column="21" />
           <folding />
         </state>
@@ -995,26 +973,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/floppy/CustomNodes/crystNodes.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="167" column="31" lean-forward="true" selection-start-line="167" selection-start-column="31" selection-end-line="167" selection-end-column="31" />
+        <state relative-caret-position="2754">
+          <caret line="167" column="31" lean-forward="false" selection-start-line="167" selection-start-column="31" selection-end-line="167" selection-end-column="31" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/floppy/graph.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="322">
-          <caret line="114" column="69" lean-forward="false" selection-start-line="114" selection-start-column="69" selection-end-line="114" selection-end-column="69" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-            <marker date="1492705373855" expanded="true" signature="16977:17050" ph="..." />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/floppy/CustomNodes/myNodes.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="442">
+        <state relative-caret-position="408">
           <caret line="26" column="39" lean-forward="false" selection-start-line="26" selection-start-column="39" selection-end-line="26" selection-end-column="39" />
           <folding>
             <element signature="e#0#62#0" expanded="true" />
@@ -1024,28 +991,55 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/floppy/runner.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="186">
-          <caret line="202" column="51" lean-forward="false" selection-start-line="202" selection-start-column="51" selection-end-line="202" selection-end-column="51" />
+        <state relative-caret-position="219">
+          <caret line="401" column="175" lean-forward="false" selection-start-line="401" selection-start-column="175" selection-end-line="401" selection-end-column="175" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/floppy/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="349">
+          <caret line="47" column="4" lean-forward="false" selection-start-line="47" selection-start-column="4" selection-end-line="47" selection-end-column="4" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/floppy/painter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="271">
-          <caret line="448" column="38" lean-forward="false" selection-start-line="448" selection-start-column="38" selection-end-line="448" selection-end-column="38" />
+        <state relative-caret-position="237">
+          <caret line="818" column="37" lean-forward="true" selection-start-line="818" selection-start-column="37" selection-end-line="818" selection-end-column="37" />
           <folding>
-            <marker date="1492716819126" expanded="true" signature="0:409" ph="import ..." />
+            <marker date="1493061047931" expanded="true" signature="0:409" ph="import ..." />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/testSwitch.ppy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/floppy/node.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="442">
-          <caret line="344" column="49" lean-forward="false" selection-start-line="344" selection-start-column="49" selection-end-line="344" selection-end-column="49" />
+        <state relative-caret-position="466">
+          <caret line="945" column="32" lean-forward="false" selection-start-line="945" selection-start-column="13" selection-end-line="945" selection-end-column="32" />
           <folding>
             <element signature="e#0#35#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/floppy/graph.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="240" column="117" lean-forward="true" selection-start-line="240" selection-start-column="117" selection-end-line="240" selection-end-column="117" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+            <marker date="1493061467135" expanded="true" signature="17074:17147" ph="..." />
           </folding>
         </state>
       </provider>

@@ -254,7 +254,7 @@ class Graph(object):
         inpInfo.setConnected(True)
         self.connections[outNode].add(conn)
         self.reverseConnections[inpNode].add(conn)
-        if inp == 'Control':
+        if inp == 'Control' and inpNode.waitForAllControlls:
             # print(self.getConnectionsOfControlInput(inpInfo))
             inpInfo.setMultiConn(len(self.getConnectionsOfControlInput(inpInfo)))
 
@@ -333,10 +333,11 @@ class Graph(object):
     def getRunningNodes(self):
         return self.currentlyRunning
 
-    def setReturnValue(self, value=0, priority=0):
+    def setReturnValue(self, value=0, priority=0, returningNode=''):
         if priority > self.returnPriority:
             self.returnValue = value
             self.returnPriority = priority
+            self.returningNode = returningNode
 
     def execute(self):
         """

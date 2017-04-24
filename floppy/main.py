@@ -34,7 +34,11 @@ def startUI(app, painter):
     win.setArgs(parseArgv())
     win.show()
     logger.debug('Startup successful. Handing main thread control to Qt main loop.')
-    sys.exit(app.exec_())
+    qtReturnValue = app.exec_()
+    override, value = win.getFloppyReturnValue()
+    if override:
+        sys.exit(value)
+    sys.exit(qtReturnValue)
     # try:
     #     sys.exit(app.exec_())
     # except KeyboardInterrupt:
