@@ -453,6 +453,9 @@ class Painter2D(Painter):
             except TypeError:
                 self.reportWidget.updateReport(report)
                 self.lastReport = report
+            except KeyError:
+                self.reportWidget.updateReport(report)
+                self.lastReport = report
 
         lastDraws = []
         halfPinSize = PINSIZE//2

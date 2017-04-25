@@ -3,11 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="ff7e5034-55ba-4c8b-8b21-611e8bea7099" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/graph.py" afterPath="$PROJECT_DIR$/floppy/graph.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/main.py" afterPath="$PROJECT_DIR$/floppy/main.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/node.py" afterPath="$PROJECT_DIR$/floppy/node.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/painter.py" afterPath="$PROJECT_DIR$/floppy/painter.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/runner.py" afterPath="$PROJECT_DIR$/floppy/runner.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -17,7 +13,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/floppy$Floppy.coverage" NAME="Floppy Coverage Results" MODIFIED="1493061467197" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/bin" />
+    <SUITE FILE_PATH="coverage/floppy$Floppy.coverage" NAME="Floppy Coverage Results" MODIFIED="1493144273838" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/bin" />
     <SUITE FILE_PATH="coverage/floppy$RemoteInterpreter.coverage" NAME="RemoteInterpreter Coverage Results" MODIFIED="1473181794157" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/bin" />
     <SUITE FILE_PATH="coverage/floppy$runner.coverage" NAME="runner Coverage Results" MODIFIED="1460144415323" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/floppy" />
     <SUITE FILE_PATH="coverage/floppy$quickPlot.coverage" NAME="quickPlot Coverage Results" MODIFIED="1472917137347" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/floppy" />
@@ -51,11 +47,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="graph.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="graph.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/floppy/graph.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="240" column="117" lean-forward="true" selection-start-line="240" selection-start-column="117" selection-end-line="240" selection-end-column="117" />
+            <state relative-caret-position="17">
+              <caret line="246" column="40" lean-forward="false" selection-start-line="246" selection-start-column="40" selection-end-line="246" selection-end-column="40" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
                 <marker date="1493061467135" expanded="true" signature="17074:17147" ph="..." />
@@ -76,13 +72,13 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="painter.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="painter.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/floppy/painter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="237">
-              <caret line="818" column="37" lean-forward="true" selection-start-line="818" selection-start-column="37" selection-end-line="818" selection-end-column="37" />
+            <state relative-caret-position="374">
+              <caret line="455" column="27" lean-forward="false" selection-start-line="455" selection-start-column="27" selection-end-line="455" selection-end-column="27" />
               <folding>
-                <marker date="1493061047931" expanded="true" signature="0:409" ph="import ..." />
+                <marker date="1493144273797" expanded="true" signature="0:409" ph="import ..." />
               </folding>
             </state>
           </provider>
@@ -101,7 +97,7 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/floppy/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="349">
+            <state relative-caret-position="714">
               <caret line="47" column="4" lean-forward="false" selection-start-line="47" selection-start-column="4" selection-end-line="47" selection-end-column="4" />
               <folding />
             </state>
@@ -111,7 +107,7 @@
       <file leaf-file-name="runner.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/floppy/runner.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="219">
+            <state relative-caret-position="6715">
               <caret line="401" column="175" lean-forward="false" selection-start-line="401" selection-start-column="175" selection-end-line="401" selection-end-column="175" />
               <folding />
             </state>
@@ -196,9 +192,9 @@
         <option value="$PROJECT_DIR$/floppy/CustomNodes/myNodes.py" />
         <option value="$PROJECT_DIR$/floppy/main.py" />
         <option value="$PROJECT_DIR$/floppy/runner.py" />
-        <option value="$PROJECT_DIR$/floppy/painter.py" />
         <option value="$PROJECT_DIR$/floppy/node.py" />
         <option value="$PROJECT_DIR$/floppy/graph.py" />
+        <option value="$PROJECT_DIR$/floppy/painter.py" />
       </list>
     </option>
   </component>
@@ -229,8 +225,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -335,6 +329,8 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -584,23 +580,29 @@
       <option name="project" value="LOCAL" />
       <updated>1492716894148</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Fixed issue with non-loop control inputs.&#10;Graph editor can now be configured to close and return a node's return value.">
+      <created>1493061562405</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1493061562405</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="0" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21927084" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936078" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32719395" sideWeight="0.50319827" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3255814" sideWeight="0.4968017" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32875264" sideWeight="0.4978678" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936078" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936078" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21927084" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32980973" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936078" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.397463" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -610,6 +612,7 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32980973" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
     <layout-to-restore>
@@ -644,7 +647,8 @@
     <MESSAGE value="Node classes will now generate reports that are displayed in the report widget upon clicking on them in the node list widget.&#10;The class reports include a list of all inputs and outputs and the doc string if available.&#10;&#10;This closes #6" />
     <MESSAGE value="Re-arranged some code in the Loop nodes. Closes #2." />
     <MESSAGE value="Added _return methods to nodes.&#10;TODO: Add calling node reference to return messages." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added _return methods to nodes.&#10;TODO: Add calling node reference to return messages." />
+    <MESSAGE value="Fixed issue with non-loop control inputs.&#10;Graph editor can now be configured to close and return a node's return value." />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed issue with non-loop control inputs.&#10;Graph editor can now be configured to close and return a node's return value." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -884,7 +888,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1445">
           <caret line="86" column="26" lean-forward="false" selection-start-line="86" selection-start-column="26" selection-end-line="86" selection-end-column="26" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -991,7 +994,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/floppy/runner.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="219">
+        <state relative-caret-position="6715">
           <caret line="401" column="175" lean-forward="false" selection-start-line="401" selection-start-column="175" selection-end-line="401" selection-end-column="175" />
           <folding />
         </state>
@@ -999,19 +1002,9 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/floppy/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="349">
+        <state relative-caret-position="714">
           <caret line="47" column="4" lean-forward="false" selection-start-line="47" selection-start-column="4" selection-end-line="47" selection-end-column="4" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/floppy/painter.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="237">
-          <caret line="818" column="37" lean-forward="true" selection-start-line="818" selection-start-column="37" selection-end-line="818" selection-end-column="37" />
-          <folding>
-            <marker date="1493061047931" expanded="true" signature="0:409" ph="import ..." />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1035,11 +1028,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/floppy/graph.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="240" column="117" lean-forward="true" selection-start-line="240" selection-start-column="117" selection-end-line="240" selection-end-column="117" />
+        <state relative-caret-position="17">
+          <caret line="246" column="40" lean-forward="false" selection-start-line="246" selection-start-column="40" selection-end-line="246" selection-end-column="40" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
             <marker date="1493061467135" expanded="true" signature="17074:17147" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/floppy/painter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="455" column="27" lean-forward="false" selection-start-line="455" selection-start-column="27" selection-end-line="455" selection-end-column="27" />
+          <folding>
+            <marker date="1493144273797" expanded="true" signature="0:409" ph="import ..." />
           </folding>
         </state>
       </provider>
