@@ -1248,7 +1248,13 @@ class TestReturn(Node):
         super(TestReturn, self).run()
         val = 0 if self._Value == self._Reference else 1
         print(self._Value, self._Reference)
-        import os
-        os._exit(val)
+        self._return('Test Return Value')
 
 # TODO Cleanup this mess. Prepare method and probably a lot of other stuff is no longer needed.
+
+class Int2Float(Node):
+    Input('Integer', int)
+    Output('Float', float)
+
+    def run(self):
+        self._Float(float(self._Integer))

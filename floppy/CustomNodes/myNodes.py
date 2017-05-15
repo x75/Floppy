@@ -24,7 +24,26 @@ class FakeWorkNode(Node):
         print('Working @ {}'.format(str(self._inp)))
         time.sleep(random.randrange(1,5))
         print('Done')
-        self._return('Test Return Value')
+        # self._return('Test Return Value')
+
+
+class IncrementNode(Node):
+    Output('Integer', int)
+
+    def setup(self):
+        self.i = 0
+
+    def run(self):
+        self._Integer(self.i)
+        self.i += 1
+
+
+class RandomFloat(Node):
+    Output('Float', float)
+
+    def run(self):
+        self._Float(random.random())
+
 
 
 
