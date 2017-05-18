@@ -144,6 +144,11 @@ class InputInfo(Info):
         self.multiConn = value
 
     def isAvailable(self, info=False):
+        # if self.owner.__class__.__name__.startswith('GetValue'):
+        #     print()
+        #     print(self.name)
+        #     print(self.default, self.connected, self.usedDefault, self.pure, self.loopLevel)
+        #     print(self.loopLevel)
         if self.name == 'Control':
             return self._isAvailableControl(info)
         if info:
@@ -152,15 +157,20 @@ class InputInfo(Info):
             elif self.default != None and not self.connected and not self.usedDefault and self.pure < 2:
                 return True
             return False
+        # print(1)
         if self.valueSet:
+            # print(2)
             # print('^^^^^^^^^^^^^^^^^^', self.name, self.value, self.valueSet)
             return True
         elif self.default != None and not self.connected and not self.usedDefault and self.pure < 2:
-            if self.pure == 1:
+            # print(3)
+            if self.pure == 1 and self.connected:
                 self.pure = 2
+            # print(4)
             # self.usedDefault = True
             # print('+++++++++++++++++', self.name, self.value, self.valueSet, self.owner, self.usedDefault, self.pure)
             return True
+        # print(self.default, self.connected, self.usedDefault, self.pure, self.loopLevel)
         return False
 
     def _isAvailableControl(self, info):
@@ -388,6 +398,7 @@ class Node(object, metaclass=MetaNode):
             for out in self.outputs.values():
                 self.outputBuffer[out.name] = out.value
         [Info.reset(inp, self.loopLevel) for inp in self.inputs.values()]
+        # print(self, [inp.name for inp in self.inputs.values()])
 
     def setInput(self, inputName, value, override=False, loopLevel=False):
         """
@@ -412,6 +423,7 @@ class Node(object, metaclass=MetaNode):
         :return: Boolean; True if ready, False if not ready.
         :rtype: bool
         """
+        # print(self)
         if self.locked:
             return False
         if self.buffered and self.outputs.keys():
@@ -902,6 +914,16 @@ class CreateInt(Node):
         self._Integer(self._Value)
 
 
+class CreateFloat(Node):
+    """
+    Creates a float.
+    """
+    Input('Value', float, )
+    Output('Float', float)
+    def run(self):
+        self._Float(self._Value)
+
+
 class ReadFile(Node):
     """
     Node for reading a string from a file.
@@ -1272,3 +1294,12 @@ class Int2Float(Node):
 
     def run(self):
         self._Float(float(self._Integer))
+
+
+class String2Float(Node):
+    Input('String', str)
+    Output('Float', float)
+
+    def run(self):
+        self._Float(float(self._String))
+

@@ -12,6 +12,16 @@ class MathNode(Node):
     Tag('Math')
 
 
+class Add(MathNode):
+    Input('F1', float)
+    Input('F2', float)
+    Output('Sum', float)
+
+    def run(self):
+        self._Sum(self._F1 + self._F2)
+
+
+
 @abstractNode
 class VectorNode(MathNode):
     Tag('Vector')

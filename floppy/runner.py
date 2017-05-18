@@ -205,8 +205,8 @@ class ExecutionThread(Thread):
                     self.pause()
                 # print(self.graph.nodes)
                 #print('Doing stuff.')
-                # self.executeGraphStep()
-                self.executeGraphStepPar()
+                self.executeGraphStep()
+                # self.executeGraphStepPar()
                 self.master.updateRunningNodes(self.graph.runningNodes)
             else:
                 time.sleep(self.framerate)

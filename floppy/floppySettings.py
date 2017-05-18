@@ -279,6 +279,7 @@ class RGIFrameRateEdit(QLineEdit):
         v = settings.value('FrameRate', type=float)
         v = v if v else .1
         self.setText(str(v))
+        self.setToolTip('Sleep time between two execution steps in seconds.')
 
     def commit(self):
         self.settings.setValue('FrameRate', float(self.text()))
