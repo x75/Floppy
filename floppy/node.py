@@ -1280,7 +1280,7 @@ class ReturnIsEqual(Node):
         # super(ReturnIsEqual, self).run()
         val = 0 if self._Value == self._Reference else 1
         # print(self._Value, self._Reference)
-        self._return(str(val))
+        self._return(val)
 
 class SimpleReturn(Node):
     def run(self):
