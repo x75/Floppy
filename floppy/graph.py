@@ -339,7 +339,7 @@ class Graph(object):
             self.returnPriority = priority
             self.returningNode = returningNode
 
-    def execute(self):
+    def execute(self, options=None):
         """
         Execute the Graph instance.
 
@@ -351,10 +351,13 @@ class Graph(object):
         terminates.
         :return:
         """
+        if not options:
+            options = {}
         if not self.connected:
             self.spawnAndConnect()
         self.push2Runner()
         time.sleep(1)
+        self.configureInterpreter(options)
         self.unpauseRunner()
         # running = True
         # i = 0

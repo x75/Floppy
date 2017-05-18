@@ -3,10 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="ff7e5034-55ba-4c8b-8b21-611e8bea7099" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/TestFloppy.py" afterPath="$PROJECT_DIR$/bin/TestFloppy.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/floppySettings.py" afterPath="$PROJECT_DIR$/floppy/floppySettings.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/graph.py" afterPath="$PROJECT_DIR$/floppy/graph.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/node.py" afterPath="$PROJECT_DIR$/floppy/node.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/painter.py" afterPath="$PROJECT_DIR$/floppy/painter.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/runner.py" afterPath="$PROJECT_DIR$/floppy/runner.py" />
     </list>
@@ -18,7 +15,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/floppy$Floppy.coverage" NAME="Floppy Coverage Results" MODIFIED="1495129435115" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/bin" />
+    <SUITE FILE_PATH="coverage/floppy$Floppy.coverage" NAME="Floppy Coverage Results" MODIFIED="1495131513007" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/bin" />
     <SUITE FILE_PATH="coverage/floppy$FloppyTest3.coverage" NAME="FloppyTest3 Coverage Results" MODIFIED="1495114462203" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/bin" />
     <SUITE FILE_PATH="coverage/floppy$RemoteInterpreter.coverage" NAME="RemoteInterpreter Coverage Results" MODIFIED="1473181794157" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/bin" />
     <SUITE FILE_PATH="coverage/floppy$runner.coverage" NAME="runner Coverage Results" MODIFIED="1460144415323" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/floppy" />
@@ -34,20 +31,20 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="graph.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="graph.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/floppy/graph.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="163">
-              <caret line="129" column="9" lean-forward="false" selection-start-line="129" selection-start-column="8" selection-end-line="129" selection-end-column="9" />
+            <state relative-caret-position="305">
+              <caret line="357" column="26" lean-forward="true" selection-start-line="357" selection-start-column="26" selection-end-line="357" selection-end-column="26" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
-                <marker date="1495129278482" expanded="true" signature="17074:17147" ph="..." />
+                <marker date="1495131512961" expanded="true" signature="17180:17253" ph="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="floppySettings.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="floppySettings.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/floppy/floppySettings.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="204">
@@ -126,8 +123,8 @@
       <file leaf-file-name="painter.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/floppy/painter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="186">
-              <caret line="1145" column="33" lean-forward="false" selection-start-line="1145" selection-start-column="13" selection-end-line="1145" selection-end-column="33" />
+            <state relative-caret-position="237">
+              <caret line="1151" column="8" lean-forward="false" selection-start-line="1151" selection-start-column="8" selection-end-line="1151" selection-end-column="8" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -139,7 +136,7 @@
         <entry file="file://$PROJECT_DIR$/floppy/runner.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="186">
-              <caret line="185" column="57" lean-forward="false" selection-start-line="185" selection-start-column="57" selection-end-line="185" selection-end-column="57" />
+              <caret line="296" column="39" lean-forward="false" selection-start-line="296" selection-start-column="39" selection-end-line="296" selection-end-column="39" />
               <folding />
             </state>
           </provider>
@@ -149,11 +146,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>QIcon</find>
-      <find>self.mainToolBar</find>
-      <find>Return</find>
-      <find>PlotBar</find>
-      <find>Plot</find>
       <find>plotB</find>
       <find>test</find>
       <find>deleteNodeAction</find>
@@ -177,8 +169,13 @@
       <find>executeGra</find>
       <find>configureInterpreter</find>
       <find>spawn</find>
-      <find>Fram</find>
       <find>configure</find>
+      <find>Fram</find>
+      <find>self.framerate</find>
+      <find>sleep</find>
+      <find>play</find>
+      <find>initAc</find>
+      <find>def run</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -194,10 +191,10 @@
         <option value="$PROJECT_DIR$/floppy/CustomNodes/mathNodes.py" />
         <option value="$PROJECT_DIR$/bin/TestFloppy.py" />
         <option value="$PROJECT_DIR$/floppy/node.py" />
-        <option value="$PROJECT_DIR$/floppy/runner.py" />
-        <option value="$PROJECT_DIR$/floppy/graph.py" />
-        <option value="$PROJECT_DIR$/floppy/painter.py" />
         <option value="$PROJECT_DIR$/floppy/floppySettings.py" />
+        <option value="$PROJECT_DIR$/floppy/runner.py" />
+        <option value="$PROJECT_DIR$/floppy/painter.py" />
+        <option value="$PROJECT_DIR$/floppy/graph.py" />
       </list>
     </option>
   </component>
@@ -722,7 +719,14 @@
       <option name="project" value="LOCAL" />
       <updated>1495118343382</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Finished implementing interpreter configuration action.&#10;Interpreter can now switch between parallel and sequential execution mode.">
+      <created>1495129628079</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1495129628079</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -789,7 +793,8 @@
     <MESSAGE value="Fixed issue with default values within loops." />
     <MESSAGE value="Added testing module." />
     <MESSAGE value="Added timeout to testing module to handle unknown errors causing deadlocks." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added timeout to testing module to handle unknown errors causing deadlocks." />
+    <MESSAGE value="Finished implementing interpreter configuration action.&#10;Interpreter can now switch between parallel and sequential execution mode." />
+    <option name="LAST_COMMIT_MESSAGE" value="Finished implementing interpreter configuration action.&#10;Interpreter can now switch between parallel and sequential execution mode." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1143,40 +1148,40 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/floppy/runner.py">
+    <entry file="file://$PROJECT_DIR$/floppy/floppySettings.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="186">
-          <caret line="185" column="57" lean-forward="false" selection-start-line="185" selection-start-column="57" selection-end-line="185" selection-end-column="57" />
+        <state relative-caret-position="204">
+          <caret line="76" column="47" lean-forward="true" selection-start-line="76" selection-start-column="47" selection-end-line="76" selection-end-column="47" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/floppy/graph.py">
+    <entry file="file://$PROJECT_DIR$/floppy/runner.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="163">
-          <caret line="129" column="9" lean-forward="false" selection-start-line="129" selection-start-column="8" selection-end-line="129" selection-end-column="9" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-            <marker date="1495129278482" expanded="true" signature="17074:17147" ph="..." />
-          </folding>
+        <state relative-caret-position="186">
+          <caret line="296" column="39" lean-forward="false" selection-start-line="296" selection-start-column="39" selection-end-line="296" selection-end-column="39" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/floppy/painter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="186">
-          <caret line="1145" column="33" lean-forward="false" selection-start-line="1145" selection-start-column="13" selection-end-line="1145" selection-end-column="33" />
+        <state relative-caret-position="237">
+          <caret line="1151" column="8" lean-forward="false" selection-start-line="1151" selection-start-column="8" selection-end-line="1151" selection-end-column="8" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/floppy/floppySettings.py">
+    <entry file="file://$PROJECT_DIR$/floppy/graph.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="76" column="47" lean-forward="true" selection-start-line="76" selection-start-column="47" selection-end-line="76" selection-end-column="47" />
-          <folding />
+        <state relative-caret-position="305">
+          <caret line="357" column="26" lean-forward="true" selection-start-line="357" selection-start-column="26" selection-end-line="357" selection-end-column="26" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+            <marker date="1495131512961" expanded="true" signature="17180:17253" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>

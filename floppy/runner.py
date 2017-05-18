@@ -294,7 +294,7 @@ class ExecutionThread(Thread):
                     break
             if not running:
                 # print('Nothing to do here @ {}'.format(time.time()))
-                time.sleep(.5)
+                time.sleep(self.framerate)
         return True
 
     def executeGraphStepPar(self):
@@ -321,7 +321,7 @@ class ExecutionThread(Thread):
                 self.graph.runNodePar(node, cb=self.master.updateStatus, arg=node.ID)
             if not running:
                 # print('Nothing to do here @ {}'.format(time.time()))
-                time.sleep(.1)
+                time.sleep(self.framerate)
 
 
 

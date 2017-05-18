@@ -1147,7 +1147,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         logger.debug('Connected to Runner.')
 
     def runCode(self, *args):
-        self.drawer.graph.execute()
+        frameRate = self.settings.value('FrameRate', type=float)
+        mode = self.settings.value('RGIMode', type=str)
+        self.drawer.graph.execute(options={'framerate': frameRate, 'mode': mode})
         self.statusBar.showMessage('Code execution started.', 2000)
 
     def loadGraph(self, *args, override=False):
