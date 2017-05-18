@@ -997,7 +997,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.drawer.update()
 
     def configureInterpreter(self):
-        self.drawer.graph.configureInterpreter({'framerate': 0.01, 'foo': 'bar'})
+        frameRate = self.settings.value('FrameRate', type=float)
+        mode = self.settings.value('RGIMode', type=str)
+        self.drawer.graph.configureInterpreter({'framerate': frameRate, 'mode': mode})
 
     def getSubgraphList(self):
         new = self.drawer.getAllSubgraphs()
@@ -1141,6 +1143,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         logger.debug('Spawning new Runner.')
         self.statusBar.showMessage('New Remote Interpreter spawned.', 2000)
         self.drawer.graph.spawnAndConnect(LOCALPORT)
+        self.configureInterpreter()
         logger.debug('Connected to Runner.')
 
     def runCode(self, *args):

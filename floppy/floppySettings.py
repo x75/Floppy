@@ -19,12 +19,18 @@ class SettingsDialog(QDialog):
                         ('Work File Directory', WorkFileDirEdit(settings, globals, self)),
                         ('Remote Interpreter Settings', None),
                         ('Frame Rate', RGIFrameRateEdit(settings, globals, self)),
+                        ('Execution Mode', RGIModeEdit(settings, globals, self)),
                         ]
         super(SettingsDialog, self).__init__(*args)
         self.setStyleSheet('''SettingsDialog {
                                 background: rgb(75,75,75);
                             }
                             QLineEdit {
+                                background-color: rgb(95,95,95);
+                                border: 1px solid gray;
+                                color: white;
+                            }
+                            QComboBox {
                                 background-color: rgb(95,95,95);
                                 border: 1px solid gray;
                                 color: white;
@@ -79,6 +85,7 @@ class SettingsDialog(QDialog):
             except AttributeError:
                 pass
         self.settings.sync()
+        self.parent().configureInterpreter()
         super(SettingsDialog, self).close()
 
     def closeEvent(self, e):
@@ -283,3 +290,20 @@ class RGIFrameRateEdit(QLineEdit):
 
     def commit(self):
         self.settings.setValue('FrameRate', float(self.text()))
+
+
+class RGIModeEdit(QComboBox):
+    def __init__(self, settings, globals, parent):
+        self.parent = parent
+        self.globals = globals
+        self.settings = settings
+        super(RGIModeEdit, self).__init__()
+        v = settings.value('RGIMode', type=str)
+        v = v if v else 'Parallel'
+        self.addItem('Parallel')
+        self.addItem('Sequential')
+        self.setCurrentText(v)
+        self.setToolTip('Sequential or parallel node execution.')
+
+    def commit(self):
+        self.settings.setValue('RGIMode', self.currentText())

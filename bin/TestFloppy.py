@@ -15,7 +15,7 @@ if __name__ == '__main__':
         # x = subprocess.call(, shell=True)
         p = Popen(['python.exe', 'Floppy.py', '--test', '{}'.format(file)], stdin=PIPE, stdout=PIPE, stderr=PIPE)
         try:
-            output, err = p.communicate(b"input data that is passed to subprocess' stdin", timeout=20)
+            output, err = p.communicate("", timeout=20)
         except TimeoutExpired:
             report.append((file, (1, 'Unkown Error')))
         else:

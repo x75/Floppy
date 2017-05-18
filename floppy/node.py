@@ -1152,6 +1152,15 @@ class SetValue(Node):
 
 
 class GetValue(Node):
+    """
+    Node for accessing a parameter with a given name that was previously stored by a 'SetValue' node.
+    
+    Note that the 'TRIGGER' input is required if the parameter name is set as a default value with the graph editor.
+    Otherwise, the node will be evaluated at an arbitrary time and not necessarily after a corresponding 'SetValue' node
+    has been evaluated.
+    
+    If the name of the parameter is generated programmatically, the 'TRIGGER' input can be omitted.
+    """
     # Input('Trigger', object)
     Input('Name', str)
     Output('Value', object)

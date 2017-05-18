@@ -120,12 +120,20 @@ class Runner(object):
         xLock.release()
 
     def configure(self, options):
+        # print(options)
         try:
             framerate = options['framerate']
         except KeyError:
             pass
         else:
             self.executionThread.setFrameRate(framerate)
+
+        try:
+            mode = options['mode']
+        except KeyError:
+            pass
+        else:
+            self.executionThread.setMode(mode)
 
     def unpause(self):
         xLock.acquire()
@@ -175,6 +183,7 @@ class ExecutionThread(Thread):
         self.master = master
         self.paused = True
         self.alive = True
+        self._executeGraphStep = self.executeGraphStepPar
         self.cmdQueue = cmdQueue
         super(ExecutionThread, self).__init__()
         self.daemon = True
@@ -184,6 +193,12 @@ class ExecutionThread(Thread):
     def setFrameRate(self, framerate):
         self.framerate = framerate
         logger.info('Framerate set to {}'.format(framerate))
+
+    def setMode(self, mode):
+        if mode == 'Parallel':
+            self._executeGraphStep = self.executeGraphStepPar
+        else:
+            self._executeGraphStep = self.executeGraphStep
 
     def run(self):
         while self.alive:
@@ -205,8 +220,9 @@ class ExecutionThread(Thread):
                     self.pause()
                 # print(self.graph.nodes)
                 #print('Doing stuff.')
-                self.executeGraphStep()
+                # self.executeGraphStep()
                 # self.executeGraphStepPar()
+                self._executeGraphStep()
                 self.master.updateRunningNodes(self.graph.runningNodes)
             else:
                 time.sleep(self.framerate)
@@ -391,6 +407,7 @@ class CommandProcessor(Thread):
                     self.master.goto(nextID)
                 elif message.startswith('CONFIGURE'):
                     msg = message[9:]
+                    self.send('Configuration accepted.')
                     self.master.configure(json.loads(msg))
                 elif message == 'STEP':
                     self.send('Runner is performing one step.')

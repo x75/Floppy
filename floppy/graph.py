@@ -750,7 +750,10 @@ class Graph(object):
         del self.nodes[node.ID]
 
     def configureInterpreter(self, options):
-        self.rgiConnection.send('CONFIGURE{}'.format(json.dumps(options)), print)
+        try:
+            self.rgiConnection.send('CONFIGURE{}'.format(json.dumps(options)), print)
+        except AttributeError:
+            print('No Connection. Cannot send configuration.')
 
 
 class NodeThread(Thread):
