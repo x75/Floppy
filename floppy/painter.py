@@ -427,7 +427,7 @@ class Painter2D(Painter):
         self.drawGrid(painter)
         try:
             self.drawConnections(painter)
-        except KeyError:
+        except IOError:
             pass
 
         painter.translate(self.width()/2. + self.globalOffset.x(), self.height()/2. + self.globalOffset.y())
@@ -643,7 +643,6 @@ class Painter2D(Painter):
 
         for outputNode, connList in self.graph.connections.items():
             for info in connList:
-                # print(info)
                 outputID = outputNode.getOutputID(info['outputName'])
                 inputID = info['inputNode'].getInputID(info['inputName'])
                 varType = outputNode.getOutputInfo(info['outputName']).varType
@@ -1099,9 +1098,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def deleteNode(self):
         node = self.drawer.getSelectedNode()
         if node:
+            # print(1)
             self.drawer.graph.deleteNode(self.drawer.getSelectedNode())
+            # print(2)
             self.drawer.unregisterNode(node)
+            # print(3)
+            time.sleep(.1)
             self.drawer.repaint()
+            # print(4)
 
     def stepRunner(self):
         try:
@@ -1439,12 +1443,15 @@ class LineEdit(DrawItem):
             painter.drawText(xx+5, yy-3+TEXTYOFFSET, ww-10, hh+5, alignment, text)
 
     def keyPressEvent(self, event):
+        if event.key() == 16777249:
+            return
         if event.key() == 16777219:
             self.text = self.text[:-1]
         else:
             self.text += self.sanitizeInputString(event.text())
         self.painter.update()
         self.parent.inputs[self.data.name].setDefault(self.text)
+        super(LineEdit, self).keyPressEvent(event)
         # print(event.key())
 
     def sanitizeInputString(self, string):
@@ -1452,6 +1459,9 @@ class LineEdit(DrawItem):
         try:
             self.data.info.varType(string)
         except ValueError:
+            return ''
+        except TypeError:
+            print('Was this a shortcut???')
             return ''
         return string
 

@@ -721,23 +721,21 @@ class Graph(object):
         """
         node = self.getNodeFromPinID(pinID)
         pinName = self.getPinWithID(pinID).name
-        thisConn = None
+        conns = set()
         for conn in self.reverseConnections[node]:
             if any([conn.inputName == pinName, conn.outputName == pinName]):
-                thisConn = conn
-                break
-        if thisConn:
+                conns.add(conn)
+        for thisConn in conns:
             self.reverseConnections[node].remove(thisConn)
-            self.connections[conn.outputNode].remove(thisConn)
-            return
-        thisConn = None
+            self.connections[thisConn.outputNode].remove(thisConn)
+            # return
+        conns = set()
         for conn in self.connections[node]:
             if any([conn.inputName == pinName, conn.outputName == pinName]):
-                thisConn = conn
-                break
-        if thisConn:
+                conns.add(conn)
+        for thisConn in conns:
             self.connections[node].remove(thisConn)
-            self.reverseConnections[conn.inputNode].remove(thisConn)
+            self.reverseConnections[thisConn.inputNode].remove(thisConn)
 
     def deleteNode(self, node):
         """

@@ -1250,6 +1250,20 @@ class TestReturn(Node):
         print(self._Value, self._Reference)
         self._return('Test Return Value')
 
+class ReturnIsEqual(Node):
+    Input('Value', object)
+    Input('Reference', object, optional=True)
+
+    def run(self):
+        # super(ReturnIsEqual, self).run()
+        val = 0 if self._Value == self._Reference else 1
+        # print(self._Value, self._Reference)
+        self._return(str(val))
+
+class SimpleReturn(Node):
+    def run(self):
+        self._return()
+
 # TODO Cleanup this mess. Prepare method and probably a lot of other stuff is no longer needed.
 
 class Int2Float(Node):
