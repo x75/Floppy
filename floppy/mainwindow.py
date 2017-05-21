@@ -23,8 +23,9 @@ class Ui_MainWindow(object):
         self.HorizontalSplitter.setStyleSheet("QSplitter::handle{background: rgb(85,85,85);}")
         self.HorizontalSplitter.setOrientation(QtCore.Qt.Horizontal)
         self.HorizontalSplitter.setObjectName("HorizontalSplitter")
-        self.DrawArea = QtWidgets.QWidget(self.HorizontalSplitter)
+        self.DrawArea = QtWidgets.QTabWidget(self.HorizontalSplitter)
         self.DrawArea.setObjectName("DrawArea")
+        self.DrawArea.setTabsClosable(True)
         self.RightContainer = QtWidgets.QWidget(self.HorizontalSplitter)
         self.RightContainer.setEnabled(True)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
@@ -103,6 +104,44 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+        self.DrawArea.setStyleSheet('''
+        QTabWidget::pane { /* The tab widget frame */
+    border-top: 2px solid #C2C7CB;
+}
+QTabWidget::tab-bar {
+    left: 5px; /* move to the right by 5px */
+}
+
+QTabBar::tab {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,
+                                stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);
+    border: 2px solid #C4C4C3;
+    border-bottom-color: #C2C7CB; /* same as the pane color */
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    min-width: 8ex;
+    padding: 2px;
+}
+
+QTabBar::tab:selected, QTabBar::tab:hover {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #fafafa, stop: 0.4 #f4f4f4,
+                                stop: 0.5 #e7e7e7, stop: 1.0 #fafafa);
+}
+
+QTabBar::tab:selected {
+    border-color: #9B9B9B;
+    border-bottom-color: #C2C7CB; /* same as pane color */
+}
+
+QTabBar::tab:!selected {
+    margin-top: 2px; /* make non-selected tabs look smaller */
+}
+
+
+        ''')
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate

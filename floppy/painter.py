@@ -171,6 +171,8 @@ class Painter2D(Painter):
         return [j for i in outputs for j in i]
 
     def checkGraph(self):
+        if not self.graph:
+            return
         if self.graph.needsUpdate():
             self.update()
 
@@ -703,8 +705,10 @@ class Painter2D(Painter):
 
     def registerNode(self, node, position, silent=False):
         if not silent:
-            self.parent().parent().parent().parent().statusBar.showMessage('Spawned node of class \'{}\'.'
-                                                                           .format(type(node).__name__), 2000)
+            # self.parent().parent().parent().parent().parent().statusBar.showMessage('Spawned node of class \'{}\'.'
+            #                                                                         .format(type(node).__name__), 2000)
+            mainWindow.statusBar.showMessage('Spawned node of class \'{}\'.'
+                                                                                    .format(type(node).__name__), 2000)
         node.__painter__ = {'position': position}
         node.__pos__ = position
         node.__size__ = (1, len(node.inputs) + len(node.outputs))
@@ -763,6 +767,8 @@ class Painter2D(Painter):
 
 
     def drawGrid(self, painter):
+        painter.setBrush(QBrush(QColor(75,75,75)))
+        painter.drawRect(self.rect())
         color = 105
 
         spacing = 100 * self.scale
@@ -793,7 +799,6 @@ class Painter2D(Painter):
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
-
     def __init__(self, parent=None, painter=None):
         self.closeOnReturn = False
         self.overrideReturn = False
@@ -823,17 +828,28 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         p = self.palette()
         p.setColor(drawWidget.backgroundRole(), QColor(70, 70, 70))
         drawWidget.setPalette(p)
-        l = QGridLayout()
-        l.addWidget(drawWidget)
-        self.DrawArea.setLayout(l)
-        self.drawer = drawWidget
-        self.painter = drawWidget
+        # l = QGridLayout()
+        # l.addWidget(drawWidget)
+        # self.DrawArea.setLayout(l)
+        self.DrawArea.addTab(drawWidget, 'New Graph')
+
+        self.DrawArea.tabCloseRequested.connect(self.dummy)
+        # self.getPainter() = drawWidget
+        # self.painter = drawWidget
 
         self.setupNodeLib()
-        # self.drawer.graph.spawnAndConnect()
+        # self.getGraph().spawnAndConnect()
         self.connectHint = self.settings.value('DefaultConnection', type=str)
         settingsDialog = SettingsDialog(self, settings=self.settings, globals=globals())
         settingsDialog.close()
+
+        self.activeGraph = None
+        self.activePainter = None
+        self.activeIndex = None
+        self.makeGraphActive()
+
+    def dummy(self, index):
+        self.DrawArea.removeTab(index)
 
 
     def setFloppyReturnValue(self, value):
@@ -874,6 +890,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.loadAction.triggered.connect(self.loadGraph)
         self.loadAction.setIconVisibleInMenu(True)
         self.addAction(self.loadAction)
+
+        self.makeActiveAction = QAction(QIcon(os.path.join(self.iconRoot, 'load.png')), 'makeActive', self)
+        self.makeActiveAction.setShortcut('Ctrl+K')
+        self.makeActiveAction.triggered.connect(self.makeGraphActive)
+        self.makeActiveAction.setIconVisibleInMenu(True)
+        self.addAction(self.makeActiveAction)
         
         self.saveAction = QAction(QIcon(os.path.join(self.iconRoot, 'save.png')), 'save', self)
         self.saveAction.setShortcut('Ctrl+S')
@@ -989,6 +1011,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mainToolBar.addAction(self.newAction)
         self.mainToolBar.addAction(self.saveAction)
         self.mainToolBar.addAction(self.loadAction)
+        self.mainToolBar.addAction(self.makeActiveAction)
         self.mainToolBar.addSeparator()
         self.mainToolBar.addAction(self.runAction)
         self.mainToolBar.addSeparator()
@@ -1023,33 +1046,54 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mainToolBar.addWidget(macroSelector)
 
     def selectSubgraph(self):
-        self.drawer.setSelectedSubgraph(self.macroSelector.currentText())
-        self.drawer.update()
+        self.getPainter().setSelectedSubgraph(self.macroSelector.currentText())
+        self.getPainter().update()
+
+    def makeGraphActive(self):
+        if not self.activeIndex == None:
+            self.DrawArea.setTabText(self.activeIndex, self.DrawArea.tabText(self.activeIndex)[:-1])
+        currentIndex = self.DrawArea.currentIndex()
+        self.activeGraph = self.getGraph()
+        self.activePainter = self.getPainter()
+        self.activeIndex = currentIndex
+        self.DrawArea.setTabText(currentIndex, self.DrawArea.tabText(currentIndex)+'*')
 
     def configureInterpreter(self):
         frameRate = self.settings.value('FrameRate', type=float)
         mode = self.settings.value('RGIMode', type=str)
-        self.drawer.graph.configureInterpreter({'framerate': frameRate, 'mode': mode})
+        self.getGraph().configureInterpreter({'framerate': frameRate, 'mode': mode})
 
     def getSubgraphList(self):
-        new = self.drawer.getAllSubgraphs()
+        new = self.getPainter().getAllSubgraphs()
         self.macroSelector.addItems(new.difference(self.knownSubgraphs))
         self.knownSubgraphs = self.knownSubgraphs.union(new)
 
     def new(self):
-        self.drawer.reset()
-        self.drawer.registerGraph(Graph(self.drawer))
-        self.drawer.reportWidget = self.BottomWidget
-        self.drawer.repaint()
+        # self.getPainter().reset()
+        # self.getPainter().registerGraph(Graph(self.getPainter()))
+        # self.getPainter().reportWidget = self.BottomWidget
+        # self.getPainter().repaint()
+        newPainter = Painter2D()
+        newPainter.reportWidget = self.BottomWidget
+        newGraph = Graph(painter=newPainter)
+        self.DrawArea.addTab(newPainter, 'New Graph')
+        number = self.DrawArea.count()
+        self.DrawArea.setCurrentIndex(number-1)
+
+    def getPainter(self):
+        return self.DrawArea.currentWidget()
+
+    def getGraph(self):
+        return self.getPainter().graph
 
     def openMacroDialog(self):
-        if not self.drawer.groupSelected():
+        if not self.getPainter().groupSelected():
             self.statusBar.showMessage('You Must Select a Group to Create a Macro.', 2000)
             return
         name, state = QInputDialog.getText(self, 'Create Macro', 'Macro Name:')
         if not state:
             return
-        self.drawer.createSubgraph(name)
+        self.getPainter().createSubgraph(name)
         self.getSubgraphList()
 
 
@@ -1079,7 +1123,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.connectHint = text
         import socket
         try:
-            self.drawer.graph.connect2RemoteRunner(ip, port)
+            self.getGraph().connect2RemoteRunner(ip, port)
         except ConnectionRefusedError:
             err = QErrorMessage(self)
             err.showMessage('Connection to {} on port {} refused.'.format(ip, port))
@@ -1091,7 +1135,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def close(self):
         try:
-            self.drawer.graph.killRunner()
+            self.getGraph().killRunner()
         except:
             print('No runner to kill.')
         workDir = self.settings.value('WorkDir', type=str)
@@ -1105,84 +1149,85 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def updateStatus(self):
         try:
-            self.drawer.graph.requestRemoteStatus()
+            self.activeGraph.requestRemoteStatus()
         except AttributeError:
             self.statusBar.showMessage('Cannot Update Graph. No Interpreter Available..', 2000)
 
     def dropGraph(self):
         try:
-            self.drawer.graph.dropGraph()
+            self.activeGraph.dropGraph()
         except AttributeError:
             self.statusBar.showMessage('Cannot Drop Graph. No Interpreter Available..', 2000)
 
     def pushGraph(self):
         try:
-            self.drawer.graph.push2Runner()
+            self.activeGraph.push2Runner()
         except AttributeError:
             self.statusBar.showMessage('Cannot Push Graph. No Interpreter Available.', 2000)
 
     def killRunner(self):
         try:
-            self.drawer.graph.killRunner()
+            self.activeGraph.killRunner()
         except ConnectionRefusedError:
             pass
 
     def deleteNode(self):
-        node = self.drawer.getSelectedNode()
+        node = self.getPainter().getSelectedNode()
         if node:
             # print(1)
-            self.drawer.graph.deleteNode(self.drawer.getSelectedNode())
+            self.getGraph().deleteNode(self.getPainter().getSelectedNode())
             # print(2)
-            self.drawer.unregisterNode(node)
+            self.getPainter().unregisterNode(node)
             # print(3)
             time.sleep(.1)
-            self.drawer.repaint()
+            self.getPainter().repaint()
             # print(4)
 
     def stepRunner(self):
         try:
-            self.drawer.graph.stepRunner()
+            self.activeGraph.stepRunner()
         except AttributeError:
             self.statusBar.showMessage('Cannot Execute Graph Step. No Interpreter Available.', 2000)
 
     def gotoRunner(self):
         try:
-            self.drawer.graph.gotoRunner(1)
+            self.activeGraph.gotoRunner(1)
         except AttributeError:
             self.statusBar.showMessage('Cannot Go To Node. No Interpreter Available.', 2000)
 
     def updateRunner(self):
         try:
-            self.drawer.graph.updateRunner()
+            self.activeGraph.updateRunner()
         except AttributeError:
             self.statusBar.showMessage('Cannot Update Interpreter. No Interpreter Available.', 2000)
 
     def pauseRunner(self):
         try:
-            self.drawer.graph.pauseRunner()
+            self.activeGraph.pauseRunner()
         except AttributeError:
             self.statusBar.showMessage('Cannot Pause Interpreter. No Interpreter Available.', 2000)
 
     def unpauseRunner(self):
         try:
-            self.drawer.graph.unpauseRunner()
+            self.activeGraph.unpauseRunner()
         except AttributeError:
             self.statusBar.showMessage('Cannot Unpause Interpreter. No Interpreter Available.', 2000)
 
     def spawnRunner(self):
         logger.debug('Spawning new Runner.')
         self.statusBar.showMessage('New Remote Interpreter spawned.', 2000)
-        self.drawer.graph.spawnAndConnect(LOCALPORT)
+        self.activeGraph.spawnAndConnect(LOCALPORT)
         self.configureInterpreter()
         logger.debug('Connected to Runner.')
 
     def runCode(self, *args):
         frameRate = self.settings.value('FrameRate', type=float)
         mode = self.settings.value('RGIMode', type=str)
-        self.drawer.graph.execute(options={'framerate': frameRate, 'mode': mode})
+        self.activeGraph.execute(options={'framerate': frameRate, 'mode': mode})
         self.statusBar.showMessage('Code execution started.', 2000)
 
     def loadGraph(self, *args, override=False):
+        self.new()
         if not override:
             fileName = QFileDialog.getOpenFileName(self, 'Open File', '~/',
                                                    filter='Floppy Files (*.ppy);; Any (*.*)')[0]
@@ -1190,9 +1235,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             fileName = override
         if fileName:
             logger.debug('Attempting to load graph: {}'.format(fileName))
-            self.drawer.graph.load(fileName, callback=self.raiseErrorMessage)
+            self.getGraph().load(fileName, callback=self.raiseErrorMessage)
             self.statusBar.showMessage('Graph loaded from {}.'.format(fileName), 2000)
             logger.info('Successfully loaded graph: {}'.format(fileName))
+            name = os.path.split(fileName)[-1][:-4]
+            self.DrawArea.setTabText(self.DrawArea.currentIndex(), name)
 
     def raiseErrorMessage(self, message):
         err = QErrorMessage(self)
@@ -1211,17 +1258,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not fileName.endswith('.ppy'):
              fileName += '.ppy'
         logger.debug('Attempting to save graph as {}'.format(fileName))
-        self.drawer.graph.save(fileName)
+        self.getGraph().save(fileName)
         self.statusBar.showMessage('Graph saved as {}.'.format(fileName), 2000)
         logger.info('Save graph as {}'.format(fileName))
 
+
     def resizeEvent(self, event):
         super(MainWindow, self).resizeEvent(event)
-        self.drawer.repaint()
-        self.drawer.update()
+        self.getPainter().repaint()
+        self.getPainter().update()
 
     def setupNodeLib(self):
-        self.NodeListView.setup(self.FilterEdit, self.drawer.graph)
+        self.NodeListView.setup(self.FilterEdit, self.getGraph())
 
     def closeEvent(self, event):
         logger.debug('Attempting to kill interpreter.')
@@ -1232,12 +1280,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def keyPressEvent(self, event):
         super(MainWindow, self).keyPressEvent(event)
         if event.key() == 16777248:
-            self.drawer.keyPressEvent(event)
+            self.getPainter().keyPressEvent(event)
 
     def keyReleaseEvent(self, event):
         super(MainWindow, self).keyReleaseEvent(event)
         if event.key() == 16777248:
-            self.drawer.keyReleaseEvent(event)
+            self.getPainter().keyReleaseEvent(event)
 
 
 class DrawItem(object):
