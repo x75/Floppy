@@ -1,7 +1,7 @@
 import os
 import time
 from floppy.graph import Graph
-from floppy.node import InputNotAvailable, ControlNode
+from floppy.node import InputNotAvailable, ControlNode, DynamicNode
 from floppy.mainwindow import Ui_MainWindow
 from floppy.floppySettings import SettingsDialog
 from floppy.nodeLib import ContextNodeFilter, ContextNodeList
@@ -461,6 +461,9 @@ class Painter2D(Painter):
         halfPinSize = PINSIZE//2
 
         for j, node in enumerate(self.nodes):
+            if issubclass(type(node), DynamicNode):
+                node.probeGraph()
+                self.updateDrawItems(node)
             if not self.selectedSubgraph[0] == node.subgraph:
                 continue
             j *= 3
@@ -708,14 +711,14 @@ class Painter2D(Painter):
         node.__size__ = (1, node.__size__[1] if not issubclass(type(node), ControlNode) else node.__size__[1]-2)
         self.nodes.append(node)
         self.drawItemsOfNode[node] = {'inp': [], 'out': []}
-        for out in node.outputPins.values():
+        for out in node.iterOutputs():
             if out.info.select:
                 s = Selector(node, out, self)
             else:
                 s = OutputLabel(node, out, self)
             self.drawItems.append(s)
             self.drawItemsOfNode[node]['out'].append(s)
-        for inp in node.inputPins.values():
+        for inp in node.iterInputs():
             # print(inp.name)
             # if inp.name == 'TRIGGER':# and inp.connected:
             #      self.triggers.add(node)
@@ -731,6 +734,33 @@ class Painter2D(Painter):
     def unregisterNode(self, node):
         self.nodes.remove(node)
         del self.drawItemsOfNode[node]
+
+    def updateDrawItems(self, node):
+        for drawItem in self.drawItemsOfNode[node]['inp'] + self.drawItemsOfNode[node]['out']:
+            self.drawItems.remove(drawItem)
+        self.drawItemsOfNode[node] = {'inp': [], 'out': []}
+        for out in node.iterOutputs():
+            if out.info.select:
+                s = Selector(node, out, self)
+            else:
+                s = OutputLabel(node, out, self)
+            self.drawItems.append(s)
+            self.drawItemsOfNode[node]['out'].append(s)
+        for inp in node.iterInputs():
+            # print(inp.name)
+            # if inp.name == 'TRIGGER':# and inp.connected:
+            #      self.triggers.add(node)
+            if inp.info.select:
+                s = Selector(node, inp, self)
+            elif inp.info.name == 'Control':
+                s = InputLabel(node, inp, self)
+            else:
+                s = LineEdit(node, inp, self)
+            self.drawItems.append(s)
+            self.drawItemsOfNode[node]['inp'].append(s)
+        # node.__size__ = (1, len(node.inputs) + len(node.outputs) + len(node.INNERINPUTS))
+        node.__size__ = (1, len(node.inputs) + len(node.outputs))
+
 
     def drawGrid(self, painter):
         color = 105

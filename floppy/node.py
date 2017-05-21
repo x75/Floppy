@@ -2,6 +2,8 @@ from collections import OrderedDict
 from copy import copy
 from floppy.FloppyTypes import Type, MetaType
 from threading import Lock
+from os.path import isfile
+import floppy.graph
 
 NODECLASSES = {}
 # STOREDVALUES = {}
@@ -368,6 +370,14 @@ class Node(object, metaclass=MetaNode):
         self.locked = False
         self.graph.runningNodes.remove(self.ID)
 
+    def iterOutputs(self):
+        for out in self.outputPins.values():
+            yield out
+
+    def iterInputs(self):
+        for inp in self.inputPins.values():
+            yield inp
+
     def run(self) -> None:
         """
         Execute the node. Override this to implement logic.
@@ -579,10 +589,14 @@ class Node(object, metaclass=MetaNode):
         reinstanciate the whole graph.
         :return:
         """
+        # print()
+        # for key, value in self.inputs.items():
+        #     print(key, value.name)
         inputConns = [self.graph.getConnectionOfInput(inp) for inp in self.inputs.values()]
         # print(inputConns)
         inputConns = {inputConn['inputName']: inputConn['outputNode'].getOutputID(inputConn['outputName']) for inputConn in inputConns if inputConn}
         outputConns = {out.name: self.graph.getConnectionsOfOutput(out) for out in self.outputs.values()}
+        # print(outputConns)
         for key, conns in outputConns.items():
             conns = [outputConn['inputNode'].getInputID(outputConn['inputName']) for outputConn in conns]
             outputConns[key] = conns
@@ -1312,3 +1326,94 @@ class String2Float(Node):
     def run(self):
         self._Float(float(self._String))
 
+
+@abstractNode
+class DynamicNode(Node):
+    pass
+
+class SubGraph(DynamicNode):
+    """
+    Node for executing a graph within another graph.
+    The node takes the file name of a stored graph as input. It will then load and execute
+    the graph once its execution is triggered and will return the sub graph's return
+    value to its corresponding output.
+    
+    The execution of the sub graph is NOT controlled by the graph interpreter. It instead relies on
+    a simple loop that will run until all nodes of the sub graph are executed or are un-reachable.
+    This means that commands send to the interpreter will not affect the execution of the sub graph.
+    From the point of view of the interpreter, the graph is just a node like any other.
+    """
+    Input('GraphName', str)
+    Output('ReturnValue', object)
+
+    def setup(self):
+        self.probed = ''
+        self.INNERINPUTS = []
+        self.innerNames = []
+        self.subGraph = floppy.graph.Graph()
+
+    def run(self):
+        fileName = self._GraphName
+        self.subGraph.load(fileName)
+        for inp in self.iterInputs():
+            if inp.name == 'TRIGGER':
+                continue
+            self.subGraph.INPUTVALUES[inp.name] = inp.info()
+        self.subGraph.selfExecute()
+        self._ReturnValue((self.subGraph.returnValue, self.subGraph.returningNode))
+        
+    def iterInputs(self):
+        yield from super(SubGraph, self).iterInputs()
+        # for inp in self.INNERINPUTS:
+        #     yield inp
+
+    def probeGraph(self):
+        """
+        Probes the currently selected sub graph for input nodes.
+        :return: 
+        """
+        fileName = self._GraphName
+        if self.probed == fileName:
+            return
+        self.probed = fileName
+        self.INNERINPUTS = []
+        for name in self.innerNames:
+            del self.inputPins[name]
+            del self.inputs[name]
+        self.innerNames = []
+        if not isfile(fileName):
+            return
+        self.subGraph.load(fileName)
+        for node in self.subGraph.INPUTNODES:
+            for inp in node.iterInputs():
+                if inp.name == 'TRIGGER':
+                    continue
+                self.INNERINPUTS.append(inp)
+                name = inp.info.default
+                inpID = '{}:I{}'.format(self.ID, name)
+                inp.info.varType = object
+                inp.info.name = name
+                self.inputPins[name] = Pin(inpID, inp.info, self)
+                self.inputs[name] = inp.info
+                self.innerNames.append(name)
+        self.subGraph = floppy.graph.Graph()
+
+
+class InputNode(Node):
+    """
+    Special Node for accessing values that are remain constant during a graph's execution time but are set-up
+    programmatically before the graph's execution.
+    """
+    Input('InputName', str)
+    Output('InputValue', object)
+
+    def setup(self):
+        self.graph.INPUTNODES.append(self)
+
+    def run(self):
+        self._InputValue(self.graph.INPUTVALUES[self._InputName])
+        
+    def __del__(self):
+        self.graph.INPUTNODES.remove(self)
+        del self
+        # super(InputNode, self).__del__()

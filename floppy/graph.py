@@ -3,7 +3,7 @@ import zlib
 import io
 import time
 from collections import OrderedDict
-from floppy.node import ControlNode, Node, MetaNode
+from floppy.node import ControlNode, Node, MetaNode, SubGraph
 from floppy.runner import Runner, sendCommand, RGIConnection
 from socket import AF_INET, SOCK_STREAM, socket #, SHUT_RDWR, timeout, SHUT_RDWR, SO_REUSEADDR, SOL_SOCKET
 from floppy.node import NODECLASSES
@@ -24,11 +24,12 @@ class Graph(object):
     the Graph class also provides methods for executing the implemented logic.
     """
     nextFreeNodeID = 0
-    nodes = {}
+    # nodes = {}
 
     def __init__(self, painter=None):
         self.returnValue = -1
         self.returnPriority = -1
+        self.returningNode = None
         self.slave = False
         self._requestUpdate = False
         self._requestReport = ''
@@ -41,6 +42,8 @@ class Graph(object):
         self.nextFreeNodeID = 0
         self.nodes = {}
         self.STOREDVALUES = {}
+        self.INPUTVALUES = {}
+        self.INPUTNODES = []
         self.connections = {}
         self.runner = None
         self.status = None
@@ -284,6 +287,7 @@ class Graph(object):
         :return: Connection instance.
         """
         for con in self.getConnectionsTo(self.nodes[int(inp.ID.partition(':')[0])]):
+            # print(con, inp.name)
             if con['inputName'] == inp.name:
                 return con
 
@@ -341,15 +345,7 @@ class Graph(object):
 
     def execute(self, options=None):
         """
-        Execute the Graph instance.
-
-        First, the execution loop will set itself up to terminate after the first iteration.
-        Next, every node is given the chance to run if all prerequisites are met.
-        If a node is executed, the loop termination criterion will be reset to allow an additional iteration over all
-        nodes.
-        If no node is execute during one iteration, the termination criterion will not be reset and the execution loop
-        terminates.
-        :return:
+        
         """
         if not options:
             options = {}
@@ -359,18 +355,20 @@ class Graph(object):
         time.sleep(1)
         self.configureInterpreter(options)
         self.unpauseRunner()
-        # running = True
-        # i = 0
-        # while running:
-        #     i += 1
-        #     print('\nExecuting iteration {}.'.format(i))
-        #     running = False
-        #     for node in self.nodes.values():
-        #         checked = node.check()
-        #         running = checked if not running else True
-        #         if checked:
-        #             node.run()
-        #             node.notify()
+
+    def selfExecute(self):
+        running = True
+        i = 0
+        while running:
+            i += 1
+            print('\nExecuting iteration {}.'.format(i))
+            running = False
+            for node in self.nodes.values():
+                checked = node.check()
+                running = checked if not running else True
+                if checked:
+                    node.run()
+                    node.notify()
 
     def runNodePar(self, node, cb=None, arg=None):
         self.runningNodes.append(node.ID)
@@ -563,13 +561,21 @@ class Graph(object):
             idMap[int(id)] = restoredNode.ID
             inputs = nodeData['inputs']
             outputs = nodeData['outputs']
+            if isinstance(restoredNode, SubGraph):
+                for inp in inputs:
+                    if inp[0] == 'GraphName':
+                        restoredNode.inputs[inp[0]].setDefault(inp[-1])
+                        break
+                restoredNode.probeGraph()
             for input in inputs:
                 restoredNode.inputs[input[0]].setDefault(input[-1])
             for output in outputs:
                 restoredNode.outputs[output[0]].setDefault(output[-1])
         for id, nodeData in saveState:
             id = int(id)
+            # print(nodeData['class'])
             for inputName, outputID in nodeData['inputConnections'].items():
+                # print(inputName, outputID)
                 if inputName == 'Control':
                     continue
                 outputNode, outputName = outputID.split(':O')
