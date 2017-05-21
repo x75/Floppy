@@ -1399,6 +1399,23 @@ class SubGraph(DynamicNode):
         self.subGraph = floppy.graph.Graph()
 
 
+class DynamicSubGraph(Node):
+    Input('GraphID', str)
+    Input('GraphName', str)
+    Output('ReturnValue', object)
+
+    def setup(self):
+        self.subGraph = floppy.graph.Graph()
+
+    def run(self):
+        fileName = self._GraphName
+        self.subGraph.load(fileName)
+        for name, value in self.graph.DYNAMICINPUTVALUES[self._GraphID].items():
+            self.subGraph.INPUTVALUES[name] = value
+        self.subGraph.selfExecute()
+        self._ReturnValue((self.subGraph.returnValue, self.subGraph.returningNode))
+
+
 class InputNode(Node):
     """
     Special Node for accessing values that are remain constant during a graph's execution time but are set-up
@@ -1417,3 +1434,16 @@ class InputNode(Node):
         self.graph.INPUTNODES.remove(self)
         del self
         # super(InputNode, self).__del__()
+
+
+class SetDynamicInput(Node):
+    Input('GraphID', str)
+    Input('InputName', str)
+    Input('InputValue', object)
+    Output('Trigger', object)
+
+    def run(self):
+        try:
+            self.graph.DYNAMICINPUTVALUES[self._GraphID][self._InputName] = self._InputValue
+        except KeyError:
+            self.graph.DYNAMICINPUTVALUES[self._GraphID] = {self._InputName: self._InputValue}

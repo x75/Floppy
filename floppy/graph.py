@@ -43,6 +43,7 @@ class Graph(object):
         self.nodes = {}
         self.STOREDVALUES = {}
         self.INPUTVALUES = {}
+        self.DYNAMICINPUTVALUES = {}
         self.INPUTNODES = []
         self.connections = {}
         self.runner = None
