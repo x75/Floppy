@@ -1400,6 +1400,14 @@ class SubGraph(DynamicNode):
 
 
 class DynamicSubGraph(Node):
+    """
+    Node for executing a sub graph that is not specified before executing the owning graph.
+    The value of GraphID is used as a reference for SetDynamicInput nodes.
+    In contrast to SubGraph nodes, the value of GraphName can be set dynamically and does not need
+    to be a default value.
+    This means that it is not possible to determine the required inputs for the sub graph. Instead,
+    SetDynamicInput nodes are used to set input values of the sub graph.
+    """
     Input('GraphID', str)
     Input('GraphName', str)
     Output('ReturnValue', object)
@@ -1437,6 +1445,14 @@ class InputNode(Node):
 
 
 class SetDynamicInput(Node):
+    """
+    Node for specifying the input values of DynamicSubGraph nodes.
+    The value of GraphID determines to which DynamicSubGraph node the node
+    corresponds.
+    InputName must correspond to the name of one of the inputs in the sub graph
+    called by the DynamicSubGraph node.
+    InputValue is the corresponding value.
+    """
     Input('GraphID', str)
     Input('InputName', str)
     Input('InputValue', object)
