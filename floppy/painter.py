@@ -839,7 +839,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.setupNodeLib()
         # self.getGraph().spawnAndConnect()
-        self.connectHint = self.settings.value('DefaultConnection', type=str)
+        try:
+            self.connectHint = self.settings.value('DefaultConnection', type=str)
+        except TypeError:
+            self.connectHint = '127.0.0.1'
         settingsDialog = SettingsDialog(self, settings=self.settings, globals=globals())
         settingsDialog.close()
 
@@ -981,11 +984,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.settingsAction.setIconVisibleInMenu(False)
         self.addAction(self.settingsAction)
         
-        self.createSubgraphAction = QAction(QIcon(os.path.join(self.iconRoot, 'macro.png')), 'Create Macro', self)
-        self.createSubgraphAction.setShortcut('Ctrl+G')
-        self.createSubgraphAction.triggered.connect(self.openMacroDialog)
-        self.createSubgraphAction.setIconVisibleInMenu(False)
-        self.addAction(self.createSubgraphAction)
+        # self.createSubgraphAction = QAction(QIcon(os.path.join(self.iconRoot, 'macro.png')), 'Create Macro', self)
+        # self.createSubgraphAction.setShortcut('Ctrl+G')
+        # self.createSubgraphAction.triggered.connect(self.openMacroDialog)
+        # self.createSubgraphAction.setIconVisibleInMenu(False)
+        # self.addAction(self.createSubgraphAction)
         
         self.configureAction = QAction(QIcon(os.path.join(self.iconRoot, 'configure.png')), 'configure', self)
         self.configureAction.setShortcut('Ctrl+Y')
@@ -1001,7 +1004,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         advancedMenu = self.menuBar.addMenu('&Advanced')
         advancedMenu.addAction(self.connectAction)
-        advancedMenu.addAction(self.createSubgraphAction)
+        # advancedMenu.addAction(self.createSubgraphAction)
 
         settingsMenu = self.menuBar.addMenu('&Settings')
         settingsMenu.addAction(self.settingsAction)
@@ -1036,18 +1039,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mainToolBar.addAction(self.settingsAction)
         self.mainToolBar.addSeparator()
 
-        self.mainToolBar.addWidget(QLabel('Display Macro:'))
-        macroSelector = QComboBox(self.mainToolBar)
-        self.macroSelector = macroSelector
-        macroSelector.addItem('main')
-        self.knownSubgraphs = {'main'}
-        macroSelector.currentTextChanged.connect(self.selectSubgraph)
-        macroSelector.activated.connect(self.getSubgraphList)
-        self.mainToolBar.addWidget(macroSelector)
+        # self.mainToolBar.addWidget(QLabel('Display Macro:'))
+        # macroSelector = QComboBox(self.mainToolBar)
+        # self.macroSelector = macroSelector
+        # macroSelector.addItem('main')
+        # self.knownSubgraphs = {'main'}
+        # macroSelector.currentTextChanged.connect(self.selectSubgraph)
+        # macroSelector.activated.connect(self.getSubgraphList)
+        # self.mainToolBar.addWidget(macroSelector)
 
-    def selectSubgraph(self):
-        self.getPainter().setSelectedSubgraph(self.macroSelector.currentText())
-        self.getPainter().update()
+    # def selectSubgraph(self):
+    #     self.getPainter().setSelectedSubgraph(self.macroSelector.currentText())
+    #     self.getPainter().update()
 
     def makeGraphActive(self):
         if not self.activeIndex == None:
@@ -1263,6 +1266,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.getGraph().save(fileName)
         self.statusBar.showMessage('Graph saved as {}.'.format(fileName), 2000)
         logger.info('Save graph as {}'.format(fileName))
+        label = os.path.split(fileName)[-1][:-4]
+        if self.DrawArea.tabText(self.DrawArea.currentIndex()).endswith('*'):
+            label += '*'
+        self.DrawArea.setTabText(self.DrawArea.currentIndex(), label)
 
 
     def resizeEvent(self, event):

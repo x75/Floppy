@@ -113,19 +113,20 @@ class Ui_MainWindow(object):
         killIcon = iconRoot+'/closeTab.png'
         self.DrawArea.setStyleSheet('''
         QTabWidget::pane {{ /* The tab widget frame */
-    border-top: 2px solid #414141;
+    border-top: 6px solid #414141;
+
 }}
 QTabWidget::tab-bar {{
-    left: 5px; /* move to the right by 5px */
+    left: 0px; /* move to the right by 5px */
 }}
 
 QTabBar::tab {{
     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                stop: 0 #7d7d7d, stop: 0.4 #7d7d7d,
-                                stop: 0.5 #7d7d7d, stop: 1.0 #7d7d7d);
+                                stop: 0 #626262, stop: 0.4 #626262,
+                                stop: 0.5 #626262, stop: 1.0 #626262);
     border: 2px solid #414141;
     border-bottom-color: #414141; /* same as the pane color */
-    border-top-left-radius: 4px;
+    border-top-left-radius: 16px;
     border-top-right-radius: 4px;
     min-width: 15ex;
     padding: 3px;
@@ -135,13 +136,14 @@ QTabBar::tab {{
 
 QTabBar::tab:selected, QTabBar::tab:hover {{
     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                stop: 0 #969696, stop: 0.4 #969696,
-                                stop: 0.5 #969696, stop: 1.0 #969696);
+                                stop: 0 #414141, stop: 0.4 #414141,
+                                stop: 0.5 #414141, stop: 1.0 #414141);
 }}
 
 QTabBar::tab:selected {{
     border-color: #414141;
     border-bottom-color: #414141; /* same as pane color */
+    margin-top: 0px;
 }}
 
 QTabBar::tab:!selected {{
