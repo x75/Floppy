@@ -3,8 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="ff7e5034-55ba-4c8b-8b21-611e8bea7099" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/graph.py" afterPath="$PROJECT_DIR$/floppy/graph.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/node.py" afterPath="$PROJECT_DIR$/floppy/node.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/mainwindow.py" afterPath="$PROJECT_DIR$/floppy/mainwindow.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/floppy/nodeLib.py" afterPath="$PROJECT_DIR$/floppy/nodeLib.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -14,13 +14,13 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/floppy$Floppy.coverage" NAME="Floppy Coverage Results" MODIFIED="1495381453077" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/bin" />
+    <SUITE FILE_PATH="coverage/floppy$Floppy.coverage" NAME="Floppy Coverage Results" MODIFIED="1495444511792" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/bin" />
     <SUITE FILE_PATH="coverage/floppy$FloppyTest3.coverage" NAME="FloppyTest3 Coverage Results" MODIFIED="1495114462203" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/bin" />
     <SUITE FILE_PATH="coverage/floppy$RemoteInterpreter.coverage" NAME="RemoteInterpreter Coverage Results" MODIFIED="1473181794157" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/bin" />
     <SUITE FILE_PATH="coverage/floppy$runner.coverage" NAME="runner Coverage Results" MODIFIED="1460144415323" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/floppy" />
     <SUITE FILE_PATH="coverage/floppy$FloppyTest1.coverage" NAME="FloppyTest1 Coverage Results" MODIFIED="1495102584933" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/bin" />
     <SUITE FILE_PATH="coverage/floppy$quickPlot.coverage" NAME="quickPlot Coverage Results" MODIFIED="1472917137347" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/floppy" />
-    <SUITE FILE_PATH="coverage/floppy$TestFloppy.coverage" NAME="TestFloppy Coverage Results" MODIFIED="1495365392794" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/bin" />
+    <SUITE FILE_PATH="coverage/floppy$TestFloppy.coverage" NAME="TestFloppy Coverage Results" MODIFIED="1495443133991" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/bin" />
     <SUITE FILE_PATH="coverage/floppy$testest.coverage" NAME="testest Coverage Results" MODIFIED="1473281520637" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/floppy" />
     <SUITE FILE_PATH="coverage/floppy$FloppyTest2.coverage" NAME="FloppyTest2 Coverage Results" MODIFIED="1495102688427" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/bin" />
   </component>
@@ -33,12 +33,22 @@
       <file leaf-file-name="graph.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/floppy/graph.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="357">
-              <caret line="45" column="31" lean-forward="false" selection-start-line="45" selection-start-column="13" selection-end-line="45" selection-end-column="31" />
+            <state relative-caret-position="2414">
+              <caret line="153" column="29" lean-forward="false" selection-start-line="153" selection-start-column="29" selection-end-line="153" selection-end-column="29" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
-                <marker date="1495380950808" expanded="true" signature="16869:16942" ph="..." />
+                <marker date="1495388175027" expanded="true" signature="16869:16942" ph="..." />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/floppy/main.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="357">
+              <caret line="32" column="36" lean-forward="false" selection-start-line="32" selection-start-column="29" selection-end-line="32" selection-end-column="36" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -53,25 +63,25 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="myNodes.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/floppy/CustomNodes/myNodes.py">
+      <file leaf-file-name="node.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/floppy/node.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="408">
-              <caret line="26" column="28" lean-forward="false" selection-start-line="26" selection-start-column="28" selection-end-line="26" selection-end-column="28" />
+            <state relative-caret-position="553">
+              <caret line="1453" column="42" lean-forward="false" selection-start-line="1453" selection-start-column="42" selection-end-line="1453" selection-end-column="42" />
               <folding>
-                <element signature="e#0#62#0" expanded="true" />
+                <element signature="e#0#35#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="node.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/floppy/node.py">
+      <file leaf-file-name="mainwindow.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/floppy/mainwindow.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="315">
-              <caret line="1413" column="29" lean-forward="false" selection-start-line="1413" selection-start-column="29" selection-end-line="1413" selection-end-column="29" />
+            <state relative-caret-position="322">
+              <caret line="132" column="17" lean-forward="false" selection-start-line="132" selection-start-column="17" selection-end-line="132" selection-end-column="17" />
               <folding>
-                <element signature="e#0#35#0" expanded="true" />
+                <element signature="e#232#274#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -99,33 +109,25 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="infoNodes.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/floppy/CustomNodes/infoNodes.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="34">
-              <caret line="2" column="13" lean-forward="false" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="mathNodes.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/floppy/CustomNodes/mathNodes.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="204">
-              <caret line="13" column="0" lean-forward="false" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="painter.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/floppy/painter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="12733">
-              <caret line="761" column="8" lean-forward="false" selection-start-line="761" selection-start-column="8" selection-end-line="761" selection-end-column="8" />
+            <state relative-caret-position="118">
+              <caret line="836" column="22" lean-forward="false" selection-start-line="836" selection-start-column="22" selection-end-line="836" selection-end-column="22" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="nodeLib.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/floppy/nodeLib.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="411">
+              <caret line="167" column="21" lean-forward="false" selection-start-line="158" selection-start-column="21" selection-end-line="167" selection-end-column="21" />
+              <folding>
+                <element signature="e#0#29#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -145,37 +147,44 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>configureInterpreter</find>
-      <find>spawn</find>
-      <find>configure</find>
-      <find>Fram</find>
-      <find>self.framerate</find>
-      <find>sleep</find>
-      <find>play</find>
-      <find>initAc</find>
-      <find>def run</find>
-      <find>run</find>
-      <find>Return</find>
-      <find>register</find>
-      <find>def _return</find>
-      <find>print(draw</find>
-      <find>print(</find>
-      <find>issub</find>
-      <find>updateDrawItems</find>
-      <find>self.drawItems</find>
-      <find>updateD</find>
-      <find>class Node</find>
-      <find>InputPin</find>
-      <find>self.inputs[</find>
-      <find>Pin(inpID,</find>
-      <find>class Input</find>
       <find>def save</find>
       <find>updateDr</find>
-      <find>load</find>
       <find>print(key</find>
       <find>self.returnValue =</find>
       <find>self.returningNode =</find>
+      <find>class</find>
+      <find>Draw</find>
+      <find>self.painter =</find>
+      <find>Release</find>
+      <find>Ui_MainWindow</find>
+      <find>mainWindow.painter</find>
+      <find>addTab</find>
+      <find>painter</find>
+      <find>self.painter</find>
+      <find>self.graph</find>
+      <find>self.drawer.graph</find>
+      <find>spawnNod</find>
+      <find>self.drawer</find>
+      <find>painter.</find>
+      <find>reportWidget</find>
+      <find>.painter</find>
+      <find>.graph</find>
+      <find>initAction</find>
+      <find>self.set</find>
+      <find>load</find>
+      <find>def load</find>
+      <find>Icon</find>
+      <find>}</find>
+      <find>class</find>
+      <find>test</find>
     </findStrings>
+    <replaceStrings>
+      <replace>self.getGraph()</replace>
+      <replace>self.getPainter()</replace>
+      <replace>makeActive</replace>
+      <replace>{{</replace>
+      <replace>}}</replace>
+    </replaceStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -191,9 +200,11 @@
         <option value="$PROJECT_DIR$/bin/TestFloppy.py" />
         <option value="$PROJECT_DIR$/floppy/floppySettings.py" />
         <option value="$PROJECT_DIR$/floppy/runner.py" />
-        <option value="$PROJECT_DIR$/floppy/painter.py" />
-        <option value="$PROJECT_DIR$/floppy/graph.py" />
         <option value="$PROJECT_DIR$/floppy/node.py" />
+        <option value="$PROJECT_DIR$/floppy/graph.py" />
+        <option value="$PROJECT_DIR$/floppy/painter.py" />
+        <option value="$PROJECT_DIR$/floppy/mainwindow.py" />
+        <option value="$PROJECT_DIR$/floppy/nodeLib.py" />
       </list>
     </option>
   </component>
@@ -224,7 +235,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
@@ -306,6 +316,28 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="ressources" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="floppy" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="floppy" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="floppy" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="floppy" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="CustomNodes" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -348,6 +380,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -739,7 +772,35 @@
       <option name="project" value="LOCAL" />
       <updated>1495369392145</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Added DynamicSubGraph node and corresponding SetDynamicInput nodes.&#10;These nodes allow to dynamically bind sub graphs to a corresponding &#10;DynamicSubGraph node at runtime. Since it is not possible to know&#10;the required input values beforehand for these nodes, SetDynamicInput nodes&#10;can set input values referenced by name.">
+      <created>1495381671333</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1495381671333</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Added some documentation">
+      <created>1495382767629</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1495382767629</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Started adding editing of multiple graphs to the editor.">
+      <created>1495394977107</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1495394977107</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Added icons for tab widgets.&#10;Newly loaded graphs will now be made active when running in test mode.">
+      <created>1495443014252</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1495443014252</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -809,7 +870,11 @@
     <MESSAGE value="Finished implementing interpreter configuration action.&#10;Interpreter can now switch between parallel and sequential execution mode." />
     <MESSAGE value="The Run action will now apply the interpreter configuration prior to starting code execution." />
     <MESSAGE value="Added a SubGraph node for nesting graphs and added an InputNode to setup&#10;default values for nested graphs that are not known prior to executing the outer&#10;graph." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added a SubGraph node for nesting graphs and added an InputNode to setup&#10;default values for nested graphs that are not known prior to executing the outer&#10;graph." />
+    <MESSAGE value="Added DynamicSubGraph node and corresponding SetDynamicInput nodes.&#10;These nodes allow to dynamically bind sub graphs to a corresponding &#10;DynamicSubGraph node at runtime. Since it is not possible to know&#10;the required input values beforehand for these nodes, SetDynamicInput nodes&#10;can set input values referenced by name." />
+    <MESSAGE value="Added some documentation" />
+    <MESSAGE value="Started adding editing of multiple graphs to the editor." />
+    <MESSAGE value="Added icons for tab widgets.&#10;Newly loaded graphs will now be made active when running in test mode." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added icons for tab widgets.&#10;Newly loaded graphs will now be made active when running in test mode." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -981,13 +1046,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/floppy/nodeLib.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2210">
-          <caret line="135" column="34" lean-forward="false" selection-start-line="135" selection-start-column="34" selection-end-line="135" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
     <entry file="uml://Python/floppy.node.ForLoop">
       <provider selected="true" editor-type-id="UmlEditorProvider">
         <state>
@@ -1054,24 +1112,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/floppy/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="714">
-          <caret line="47" column="4" lean-forward="false" selection-start-line="47" selection-start-column="4" selection-end-line="47" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/test/testSwitch.ppy">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/floppy/mainwindow.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="487">
-          <caret line="83" column="9" lean-forward="false" selection-start-line="83" selection-start-column="9" selection-end-line="83" selection-end-column="9" />
         </state>
       </provider>
     </entry>
@@ -1086,6 +1130,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1139">
           <caret line="67" column="0" lean-forward="false" selection-start-line="67" selection-start-column="0" selection-end-line="67" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1109,7 +1154,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="34">
           <caret line="2" column="13" lean-forward="false" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1117,9 +1161,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="408">
           <caret line="26" column="28" lean-forward="false" selection-start-line="26" selection-start-column="28" selection-end-line="26" selection-end-column="28" />
-          <folding>
-            <element signature="e#0#62#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1127,7 +1168,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="204">
           <caret line="13" column="0" lean-forward="false" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1165,33 +1205,61 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/floppy/graph.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2414">
+          <caret line="153" column="29" lean-forward="false" selection-start-line="153" selection-start-column="29" selection-end-line="153" selection-end-column="29" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+            <marker date="1495388175027" expanded="true" signature="16869:16942" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/floppy/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="357">
+          <caret line="32" column="36" lean-forward="false" selection-start-line="32" selection-start-column="29" selection-end-line="32" selection-end-column="36" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/floppy/node.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="553">
+          <caret line="1453" column="42" lean-forward="false" selection-start-line="1453" selection-start-column="42" selection-end-line="1453" selection-end-column="42" />
+          <folding>
+            <element signature="e#0#35#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/floppy/mainwindow.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="322">
+          <caret line="132" column="17" lean-forward="false" selection-start-line="132" selection-start-column="17" selection-end-line="132" selection-end-column="17" />
+          <folding>
+            <element signature="e#232#274#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/floppy/painter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="12733">
-          <caret line="761" column="8" lean-forward="false" selection-start-line="761" selection-start-column="8" selection-end-line="761" selection-end-column="8" />
+        <state relative-caret-position="118">
+          <caret line="836" column="22" lean-forward="false" selection-start-line="836" selection-start-column="22" selection-end-line="836" selection-end-column="22" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/floppy/graph.py">
+    <entry file="file://$PROJECT_DIR$/floppy/nodeLib.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="45" column="31" lean-forward="false" selection-start-line="45" selection-start-column="13" selection-end-line="45" selection-end-column="31" />
+        <state relative-caret-position="411">
+          <caret line="167" column="21" lean-forward="false" selection-start-line="158" selection-start-column="21" selection-end-line="167" selection-end-column="21" />
           <folding>
-            <element signature="e#0#11#0" expanded="true" />
-            <marker date="1495380950808" expanded="true" signature="16869:16942" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/floppy/node.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="1413" column="29" lean-forward="false" selection-start-line="1413" selection-start-column="29" selection-end-line="1413" selection-end-column="29" />
-          <folding>
-            <element signature="e#0#35#0" expanded="true" />
+            <element signature="e#0#29#0" expanded="true" />
           </folding>
         </state>
       </provider>

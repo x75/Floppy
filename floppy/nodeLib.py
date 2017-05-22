@@ -134,7 +134,10 @@ class NodeList(QListView):
             self.selectedClass = NODECLASSES[name]
             # self.blockSignals(True)
             # self.selectionChanged()
-            floppy.painter.mainWindow.getPainter().reportWidget.updateReport(self.selectedClass.classReport())
+            try:
+                floppy.painter.mainWindow.getPainter().reportWidget.updateReport(self.selectedClass.classReport())
+            except AttributeError:
+                pass
 
 
     def mouseReleaseEvent(self, event):
@@ -148,17 +151,21 @@ class NodeList(QListView):
         if event.pos().x() < 0:
             # transform = self.graph.painter.transform
             pos = QCursor.pos()
-            topLeft = floppy.painter.mainWindow.getPainter().mapToGlobal(floppy.painter.mainWindow.getPainter().pos())
-            pos -= topLeft
+            try:
+                topLeft = floppy.painter.mainWindow.getPainter().mapToGlobal(floppy.painter.mainWindow.getPainter().pos())
+            except AttributeError:
+                pass
+            else:
+                pos -= topLeft
 
-            pos -= floppy.painter.mainWindow.getPainter().center
-            # pos -= self.graph.painter.center
-            # print(pos, self.graph.painter.center, pos*transform)
-            pos /= floppy.painter.mainWindow.getPainter().scale
-            # print(transform)
+                pos -= floppy.painter.mainWindow.getPainter().center
+                # pos -= self.graph.painter.center
+                # print(pos, self.graph.painter.center, pos*transform)
+                pos /= floppy.painter.mainWindow.getPainter().scale
+                # print(transform)
 
-            floppy.painter.mainWindow.getGraph().spawnNode(self.selectedClass, position=(pos.x(), pos.y()))
-            floppy.painter.mainWindow.getGraph().update()
+                floppy.painter.mainWindow.getGraph().spawnNode(self.selectedClass, position=(pos.x(), pos.y()))
+                floppy.painter.mainWindow.getGraph().update()
 
 
     def mouseMoveEvent(self, event):

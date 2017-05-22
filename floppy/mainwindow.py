@@ -127,8 +127,10 @@ QTabBar::tab {{
     border-bottom-color: #414141; /* same as the pane color */
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
-    min-width: 8ex;
+    min-width: 15ex;
     padding: 3px;
+    padding-right: 8px;
+    color: white;
 }}
 
 QTabBar::tab:selected, QTabBar::tab:hover {{
