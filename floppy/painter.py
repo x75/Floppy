@@ -865,7 +865,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if args.test:
             logger.info('Performing test.')
             self.closeOnReturn = True
-            self.loadGraph(override=args.test[0])
+            self.loadGraph(override=args.test[0], makeActive=True)
             self.runCode()
 
     def initActions(self):
@@ -891,7 +891,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.loadAction.setIconVisibleInMenu(True)
         self.addAction(self.loadAction)
 
-        self.makeActiveAction = QAction(QIcon(os.path.join(self.iconRoot, 'load.png')), 'makeActive', self)
+        self.makeActiveAction = QAction(QIcon(os.path.join(self.iconRoot, 'makeActive.png')), 'makeActive', self)
         self.makeActiveAction.setShortcut('Ctrl+K')
         self.makeActiveAction.triggered.connect(self.makeGraphActive)
         self.makeActiveAction.setIconVisibleInMenu(True)
@@ -1226,7 +1226,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.activeGraph.execute(options={'framerate': frameRate, 'mode': mode})
         self.statusBar.showMessage('Code execution started.', 2000)
 
-    def loadGraph(self, *args, override=False):
+    def loadGraph(self, *args, override=False, makeActive=False):
         self.new()
         if not override:
             fileName = QFileDialog.getOpenFileName(self, 'Open File', '~/',
@@ -1240,6 +1240,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             logger.info('Successfully loaded graph: {}'.format(fileName))
             name = os.path.split(fileName)[-1][:-4]
             self.DrawArea.setTabText(self.DrawArea.currentIndex(), name)
+            if makeActive:
+                self.makeGraphActive()
 
     def raiseErrorMessage(self, message):
         err = QErrorMessage(self)

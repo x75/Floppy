@@ -9,6 +9,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from floppy.nodeLib import NodeList, NodeFilter
 from floppy.reportWidget import ReportWidget
+import os
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -105,43 +106,53 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+        iconRoot = os.path.realpath(__file__)
+        iconRoot = os.path.join(os.path.dirname(os.path.dirname(iconRoot)), 'floppy')
+        iconRoot = os.path.join(iconRoot, 'ressources').replace('\\','/')
+        killIconhovered = iconRoot+'/kill.png'
+        killIcon = iconRoot+'/closeTab.png'
         self.DrawArea.setStyleSheet('''
-        QTabWidget::pane { /* The tab widget frame */
-    border-top: 2px solid #C2C7CB;
-}
-QTabWidget::tab-bar {
+        QTabWidget::pane {{ /* The tab widget frame */
+    border-top: 2px solid #414141;
+}}
+QTabWidget::tab-bar {{
     left: 5px; /* move to the right by 5px */
-}
+}}
 
-QTabBar::tab {
+QTabBar::tab {{
     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,
-                                stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);
-    border: 2px solid #C4C4C3;
-    border-bottom-color: #C2C7CB; /* same as the pane color */
+                                stop: 0 #7d7d7d, stop: 0.4 #7d7d7d,
+                                stop: 0.5 #7d7d7d, stop: 1.0 #7d7d7d);
+    border: 2px solid #414141;
+    border-bottom-color: #414141; /* same as the pane color */
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
     min-width: 8ex;
-    padding: 2px;
-}
+    padding: 3px;
+}}
 
-QTabBar::tab:selected, QTabBar::tab:hover {
+QTabBar::tab:selected, QTabBar::tab:hover {{
     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                stop: 0 #fafafa, stop: 0.4 #f4f4f4,
-                                stop: 0.5 #e7e7e7, stop: 1.0 #fafafa);
-}
+                                stop: 0 #969696, stop: 0.4 #969696,
+                                stop: 0.5 #969696, stop: 1.0 #969696);
+}}
 
-QTabBar::tab:selected {
-    border-color: #9B9B9B;
-    border-bottom-color: #C2C7CB; /* same as pane color */
-}
+QTabBar::tab:selected {{
+    border-color: #414141;
+    border-bottom-color: #414141; /* same as pane color */
+}}
 
-QTabBar::tab:!selected {
+QTabBar::tab:!selected {{
     margin-top: 2px; /* make non-selected tabs look smaller */
-}
+}}
 
-
-        ''')
+QTabBar::close-button {{
+    image: url({close})
+}}
+QTabBar::close-button:hover {{
+    image: url({close2})
+}}
+        '''.format(close=killIcon, close2=killIconhovered))
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
