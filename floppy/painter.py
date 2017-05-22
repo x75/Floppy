@@ -796,6 +796,7 @@ class Painter2D(Painter):
             painter.drawLine(0, self.height()/2+i*spacing, self.width(), self.height()/2+i*spacing)
             # painter.drawLine(0, self.height()/2+self.globalOffset.y()-i*spacing, self.width(), self.height()/2+self.globalOffset.y()-i*spacing)
             painter.drawLine(0, self.height()/2-i*spacing, self.width(), self.height()/2-i*spacing)
+        painter.setBrush(QBrush(QColor(0, 0, 0,0)))
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
