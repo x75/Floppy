@@ -1,14 +1,16 @@
 import os
 import time
 from floppy.graph import Graph
-from floppy.node import InputNotAvailable, ControlNode, DynamicNode
+from floppy.node import InputNotAvailable, ControlNode, DynamicNode, MetaNode, Node, NODECLASSES
 from floppy.mainwindow import Ui_MainWindow
 from floppy.floppySettings import SettingsDialog
 from floppy.nodeLib import ContextNodeFilter, ContextNodeList
+from floppy.FloppyTypes import FLOPPYTYPES
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, QPoint, QSettings
 from PyQt5.QtGui import *
 from PyQt5.Qt import QTimer
+from collections import OrderedDict
 import platform
 import logging
 
@@ -51,6 +53,7 @@ class Painter2D(Painter):
     
     def __init__(self, parent=None):
         super(Painter2D, self).__init__(parent)
+        self.stretch = 0
         self.setMouseTracking(True)
         self.timer = QTimer()
         self.timer.timeout.connect(self.checkGraph)
@@ -498,7 +501,7 @@ class Painter2D(Painter):
             x = node.__pos__[0]# + self.globalOffset.x()
             y = node.__pos__[1]# + self.globalOffset.y()
             w = node.__size__[0]*NODEWIDTHSCALE
-            h = node.__size__[1]*(8+PINSIZE)+40
+            h = node.__size__[1]*(8+PINSIZE)+40 + self.stretch
 
             path.addRoundedRect(x, y, w, h, 50, 5)
             self.nodePoints.append((QPoint(x, y)*painter.transform(), QPoint(x+w, y+h)*painter.transform(), node))
@@ -799,6 +802,271 @@ class Painter2D(Painter):
         painter.setBrush(QBrush(QColor(0, 0, 0,0)))
 
 
+class WizardPainter(Painter2D):
+    def __init__(self, parent=None):
+        super(WizardPainter, self).__init__(parent)
+        self.stretch = 0
+        self.setMinimumSize(300, 236)
+
+        b1 = QPushButton(self)
+        b1.setText('Name')
+        b1.setGeometry(self.width()/10,35, 50 ,20)
+        b1.clicked.connect(parent.editName)
+        self.namB = b1
+
+        b2 = QPushButton(self)
+        b2.setText('Input')
+        b2.setGeometry(10, 75, 50, 20)
+        b2.clicked.connect(parent.editInput)
+
+        b3 = QPushButton(self)
+        b3.setText('Output')
+        b3.setGeometry(self.width() - 60, 92, 50, 20)
+        self.outB = b3
+
+        b4 = QPushButton(self)
+        b4.setText('Setup')
+        b4.setGeometry(self.width() - 60, 53, 50, 20)
+        self.setB = b4
+
+        b5 = QPushButton(self)
+        b5.setText('Run')
+        b5.setGeometry(self.width()/10, 150, 50, 20)
+        self.runB = b5
+
+        self.setStyleSheet('''
+QPushButton {
+    background-color: #414141;
+    color: white;
+}
+        ''')
+
+    def resizeEvent(self, event):
+        super(WizardPainter, self).resizeEvent(event)
+        self.namB.setGeometry(self.width()/10,35, 50 ,20)
+        self.outB.setGeometry(self.width() - 60, 92, 50, 20)
+        self.setB.setGeometry(self.width() *.75, 53, 50, 20)
+        self.runB.setGeometry(self.width()/10, 150, 50, 20)
+
+    def paintEvent(self, event):
+        super(WizardPainter, self).paintEvent(event)
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.HighQualityAntialiasing)
+        c = 125
+        pen = QPen(QColor(c,c,c), 2, Qt.SolidLine)
+        painter.setPen(pen)
+
+        # Name
+        painter.drawLine(self.width()/10+20,45,self.width()/2-39, 45)
+        painter.drawLine(self.width()/2-39,45, self.width()/2, 75)
+
+        # Input
+        painter.drawLine(30, 85, self.width()/2-74, 85)
+        painter.drawLine(self.width()/2-74, 85, self.width()/2 -49, 105)
+
+        # Output
+        painter.drawLine(self.width()-45, 102, self.width() / 2 + 74, 102)
+        painter.drawLine(self.width() / 2 + 74, 102, self.width() / 2 + 49, 122)
+
+        # Setup
+        painter.drawLine(self.width()*.75 +20, 63, self.width() / 2 + 39, 63)
+        painter.drawLine(self.width() / 2 + 39, 63, self.width() / 2, 93)
+
+        # Run
+        painter.drawLine(self.width()/10 + 20, 160, self.width() / 2 - 39, 160)
+        painter.drawLine(self.width() / 2 - 39, 160, self.width() / 2, 140)
+
+    def mousePressEvent(self, event):
+        pass
+
+    def mouseReleaseEvent(self, event):
+        pass
+
+
+class NodeWizardDialog(QDialog):
+    def __init__(self, parent=None):
+        super(NodeWizardDialog, self).__init__(parent)
+        self.setStyleSheet('''
+        QDialog {
+            background-color: #414141;
+        }
+        
+        QLabel {
+            color: white;
+        }
+
+        QLineEdit {
+            color: white ;
+            background-color: rgb(95,95,95) ;
+            border: 2px solid rgb(65,65,65);
+        }
+
+        QPushButton {
+            color: white ;
+            background-color: rgb(95,95,95) ;
+        }
+        
+        QComboBox {
+            color: white ;
+            background-color: rgb(95,95,95) ;
+        }
+        
+        QComboBox QAbstractItemView {
+            color: white ;
+            background-color: rgb(95,95,95) ;
+        }
+        
+        HeadlineLabel {
+            color: white;
+            font: bold 12px;
+        }
+                
+        
+        HeadlineLabel2 {
+            color: white;
+            font: bold 14px;
+        }
+                ''')
+        self.setLayout(QVBoxLayout())
+        l = self.layout()
+        newPainter = WizardPainter(self)
+        self.painter = newPainter
+        newPainter.globalOffset = QPoint(-50, -50)
+        newPainter.reportWidget = parent.BottomWidget
+        newGraph = Graph(painter=newPainter)
+        self.graph = newGraph
+        NodeClass = MetaNode('NewNode', (Node,), {})
+        NodeClass.__inputs__ = OrderedDict()
+        NodeClass._addInput(data={'name': 'Input',
+                                  'varType': object}, cls=NodeClass)
+        NodeClass.__outputs__ = OrderedDict()
+        NodeClass._addOutput(data={'name': 'Output',
+                                   'varType': object}, cls=NodeClass)
+        newGraph.spawnNode(NODECLASSES['NewNode'])
+        self.currentNodeName = 'NewNode'
+        l.addWidget(newPainter)
+        self.editWidget = QWidget(self)
+        self.layout().addWidget(self.editWidget)
+
+
+
+    def editName(self):
+        try:
+            self.editWidget.deleteLater()
+        except:
+            pass
+        nameEdit = QWidget(self)
+        l = QFormLayout()
+        l.addRow(HeadlineLabel2('Set Node Name'))
+        self.e = QLineEdit(self)
+        l.addRow('Node Name', self.e)
+        b = QPushButton('Confirm')
+        b.clicked.connect(self.confirmName)
+        l.addRow(b)
+        nameEdit.setLayout(l)
+
+        l = self.layout()
+        l.addWidget(nameEdit)
+        self.editWidget = nameEdit
+
+    def confirmName(self):
+        newName = self.e.text()
+        if not newName or ' ' in newName:
+            return
+        del NODECLASSES[self.currentNodeName]
+        node = self.painter.nodes[0]
+        self.graph.deleteNode(node)
+        self.painter.unregisterNode(node)
+
+        NodeClass = MetaNode(newName, (Node,), {})
+        NodeClass.__inputs__ = OrderedDict()
+        NodeClass._addInput(data={'name': 'Input',
+                                  'varType': object}, cls=NodeClass)
+        NodeClass.__outputs__ = OrderedDict()
+        NodeClass._addOutput(data={'name': 'Output',
+                                   'varType': object}, cls=NodeClass)
+        self.graph.spawnNode(NODECLASSES[newName])
+
+        self.painter.repaint()
+
+    def editInput(self):
+        try:
+            self.editWidget.deleteLater()
+        except:
+            pass
+
+        inputWidget = QWidget(self)
+        self.editWidget = inputWidget
+        self.layout().addWidget(inputWidget)
+        l = QGridLayout()
+
+        inputWidget.setLayout(l)
+        l.addWidget(HeadlineLabel2('Set Inputs'), 0, 0)
+        l.addWidget(HeadlineLabel('Name'), 1,0)
+        l.addWidget(HeadlineLabel('Type'), 1,1)
+        l.addWidget(HeadlineLabel('Default'), 1,2)
+        l.addWidget(HeadlineLabel('Select'), 1,3)
+        l.addWidget(HeadlineLabel('List'), 1,4)
+        l.addWidget(HeadlineLabel('Optional'), 1,5)
+
+        node = self.painter.nodes[0]
+        name = node.__class__.__name__
+        cls = node.__class__
+
+        for i, inp in enumerate(cls.__inputs__.items()):
+            inpName, inp = inp
+            i+=2
+            if inpName == 'Input':
+                continue
+            listBox = QCheckBox()
+            listBox.setChecked(inp.list)
+            optBox = QCheckBox()
+            optBox.setChecked(inp.optional)
+            defaultEdit = QLineEdit()
+            defaultEdit.setText(str(inp.default))
+            nameEdit = QLineEdit()
+            nameEdit.setText(inp.name)
+            l.addWidget(nameEdit, i,0)
+            l.addWidget(TypeBox(current=inp.varType.__name__), i, 1)
+            l.addWidget(defaultEdit, i,2)
+            l.addWidget(TypeBox(), i,3)
+            l.addWidget(listBox, i,4)
+            l.addWidget(optBox, i,5)
+            # l.addWidget(QLabel(inpName), QLabel(inp.varType.__name__), )
+
+        cls._addInput(data={'name': 'Input2',
+                                  'varType': str}, cls=cls)
+        cls._addInput(data={'name': 'Input3',
+                                  'varType': float}, cls=cls)
+        cls._addInput(data={'name': 'Input4',
+                            'varType': float}, cls=cls)
+        cls._addInput(data={'name': 'Input5',
+                            'varType': float}, cls=cls)
+
+        self.graph.deleteNode(node)
+        self.painter.unregisterNode(node)
+        self.graph.spawnNode(NODECLASSES[name])
+        self.painter.repaint()
+
+class HeadlineLabel(QLabel):
+    pass
+
+class HeadlineLabel2(QLabel):
+    pass
+
+class TypeBox(QComboBox):
+    def __init__(self, parent=None, current=None):
+        super(TypeBox, self).__init__(parent)
+        self.addItem('str')
+        self.addItem('bool')
+        self.addItem('int')
+        self.addItem('float')
+        self.addItem('object')
+        for name, t in FLOPPYTYPES.items():
+            self.addItem(name)
+        if current:
+            self.setCurrentText(current)
+
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None, painter=None):
         self.closeOnReturn = False
@@ -997,6 +1265,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.configureAction.setIconVisibleInMenu(False)
         self.addAction(self.configureAction)
 
+        self.nodeWizardAction = QAction(QIcon(os.path.join(self.iconRoot, 'new.png')), 'nodeWizard', self)
+        self.nodeWizardAction.setShortcut('Ctrl+M')
+        self.nodeWizardAction.triggered.connect(self.openNodeWizard)
+        self.nodeWizardAction.setIconVisibleInMenu(False)
+        self.addAction(self.nodeWizardAction)
+
     def initMenus(self):
         fileMenu = self.menuBar.addMenu('&File')
         fileMenu.addAction(self.exitAction)
@@ -1039,7 +1313,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mainToolBar.addSeparator()
         self.mainToolBar.addAction(self.settingsAction)
         self.mainToolBar.addSeparator()
-
+        self.mainToolBar.addAction(self.nodeWizardAction)
         self.mainToolBar.addAction(self.deleteNodeAction)
 
         # self.mainToolBar.addWidget(QLabel('Display Macro:'))
@@ -1063,6 +1337,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.activePainter = self.getPainter()
         self.activeIndex = currentIndex
         self.DrawArea.setTabText(currentIndex, self.DrawArea.tabText(currentIndex)+'*')
+
+    def openNodeWizard(self):
+        dialog = NodeWizardDialog(self)
+        dialog.setStyleSheet('''
+QDialog {
+    background-color: #414141;
+}
+        ''')
+        # l = QVBoxLayout()
+        # dialog.setLayout(l)
+        l = dialog.layout()
+
+
+        # l.addWidget(QLabel('xxxx'))
+
+        dialog.setWindowTitle('New Node')
+        dialog.setWindowModality(Qt.ApplicationModal)
+        # dialog.resize(300,500)
+        dialog.show()
 
     def configureInterpreter(self):
         frameRate = self.settings.value('FrameRate', type=float)
