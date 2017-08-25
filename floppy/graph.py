@@ -49,6 +49,7 @@ class Graph(object):
         self.runner = None
         self.status = None
         self.reverseConnections = {}
+        self.rgiConnection = None
         # self.statusLock = Lock()
         if painter:
             self.painter = painter
@@ -77,6 +78,9 @@ class Graph(object):
         # self.statusQueue = Queue(100)
         self.connected = True
         # self.statusListener = StatusListener(self, self.clientSocket, self.statusQueue, self.statusLock)
+
+    def registerExisitingInterpreterConnection(self, connection):
+        self.rgiConnection = connection
 
     def __getattr__(self, item):
         if item == 'newID':
@@ -418,6 +422,7 @@ class Graph(object):
         self.executedBuffer = []
         self.STOREDVALUES = {}
         self.rgiConnection.send('PAUSE', self.print)
+        # time.sleep(1)
         message = self.serialize()
         # msg = struct.pack('>I', len(message)) + message.encode('utf-8')
         # self.sendUpdate(data)

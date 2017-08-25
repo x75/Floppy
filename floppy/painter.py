@@ -1372,9 +1372,15 @@ QDialog {
         # self.getPainter().registerGraph(Graph(self.getPainter()))
         # self.getPainter().reportWidget = self.BottomWidget
         # self.getPainter().repaint()
+        try:
+            oldGraph = self.getGraph()
+        except AttributeError:
+            oldGraph = None
         newPainter = Painter2D()
         newPainter.reportWidget = self.BottomWidget
         newGraph = Graph(painter=newPainter)
+        if oldGraph:
+            newGraph.registerExisitingInterpreterConnection(oldGraph.rgiConnection)
         self.DrawArea.addTab(newPainter, 'New Graph')
         number = self.DrawArea.count()
         self.DrawArea.setCurrentIndex(number-1)
