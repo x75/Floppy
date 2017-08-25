@@ -1525,7 +1525,7 @@ QDialog {
         self.activeGraph.execute(options={'framerate': frameRate, 'mode': mode})
         self.statusBar.showMessage('Code execution started.', 2000)
 
-    def loadGraph(self, *args, override=False, makeActive=False):
+    def loadGraph(self, *args, override=False, makeActive=True):
         self.new()
         if not override:
             fileName = QFileDialog.getOpenFileName(self, 'Open File', '~/',

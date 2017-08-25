@@ -437,7 +437,7 @@ class Node(object, metaclass=MetaNode):
         if self.locked:
             return False
         if self.buffered and self.outputs.keys():
-            print('Node {} has buffered output. Trying to notify outgoing connections.'.format(self))
+            # print('Node {} has buffered output. Trying to notify outgoing connections.'.format(self))
             return self.notify()
         for inp in self.inputs.values():
             if not inp.isAvailable():
