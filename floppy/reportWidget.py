@@ -13,12 +13,18 @@ class ReportWidget(WebView):
 
     def __init__(self, *args, **kwargs):
         super(ReportWidget, self).__init__(*args, **kwargs)
+        self.setAutoFillBackground(True)
         self.setStyleSheet('''ReportWidget{background: rgb(55,55,55)}
         ''')
         self.data = None
         self.cache = []
         self.templateCache = {}
-        self.setHtml('')
+        self.setHtml('''
+
+<HTML>
+<BODY BGCOLOR="#555555"  >
+</BODY>
+</HTML>''')
         #import floppy.templates
 
     def updateReport(self, data):

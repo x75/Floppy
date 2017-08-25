@@ -1314,7 +1314,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mainToolBar.addAction(self.settingsAction)
         self.mainToolBar.addSeparator()
         self.mainToolBar.addAction(self.nodeWizardAction)
-        self.mainToolBar.addAction(self.deleteNodeAction)
+        # self.mainToolBar.addAction(self.deleteNodeAction)
 
         # self.mainToolBar.addWidget(QLabel('Display Macro:'))
         # macroSelector = QComboBox(self.mainToolBar)

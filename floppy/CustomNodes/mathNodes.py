@@ -27,6 +27,15 @@ class VectorNode(MathNode):
     Tag('Vector')
 
 
+class CreateVector(MathNode):
+    Input('X', float)
+    Input('Y', float)
+    Input('Z', float)
+    Output('V', float, list=True)
+    def run(self):
+        self._Output(self._X, self._Y, self._Z)
+
+
 class CrossProduct(VectorNode):
     Input('Vector1', float, list=True)
     Input('Vector2', float, list=True)
@@ -40,9 +49,12 @@ class CrossProduct(VectorNode):
 
 
 class DotProduct(VectorNode):
+    """
+    Compute Dot product of two input Vectors.
+    """
     Input('Vector1', float, list=True)
     Input('Vector2', float, list=True)
-    Output('DotProduct', float, list=True)
+    Output('DotProduct', float, list=False)
 
     def run(self):
         super(DotProduct, self).run()

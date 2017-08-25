@@ -696,10 +696,13 @@ class ControlNode(Node):
 class Switch(ControlNode):
     """
     Node for creating a basic if/else construction.
-    The input 'Switch' accepts a bool. Depending of the value of the input, the 'True' or 'False' outputs are set to
+    The input 'Switch' accepts a bool. Depending of the
+    value of the input, the 'True' or 'False' outputs are set to
     the value of the 'Start' input.
-    As soon as the 'Control' input is set by one of the code branches originating from the 'True' and 'False' outputs,
-    the value of the 'Final' output is set to the value of the 'Control' input.
+    As soon as the 'Control' input is set by one of the code
+    branches originating from the 'True' and 'False' outputs,
+    the value of the 'Final' output is set to the value of
+    the 'Control' input.
     """
     Input('Switch', bool)
     Output('True', object)
@@ -1140,7 +1143,6 @@ class Break(Node):
             outputName = con['outputName']
             nextNode = con['inputNode']
             nextInput = con['inputName']
-            # nextNode.prepare()
             nextNode.setInput(nextInput, self.outputs[outputName].value, override=True, loopLevel=self.loopLevel-1)
 
 

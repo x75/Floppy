@@ -1,6 +1,7 @@
 from floppy.node import Node, Input, Output, Tag, abstractNode
 import time
 import random
+import subprocess
 
 class AMyNode(Node):
     Input('Inta', int)
@@ -45,6 +46,43 @@ class RandomFloat(Node):
         self._Float(random.random())
 
 
+class RunProgram(Node):
+    """
+    Node for calling an external program of given name and given command line arguments.
+    Returns the program's return value and its stdout output.
+    """
+    Input('ProgramName', str)
+    Input('Arguments', str)
+    Output('ReturnValue', int)
+    Output('StdOut', str)
+
+    def run(self):
+        programName = self._ProgramName
+        args = [programName] + self._Arguments.split()
+        r = 0
+        try:
+            out = subprocess.check_output(args, shell=True)
+        except subprocess.CalledProcessError as e:
+            out = ''
+            r = e[-1]
+        self._ReturnValue(r)
+        self._StdOut(out)
+
+
+
+
+class Range(Node):
+    Input('EndValue', int)
+    Output('ValueList', int, list=True)
+    def run(self):
+        self._ValueList(list(range(self._EndValue)))
+
+
+class Int2Str(Node):
+    Input('Int', int)
+    Output('Str', str)
+    def run(self):
+        self._Str(str(self._Int))
 
 
 
@@ -98,3 +136,4 @@ class PlotNode2(Node):
         r['keep'] = 'points'
         self.points = []
         return r
+

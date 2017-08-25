@@ -98,7 +98,7 @@ class SettingsDialog(QDialog):
         super(SettingsDialog, self).closeEvent(e)
 
     def redraw(self):
-        self.parent().drawer.repaint()
+        self.parent().getPainter().repaint()
         # self.parent().drawer.update()
         # print('xxxx')
 
