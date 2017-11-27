@@ -3,10 +3,9 @@ import zlib
 import io
 import time
 from collections import OrderedDict
-from floppy.node import ControlNode, Node, MetaNode, SubGraph
+import floppy
 from floppy.runner import Runner, sendCommand, RGIConnection
 from socket import AF_INET, SOCK_STREAM, socket #, SHUT_RDWR, timeout, SHUT_RDWR, SO_REUSEADDR, SOL_SOCKET
-from floppy.node import NODECLASSES
 from threading import Thread, Lock
 from queue import Queue
 import struct
@@ -195,15 +194,17 @@ class Graph(object):
         if spawnAt:
             return self.spawnNode(nodeClass, position=spawnAt)
 
-    def createCustomNodeClass(self, name, inputs, outputs, parents=(Node,)):
-        NodeClass = MetaNode(name, parents, {})
+    def createCustomNodeClass(self, name, inputs, outputs, parents=None):
+        if not parents:
+            parents = (floppy.node.Node,)
+        NodeClass = floppy.node.MetaNode(name, parents, {})
         NodeClass.__inputs__ = OrderedDict()
         NodeClass.__outputs__ = OrderedDict()
         for inp in inputs:
             NodeClass._addInput(data=inp, cls=NodeClass)
         for out in outputs:
             NodeClass._addOutput(data=out, cls=NodeClass)
-        NODECLASSES[name] = NodeClass
+        floppy.node.NODECLASSES[name] = NodeClass
         return NodeClass
 
 
@@ -252,7 +253,7 @@ class Graph(object):
         #                                                                                str(inpNode),
         #                                                                                inp))
         conn = Connection(outNode, out, inpNode, inp)
-        if not issubclass(type(inpNode), ControlNode) or not inp == 'Control':
+        if not issubclass(type(inpNode), floppy.node.ControlNode) or not inp == 'Control':
             for oldCon in self.reverseConnections[inpNode]:
                 if oldCon['inputName'] == inp:
                     self.reverseConnections[inpNode].remove(oldCon)
@@ -545,7 +546,7 @@ class Graph(object):
         for id, nodeData in saveState:
             useID = id if reuseIDs else False
             try:
-                restoredNode = self.spawnNode(NODECLASSES[nodeData['class']], position=nodeData['position'], silent=True, useID=useID)
+                restoredNode = self.spawnNode(floppy.node.NODECLASSES[nodeData['class']], position=nodeData['position'], silent=True, useID=useID)
             except KeyError:
                 try:
                     dynamic = nodeData['dynamic']
@@ -567,7 +568,7 @@ class Graph(object):
             idMap[int(id)] = restoredNode.ID
             inputs = nodeData['inputs']
             outputs = nodeData['outputs']
-            if isinstance(restoredNode, SubGraph):
+            if isinstance(restoredNode, floppy.node.SubGraph):
                 for inp in inputs:
                     if inp[0] == 'GraphName':
                         restoredNode.inputs[inp[0]].setDefault(inp[-1])
@@ -624,7 +625,7 @@ class Graph(object):
             useID = id if reuseIDs else False
             idMap[int(id)] = int(id)
             if not int(id) in self.nodes.keys():
-                restoredNode = self.spawnNode(NODECLASSES[nodeData['class']],
+                restoredNode = self.spawnNode(floppy.node.NODECLASSES[nodeData['class']],
                                               position=nodeData['position'], silent=True, useID=useID)
                 thisNode = restoredNode
             else:
@@ -667,7 +668,7 @@ class Graph(object):
         """
         idMap = {}
         for id, nodeData in saveState.items():
-            restoredNode = self.spawnNode(NODECLASSES[nodeData['class']], position=nodeData['position'], silent=True)
+            restoredNode = self.spawnNode(floppy.node.NODECLASSES[nodeData['class']], position=nodeData['position'], silent=True)
             idMap[int(id)] = restoredNode.ID
             inputs = nodeData['inputs']
             outputs = nodeData['outputs']
