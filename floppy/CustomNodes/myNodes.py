@@ -1,4 +1,5 @@
 from floppy.node import Node, Input, Output, Tag, abstractNode
+from floppy.FloppyTypes import StructureInfo, Atom
 import time
 import random
 import subprocess
@@ -83,18 +84,6 @@ class Int2Str(Node):
     Output('Str', str)
     def run(self):
         self._Str(str(self._Int))
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

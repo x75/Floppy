@@ -2,7 +2,7 @@ import os
 import time
 from floppy.graph import Graph
 from floppy.node import InputNotAvailable, ControlNode, DynamicNode, MetaNode, Node, NODECLASSES
-from floppy.mainwindow import Ui_MainWindow
+from floppy.ressources.mainWindow import Ui_MainWindow
 from floppy.floppySettings import SettingsDialog
 from floppy.nodeLib import ContextNodeFilter, ContextNodeList
 from floppy.FloppyTypes import FLOPPYTYPES
@@ -1090,7 +1090,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.initActions()
         self.initMenus()
-
         drawWidget = painter
         painter.reportWidget = self.BottomWidget
         drawWidget.setAutoFillBackground(True)
@@ -1105,7 +1104,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.DrawArea.tabCloseRequested.connect(self.dummy)
         # self.getPainter() = drawWidget
         # self.painter = drawWidget
-
         self.setupNodeLib()
         # self.getGraph().spawnAndConnect()
         try:

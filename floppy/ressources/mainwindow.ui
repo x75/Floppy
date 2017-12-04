@@ -7,11 +7,106 @@
     <x>0</x>
     <y>0</y>
     <width>1250</width>
-    <height>629</height>
+    <height>910</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">MainWindow { background-color: rgb(95,95,95); border-color: black }
+
+QSplitter::handle{background: rgb(55,55,55);}
+QSplitter::handle:horizontal {
+    image: url(:/icons/handleV.png);
+    border-radius: 4px;
+
+}
+
+QSplitter::handle:vertical {
+    image: url(:/icons/handle.png);
+}
+
+
+QMenuBar{background: rgb(75,75,75); border-color: black}
+
+        QMenuBar::item {spacing: 3px; padding: 1px 4px;background: transparent; border-radius: 4px; color: white}
+        QMenuBar::item:selected { /* when selected using mouse or keyboard */
+        background: #a8a8a8;}
+
+        QMenu {
+        background-color: rgb(95,95,95); /* sets background of the menu */
+        border: 1px solid black;
+        }
+
+        QMenu::item {
+        /* sets background of menu item. set this to something non-transparent
+        if you want menu color and menu item color to be different */
+        background-color: transparent;
+        color: white;
+        }
+
+        QMenu::item:selected { /* when user selects item using mouse or keyboard */
+        background-color: rgb(0,85,100);
+        }
+
+
+QToolBar {background: rgb(75,75,75); border:1px solid rgb(55,55,55)}
+        QToolButton { color: white }
+
+QTabWidget::pane { /* The tab widget frame */
+    border-top: 6px solid #414141;
+
+}
+QTabWidget::tab-bar {
+    left: 0px; /* move to the right by 5px */
+}
+
+QTabBar::tab {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #626262, stop: 0.4 #626262,
+                                stop: 0.5 #626262, stop: 1.0 #626262);
+    border: 2px solid #414141;
+    border-bottom-color: #414141; /* same as the pane color */
+    border-top-left-radius: 16px;
+    border-top-right-radius: 4px;
+    min-width: 15ex;
+    padding: 3px;
+    padding-right: 8px;
+    color: white;
+}
+
+QTabBar::tab:selected, QTabBar::tab:hover {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #414141, stop: 0.4 #414141,
+                                stop: 0.5 #414141, stop: 1.0 #414141);
+}
+
+QTabBar::tab:selected {
+    border-color: #414141;
+    border-bottom-color: #414141; /* same as pane color */
+    margin-top: 0px;
+}
+
+QTabBar::tab:!selected {
+    margin-top: 2px; /* make non-selected tabs look smaller */
+}
+
+QTabBar::close-button {
+    image: url(:/icons/closeTab.png);
+}
+QTabBar::close-button:hover {
+   image: url(:/icons/kill.png);
+}
+
+
+
+NodeFilter {background-color:rgb(75,75,75) ;border:1px solid rgb(0, 0, 0); 
+                           border-color:black; color: white }
+
+NodeList {background-color:rgb(75,75,75) ;border:1px solid rgb(0, 0, 0);
+                  border-color:black}
+        NodeList::item {color: white}</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -20,7 +115,14 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QWidget" name="DrawArea" native="true"/>
+      <widget class="QTabWidget" name="DrawArea">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="tabsClosable">
+        <bool>true</bool>
+       </property>
+      </widget>
       <widget class="QWidget" name="RightContainer" native="true">
        <property name="enabled">
         <bool>true</bool>
@@ -44,6 +146,18 @@
         </size>
        </property>
        <layout class="QGridLayout" name="gridLayout_2">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item row="0" column="0">
          <widget class="QSplitter" name="VerticalSplitter">
           <property name="maximumSize">
@@ -57,19 +171,31 @@
           </property>
           <widget class="QWidget" name="TopContainer" native="true">
            <layout class="QGridLayout" name="gridLayout_3">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
             <item row="0" column="0">
              <layout class="QVBoxLayout" name="TopLayout">
               <item>
-               <widget class="QLineEdit" name="FilterEdit"/>
+               <widget class="NodeFilter" name="FilterEdit"/>
               </item>
               <item>
-               <widget class="QListView" name="NodeListView"/>
+               <widget class="NodeList" name="NodeListView"/>
               </item>
              </layout>
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="BottomWidget" native="true"/>
+          <widget class="ReportWidget" name="BottomWidget" native="true"/>
          </widget>
         </item>
        </layout>
@@ -84,7 +210,7 @@
      <x>0</x>
      <y>0</y>
      <width>1250</width>
-     <height>21</height>
+     <height>18</height>
     </rect>
    </property>
   </widget>
@@ -99,6 +225,26 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <customwidgets>
+  <customwidget>
+   <class>NodeList</class>
+   <extends>QListView</extends>
+   <header location="global">floppy.nodeLib.h</header>
+  </customwidget>
+  <customwidget>
+   <class>NodeFilter</class>
+   <extends>QLineEdit</extends>
+   <header location="global">floppy.nodeLib.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ReportWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">floppy.reportWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections/>
 </ui>
