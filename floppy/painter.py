@@ -848,6 +848,9 @@ QPushButton {
         self.setB.setGeometry(self.width() *.75, 53, 50, 20)
         self.runB.setGeometry(self.width()/10, 150, 50, 20)
 
+    def wheelEvent(self, event):
+        pass
+
     def paintEvent(self, event):
         super(WizardPainter, self).paintEvent(event)
         painter = QPainter(self)
@@ -865,22 +868,31 @@ QPushButton {
         painter.drawLine(self.width()/2-74, 85, self.width()/2 -49, 105)
 
         # Output
-        painter.drawLine(self.width()-45, 102, self.width() / 2 + 74, 102)
-        painter.drawLine(self.width() / 2 + 74, 102, self.width() / 2 + 49, 122)
+        tmpNode = list(self.graph.nodes.values())[0]
+        inpNum = len(tmpNode.__inputs__.values()) -1
+        offset = inpNum * 20
+        painter.drawLine(self.width()-45, 102+offset, self.width() / 2 + 74, 102+offset)
+        painter.drawLine(self.width() / 2 + 74, 102+offset, self.width() / 2 + 49, 122+offset)
+        self.outB.setGeometry(self.width() - 60, 92+offset, 50, 20)
 
         # Setup
         painter.drawLine(self.width()*.75 +20, 63, self.width() / 2 + 39, 63)
         painter.drawLine(self.width() / 2 + 39, 63, self.width() / 2, 93)
 
         # Run
-        painter.drawLine(self.width()/10 + 20, 160, self.width() / 2 - 39, 160)
-        painter.drawLine(self.width() / 2 - 39, 160, self.width() / 2, 140)
+        outNum = len(tmpNode.__outputs__.values()) - 1
+        offset += outNum * 20
+        painter.drawLine(self.width()/10 + 20, 160+offset, self.width() / 2 - 39, 160+offset)
+        painter.drawLine(self.width() / 2 - 39, 160+offset, self.width() / 2, 140+offset)
+        self.runB.setGeometry(self.width() / 10, 150+offset, 50, 20)
 
     def mousePressEvent(self, event):
         pass
 
     def mouseReleaseEvent(self, event):
         pass
+
+
 
 
 class NodeWizardDialog(QDialog):
@@ -927,14 +939,25 @@ class NodeWizardDialog(QDialog):
             font: bold 14px;
         }
                 ''')
+        self.resize(500,500)
         self.setLayout(QVBoxLayout())
         l = self.layout()
         newPainter = WizardPainter(self)
         self.painter = newPainter
+        # self.painter.resize(self.painter.width(), 800)
+        self.painter.setMinimumSize(self.painter.width(),500)
         newPainter.globalOffset = QPoint(-50, -50)
         newPainter.reportWidget = parent.BottomWidget
         newGraph = Graph(painter=newPainter)
         self.graph = newGraph
+        self.painter.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,QSizePolicy.Fixed))
+
+        self.painterBox = QScrollArea(self)
+        self.painterBox.setWidgetResizable(True)
+
+        self.painterBox.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff )
+        self.painterBox.setWidget(newPainter)
+
         NodeClass = MetaNode('NewNode', (Node,), {})
         NodeClass.__inputs__ = OrderedDict()
         NodeClass._addInput(data={'name': 'Input',
@@ -942,11 +965,14 @@ class NodeWizardDialog(QDialog):
         NodeClass.__outputs__ = OrderedDict()
         NodeClass._addOutput(data={'name': 'Output',
                                    'varType': object}, cls=NodeClass)
-        newGraph.spawnNode(NODECLASSES['NewNode'])
+        newNode = newGraph.spawnNode(NODECLASSES['NewNode'])
+        newNode.__pos__ = (0,-135)
         self.currentNodeName = 'NewNode'
-        l.addWidget(newPainter)
+        # l.addWidget(newPainter)
+        l.addWidget(self.painterBox)
         self.editWidget = QWidget(self)
         self.layout().addWidget(self.editWidget)
+        self.editName()
 
 
 
@@ -973,7 +999,10 @@ class NodeWizardDialog(QDialog):
         newName = self.e.text()
         if not newName or ' ' in newName:
             return
-        del NODECLASSES[self.currentNodeName]
+        try:
+            del NODECLASSES[self.currentNodeName]
+        except KeyError:
+            print('Failed to delete tmp node:', self.currentNodeName)
         node = self.painter.nodes[0]
         self.graph.deleteNode(node)
         self.painter.unregisterNode(node)
@@ -985,7 +1014,8 @@ class NodeWizardDialog(QDialog):
         NodeClass.__outputs__ = OrderedDict()
         NodeClass._addOutput(data={'name': 'Output',
                                    'varType': object}, cls=NodeClass)
-        self.graph.spawnNode(NODECLASSES[newName])
+        newNode = self.graph.spawnNode(NODECLASSES[newName])
+        newNode.__pos__ = (0, -135)
 
         self.painter.repaint()
 
@@ -1043,9 +1073,28 @@ class NodeWizardDialog(QDialog):
         cls._addInput(data={'name': 'Input5',
                             'varType': float}, cls=cls)
 
+        addButton = QPushButton('Add')
+        newListBox = QCheckBox()
+        newListBox.setChecked(inp.list)
+        newOptBox = QCheckBox()
+        newOptBox.setChecked(inp.optional)
+        newDefaultEdit = QLineEdit()
+        newDefaultEdit.setText(str(inp.default))
+        newNameEdit = QLineEdit()
+        newNameEdit.setText('newInput')
+        i+=1
+        l.addWidget(newNameEdit, i, 0)
+        l.addWidget(TypeBox(), i, 1)
+        l.addWidget(newDefaultEdit, i, 2)
+        l.addWidget(TypeBox(), i, 3)
+        l.addWidget(newListBox, i, 4)
+        l.addWidget(newOptBox, i, 5)
+        l.addWidget(addButton, i, 6)
+
         self.graph.deleteNode(node)
         self.painter.unregisterNode(node)
-        self.graph.spawnNode(NODECLASSES[name])
+        newNode = self.graph.spawnNode(NODECLASSES[name])
+        newNode.__pos__ = (0, -135)
         self.painter.repaint()
 
 class HeadlineLabel(QLabel):
