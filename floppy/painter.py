@@ -1575,7 +1575,7 @@ QDialog {
     def runCode(self, *args):
         frameRate = self.settings.value('FrameRate', type=float)
         mode = self.settings.value('RGIMode', type=str)
-        self.activeGraph.execute(options={'framerate': frameRate, 'mode': mode})
+        self.activeGraph.execute(options={'framerate': frameRate, 'mode': mode}, reuse=1)
         self.statusBar.showMessage('Code execution started.', 2000)
 
     def loadGraph(self, *args, override=False, makeActive=True):

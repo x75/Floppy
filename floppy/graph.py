@@ -22,8 +22,9 @@ class Graph(object):
     Since a Graph interpreter is nothing but a small program able to load a Graph instance and listening to commands,
     the Graph class also provides methods for executing the implemented logic.
     """
-    nextFreeNodeID = 0
+    # nextFreeNodeID = 0
     # nodes = {}
+    SHAREDRUNNERS = []
 
     def __init__(self, painter=None):
         self.returnValue = -1
@@ -56,7 +57,7 @@ class Graph(object):
         else:
             self.painter = dummy
 
-    def spawnAndConnect(self, port=8079):
+    def spawnAndConnect(self, port=8079, shared=True):
         """
         Spawns a new graph interpreter instance and establishes a TCP/IP connection to it.
         :return:
@@ -65,6 +66,12 @@ class Graph(object):
             self.runner = Runner()
         self.connect2RemoteRunner(host='127.0.0.1', port=port)
         self.slave = True
+        if shared:
+            self.SHAREDRUNNERS.append((self.runner, self.rgiConnection))
+
+    def connectToSharedRunner(self, runnerID):
+        self.runner, self.rgiConnection = self.SHAREDRUNNERS[runnerID]
+        self.connected = True
 
     def connect2RemoteRunner(self, host='127.0.0.1', port=8079):
         self.cmdHost = host
@@ -349,14 +356,17 @@ class Graph(object):
             self.returnPriority = priority
             self.returningNode = returningNode
 
-    def execute(self, options=None):
+    def execute(self, options=None, reuse=0):
         """
         
         """
         if not options:
             options = {}
         if not self.connected:
-            self.spawnAndConnect()
+            if reuse and len(self.SHAREDRUNNERS) >= reuse:
+                self.connectToSharedRunner(reuse-1)
+            else:
+                self.spawnAndConnect()
         self.push2Runner()
         time.sleep(1)
         self.configureInterpreter(options)
