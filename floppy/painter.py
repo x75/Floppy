@@ -987,6 +987,7 @@ class NodeWizardDialog(QDialog):
         self.e = QLineEdit(self)
         l.addRow('Node Name', self.e)
         b = QPushButton('Confirm')
+        self.e.returnPressed.connect(self.confirmName)
         b.clicked.connect(self.confirmName)
         l.addRow(b)
         nameEdit.setLayout(l)
@@ -1062,18 +1063,21 @@ class NodeWizardDialog(QDialog):
             l.addWidget(TypeBox(), i,3)
             l.addWidget(listBox, i,4)
             l.addWidget(optBox, i,5)
+            changeButton = QPushButton('Remove')
+            l.addWidget(changeButton, i, 6)
             # l.addWidget(QLabel(inpName), QLabel(inp.varType.__name__), )
 
-        cls._addInput(data={'name': 'Input2',
-                                  'varType': str}, cls=cls)
-        cls._addInput(data={'name': 'Input3',
-                                  'varType': float}, cls=cls)
-        cls._addInput(data={'name': 'Input4',
-                            'varType': float}, cls=cls)
-        cls._addInput(data={'name': 'Input5',
-                            'varType': float}, cls=cls)
+        # cls._addInput(data={'name': 'Input2',
+        #                           'varType': str}, cls=cls)
+        # cls._addInput(data={'name': 'Input3',
+        #                           'varType': float}, cls=cls)
+        # cls._addInput(data={'name': 'Input4',
+        #                     'varType': float}, cls=cls)
+        # cls._addInput(data={'name': 'Input5',
+        #                     'varType': float}, cls=cls)
 
         addButton = QPushButton('Add')
+        addButton.pressed.connect(self.addInput)
         newListBox = QCheckBox()
         newListBox.setChecked(inp.list)
         newOptBox = QCheckBox()
@@ -1082,14 +1086,51 @@ class NodeWizardDialog(QDialog):
         newDefaultEdit.setText(str(inp.default))
         newNameEdit = QLineEdit()
         newNameEdit.setText('newInput')
+        newTypeBox = TypeBox()
+        newSelect = TypeBox() ### Placeholder
         i+=1
         l.addWidget(newNameEdit, i, 0)
-        l.addWidget(TypeBox(), i, 1)
+        l.addWidget(newTypeBox, i, 1)
         l.addWidget(newDefaultEdit, i, 2)
-        l.addWidget(TypeBox(), i, 3)
+        l.addWidget(newSelect, i, 3)
         l.addWidget(newListBox, i, 4)
         l.addWidget(newOptBox, i, 5)
         l.addWidget(addButton, i, 6)
+        self.newListBox = newListBox
+        self.newOptBox = newOptBox
+        self.newDefaultEdit = newDefaultEdit
+        self.newNameEdit = newNameEdit
+        self.newTypeBox = newTypeBox
+        self.newSelect = newSelect
+
+
+        confirmButton = QPushButton('Confirm')
+        l.addWidget(confirmButton, i+1,0,1,7 )
+
+        # self.graph.deleteNode(node)
+        # self.painter.unregisterNode(node)
+        # newNode = self.graph.spawnNode(NODECLASSES[name])
+        # newNode.__pos__ = (0, -135)
+        # self.painter.repaint()
+
+    def addInput(self):
+        node = self.painter.nodes[0]
+        name = node.__class__.__name__
+        cls = node.__class__
+
+        isList = self.newListBox.checkState()
+        isOptional = self.newOptBox.checkState()
+        default = self.newDefaultEdit.text()
+        newName = self.newNameEdit.text()
+        valType = self.newTypeBox.getType()
+        select = self.newSelect.getType()
+        select = None
+
+        cls._addInput(data={'name': newName,
+                            'varType': valType}, cls=cls)
+
+        if 'Input' in cls.__inputs__:
+            del cls.__inputs__['Input']
 
         self.graph.deleteNode(node)
         self.painter.unregisterNode(node)
@@ -1106,15 +1147,21 @@ class HeadlineLabel2(QLabel):
 class TypeBox(QComboBox):
     def __init__(self, parent=None, current=None):
         super(TypeBox, self).__init__(parent)
-        self.addItem('str')
-        self.addItem('bool')
-        self.addItem('int')
-        self.addItem('float')
-        self.addItem('object')
+        self.typeMap = OrderedDict((('str', str),
+                                    ('bool', bool),
+                                    ('int', int),
+                                    ('float', float),
+                                    ('object', object)))
         for name, t in FLOPPYTYPES.items():
+            self.typeMap[name] = t
+        for name in self.typeMap.keys():
             self.addItem(name)
+
         if current:
             self.setCurrentText(current)
+
+    def getType(self):
+        return self.typeMap[self.currentText()]
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None, painter=None):
