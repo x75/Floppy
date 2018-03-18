@@ -1,4 +1,5 @@
 import os
+import types
 import time
 from floppy.graph import Graph
 from floppy.node import InputNotAvailable, ControlNode, DynamicNode, MetaNode, Node, NODECLASSES
@@ -828,6 +829,7 @@ class WizardPainter(Painter2D):
         b4 = QPushButton(self)
         b4.setText('Setup')
         b4.setGeometry(self.width() - 60, 53, 50, 20)
+        b4.clicked.connect(parent.editSetup)
         self.setB = b4
 
         b5 = QPushButton(self)
@@ -912,6 +914,12 @@ class NodeWizardDialog(QDialog):
             color: white ;
             background-color: rgb(95,95,95) ;
             border: 2px solid rgb(65,65,65);
+        }
+        
+        QPlainTextEdit {
+            color: white;
+            background-color: #555555;
+        
         }
 
         QPushButton {
@@ -1021,6 +1029,63 @@ class NodeWizardDialog(QDialog):
 
         self.painter.repaint()
 
+    def editSetup(self):
+        try:
+            self.editWidget.deleteLater()
+        except:
+            pass
+        inputWidget = QWidget(self)
+        self.editWidget = inputWidget
+        self.layout().addWidget(inputWidget)
+        l = QVBoxLayout()
+        inputWidget.setLayout(l)
+
+        self.warningLabel = QLabel('<font color="red">Warning: All code will be executed with the same '
+                                   'privileges as the Floppy editor itself.</font>')
+        l.addWidget(self.warningLabel)
+
+        self.signatureLabel = QLabel('<font color="orange">def</font> <font color="yellow">setup'
+                                     '</font>(<font color="gray">self</font>):')
+        l.addWidget(self.signatureLabel)
+
+        ww = QWidget(inputWidget)
+        ll = QHBoxLayout()
+        ww.setLayout(ll)
+        ll.addWidget(QWidget())
+
+        self.codeEdit = CodeEdit(self)
+        self.codeEdit.setPlainText('print("Hello")\nprint(self.run)\nself.foo = []')
+        ll.addWidget(self.codeEdit)
+
+        l.addWidget(ww)
+
+        confirmButton = QPushButton('Confirm')
+        confirmButton.clicked.connect(self.confirmSetup)
+        l.addWidget(confirmButton)
+
+    def confirmSetup(self):
+        codeString = self.codeEdit.toPlainText()
+        codeString = 'def setup(self):\n ' + '\n '.join(codeString.split('\n'))
+        scope = {}
+        exec(codeString, scope)
+        cls = self.getNodeClassObject()
+        # cls.fnc = types.MethodType(scope['setup'], None)
+        cls.fnc = scope['setup'].__get__(None, cls)
+        newNode = self.graph.spawnNode(cls)
+        newNode.__pos__ = (0, -135)
+        newNode.fnc()
+        print(newNode.foo)
+        newNode.foo.append(43)
+        print(newNode.foo)
+        newNode2 = self.graph.spawnNode(cls)
+        newNode2.__pos__ = (0, -135)
+        newNode2.fnc()
+
+
+        print(newNode.foo)
+        print(newNode2.foo)
+
+
     def editInput(self):
         try:
             self.editWidget.deleteLater()
@@ -1125,13 +1190,9 @@ class NodeWizardDialog(QDialog):
             del cls.__inputs__['Input']
 
         self.updateNode()
+        self.editInput()
 
     def removeInput(self):
-
-        # node = self.painter.nodes[0]
-        # name = node.__class__.__name__
-        # cls = node.__class__
-        # node = self.getNode()
         cls = self.getNodeClassObject()
 
         i = self.removeButtons.index(self.sender())
@@ -1139,13 +1200,8 @@ class NodeWizardDialog(QDialog):
         if not cls.__inputs__.keys():
             cls._addInput(data={'name': 'Input',
                                       'varType': object}, cls=cls)
-        # self.graph.deleteNode(node)
-        # self.painter.unregisterNode(node)
-        # newNode = self.graph.spawnNode(NODECLASSES[name])
-        # newNode.__pos__ = (0, -135)
-        # self.painter.repaint()
-        # self.editInput()
         self.updateNode()
+        self.editInput()
 
     def editOutput(self):
         try:
@@ -1173,11 +1229,11 @@ class NodeWizardDialog(QDialog):
         for i, out in enumerate(cls.__outputs__.items()):
             removeButton = QPushButton('Remove')
             self.removeButtons.append(removeButton)
-            removeButton.pressed.connect(self.removeInput)
+            removeButton.pressed.connect(self.removeOutput)
 
-            inpName, out = out
+            outName, out = out
             i+=2
-            if inpName == 'Output':
+            if outName == 'Output':
                 continue
             listBox = QCheckBox()
             listBox.setChecked(out.list)
@@ -1190,11 +1246,11 @@ class NodeWizardDialog(QDialog):
             l.addWidget(removeButton, i, 3)
 
         addButton = QPushButton('Add')
-        addButton.pressed.connect(self.addInput)
+        addButton.pressed.connect(self.addOutput)
         newListBox = QCheckBox()
         newListBox.setChecked(False)
         newNameEdit = QLineEdit()
-        newNameEdit.setText('newInput')
+        newNameEdit.setText('newOutput')
         newTypeBox = TypeBox()
         i+=1
         l.addWidget(newNameEdit, i, 0)
@@ -1208,6 +1264,35 @@ class NodeWizardDialog(QDialog):
 
         confirmButton = QPushButton('Confirm')
         l.addWidget(confirmButton, i+1,0,1,4 )
+
+    def addOutput(self):
+        node = self.painter.nodes[0]
+        cls = node.__class__
+
+        isList = self.newListBoxO.checkState()
+        newName = self.newNameEditO.text()
+        valType = self.newTypeBoxO.getType()
+
+        cls._addOutput(data={'name': newName,
+                            'varType': valType,
+                            'list': isList}, cls=cls)
+
+        if 'Output' in cls.__outputs__:
+            del cls.__outputs__['Output']
+
+        self.updateNode()
+        self.editOutput()
+
+    def removeOutput(self):
+        cls = self.getNodeClassObject()
+
+        i = self.removeButtons.index(self.sender())
+        del cls.__outputs__[list(cls.__outputs__.keys())[i]]
+        if not cls.__outputs__.keys():
+            cls._addOutput(data={'name': 'Output',
+                                      'varType': object}, cls=cls)
+        self.updateNode()
+        self.editOutput()
 
     def getNode(self):
         return self.painter.nodes[0]
@@ -1229,7 +1314,10 @@ class NodeWizardDialog(QDialog):
         newNode = self.graph.spawnNode(NODECLASSES[name])
         newNode.__pos__ = (0, -135)
         self.painter.repaint()
-        self.editInput()
+
+
+class CodeEdit(QPlainTextEdit):
+    pass
 
 
 class HeadlineLabel(QLabel):
