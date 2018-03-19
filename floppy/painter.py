@@ -1041,6 +1041,7 @@ class NodeWizardDialog(QDialog):
     def subclassNode(self):
         self.ready = True
         self.baseClassName = self.selectBase.currentText()
+        # baseClass = _NODECLASSES[self.baseClassName]
         self.editName()
 
 
@@ -1081,15 +1082,20 @@ class NodeWizardDialog(QDialog):
 
         NodeClass = MetaNode(newName, (_NODECLASSES[self.baseClassName],), {})
         self._fromDict(data)
-        NodeClass.__inputs__ = OrderedDict()
-        if not self.inputs:
+        try:
+            NodeClass.__inputs__ =_NODECLASSES[self.baseClassName].__inputs__.copy()
+        except AttributeError:
+            NodeClass.__inputs__ = OrderedDict()
+        if not self.inputs and len(list(NodeClass.__inputs__.keys())) == 1:
             NodeClass._addInput(data={'name': 'Input',
                                       'varType': object}, cls=NodeClass)
-        else:
-            for inp in self.inputs.values():
-                NodeClass._addInput(data=inp, cls=NodeClass)
+        for inp in self.inputs.values():
+            NodeClass._addInput(data=inp, cls=NodeClass)
 
-        NodeClass.__outputs__ = OrderedDict()
+        try:
+            NodeClass.__outputs__ =_NODECLASSES[self.baseClassName].__outputs__.copy()
+        except AttributeError:
+            NodeClass.__outputs__ = OrderedDict()
         if not self.outputs:
             NodeClass._addOutput(data={'name': 'Output',
                                        'varType': object}, cls=NodeClass)
@@ -1187,11 +1193,14 @@ class NodeWizardDialog(QDialog):
 
         self.removeButtons = []
         for i, inp in enumerate(cls.__inputs__.items()):
+            inpName, inp = inp
+            if inp.name == 'TRIGGER':
+                continue
             removeButton = QPushButton('Remove')
             self.removeButtons.append(removeButton)
             removeButton.pressed.connect(self.removeInput)
 
-            inpName, inp = inp
+
             i+=2
             if inpName == 'Input':
                 continue
