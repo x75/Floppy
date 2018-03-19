@@ -835,6 +835,7 @@ class WizardPainter(Painter2D):
         b5 = QPushButton(self)
         b5.setText('Run')
         b5.setGeometry(self.width()/10, 150, 50, 20)
+        b5.clicked.connect(parent.editRun)
         self.runB = b5
 
         self.setStyleSheet('''
@@ -948,6 +949,13 @@ class NodeWizardDialog(QDialog):
             font: bold 14px;
         }
                 ''')
+        self.name = ''
+        self.baseClassName = 'Node'
+        self.setupCodeString = 'print("Hello")\nprint(self.run)\nself.foo = []'
+        self.runCodeString = 'print("Hello World")'
+        self.inputs = OrderedDict()
+        self.outputs = OrderedDict()
+
         self.resize(500,500)
         self.setLayout(QVBoxLayout())
         l = self.layout()
@@ -981,11 +989,55 @@ class NodeWizardDialog(QDialog):
         l.addWidget(self.painterBox)
         self.editWidget = QWidget(self)
         self.layout().addWidget(self.editWidget)
+        self.ready = False
+
+        self.startWizard()
+
+
+    def startWizard(self):
+        try:
+            self.editWidget.deleteLater()
+        except:
+            pass
+        editWidget = QWidget(self)
+        l = QFormLayout()
+        l.setFormAlignment(Qt.AlignHCenter)
+        l.setLabelAlignment(Qt.AlignHCenter)
+        editWidget.setLayout(l)
+        self.editWidget = editWidget
+
+        baseLabel = QLabel('Select Node Class:')
+        selectBase = QComboBox(editWidget)
+        for key in ['Node'] + sorted(list(NODECLASSES.keys())):
+            selectBase.addItem(key)
+        selectBase.setCurrentText('Node')
+        self.selectBase = selectBase
+        l.addRow(baseLabel, selectBase)
+
+        subclassButton = QPushButton('Create Subclass')
+        subclassButton.clicked.connect(self.subclassNode)
+        editButton = QPushButton('Edit Node Class')
+        editButton.clicked.connect(self.editNode)
+        l.addRow(editButton, subclassButton)
+
+
+
+        ll = self.layout()
+        ll.addWidget(editWidget)
+
+
+    def editNode(self):
+        pass
+
+    def subclassNode(self):
+        self.ready = True
+        self.baseClassName = self.selectBase.currentText()
         self.editName()
 
 
-
     def editName(self):
+        if not self.ready:
+            return
         try:
             self.editWidget.deleteLater()
         except:
@@ -1001,11 +1053,12 @@ class NodeWizardDialog(QDialog):
         l.addRow(b)
         nameEdit.setLayout(l)
 
-        l = self.layout()
-        l.addWidget(nameEdit)
+        ll = self.layout()
+        ll.addWidget(nameEdit)
         self.editWidget = nameEdit
 
     def confirmName(self):
+        data = self.toDict()
         newName = self.e.text()
         if not newName or ' ' in newName:
             return
@@ -1018,18 +1071,33 @@ class NodeWizardDialog(QDialog):
         self.painter.unregisterNode(node)
 
         NodeClass = MetaNode(newName, (Node,), {})
+        self._fromDict(data)
         NodeClass.__inputs__ = OrderedDict()
-        NodeClass._addInput(data={'name': 'Input',
-                                  'varType': object}, cls=NodeClass)
+        if not self.inputs:
+            NodeClass._addInput(data={'name': 'Input',
+                                      'varType': object}, cls=NodeClass)
+        else:
+            for inp in self.inputs.values():
+                NodeClass._addInput(data=inp, cls=NodeClass)
+
         NodeClass.__outputs__ = OrderedDict()
-        NodeClass._addOutput(data={'name': 'Output',
-                                   'varType': object}, cls=NodeClass)
+        if not self.outputs:
+            NodeClass._addOutput(data={'name': 'Output',
+                                       'varType': object}, cls=NodeClass)
+        else:
+            for out in self.outputs.values():
+                NodeClass._addOutput(data=out, cls=NodeClass)
         newNode = self.graph.spawnNode(NODECLASSES[newName])
         newNode.__pos__ = (0, -135)
 
-        self.painter.repaint()
+        self.name = newName
+
+        self.updateNode()
+        self.editInput()
 
     def editSetup(self):
+        if not self.ready:
+            return
         try:
             self.editWidget.deleteLater()
         except:
@@ -1054,7 +1122,10 @@ class NodeWizardDialog(QDialog):
         ll.addWidget(QWidget())
 
         self.codeEdit = CodeEdit(self)
-        self.codeEdit.setPlainText('print("Hello")\nprint(self.run)\nself.foo = []')
+        codeString = self.setupCodeString
+        if codeString.startswith('def'):
+            codeString = '\n'.join([line.strip() for line in codeString.split('\n')[1:]])
+        self.codeEdit.setPlainText(codeString)
         ll.addWidget(self.codeEdit)
 
         l.addWidget(ww)
@@ -1064,29 +1135,32 @@ class NodeWizardDialog(QDialog):
         l.addWidget(confirmButton)
 
     def confirmSetup(self):
-        codeString = self.codeEdit.toPlainText()
-        codeString = 'def setup(self):\n ' + '\n '.join(codeString.split('\n'))
+        setupCodeString0 = self.codeEdit.toPlainText()
+        setupCodeString = 'def setup(self):\n ' + '\n '.join(setupCodeString0.split('\n'))
         scope = {}
-        exec(codeString, scope)
+        exec(setupCodeString, scope)
         cls = self.getNodeClassObject()
-        # cls.fnc = types.MethodType(scope['setup'], None)
-        cls.fnc = scope['setup'].__get__(None, cls)
-        newNode = self.graph.spawnNode(cls)
-        newNode.__pos__ = (0, -135)
-        newNode.fnc()
-        print(newNode.foo)
-        newNode.foo.append(43)
-        print(newNode.foo)
-        newNode2 = self.graph.spawnNode(cls)
-        newNode2.__pos__ = (0, -135)
-        newNode2.fnc()
 
+        # ---Magic line. Don't touch!---
+        cls.setup = scope['setup'].__get__(None, cls)
+        # ------------------------------
 
-        print(newNode.foo)
-        print(newNode2.foo)
+        self.setupCodeString = setupCodeString0
+
+        # newNode = self.graph.spawnNode(cls)
+        # newNode.setup()
+        # print(newNode.foo)
+        # newNode.foo.append(43)
+        # newNode2 = self.graph.spawnNode(cls)
+        #
+        #
+        # print(newNode.foo)
+        # print(newNode2.foo)
 
 
     def editInput(self):
+        if not self.ready:
+            return
         try:
             self.editWidget.deleteLater()
         except:
@@ -1179,12 +1253,14 @@ class NodeWizardDialog(QDialog):
         select = self.newSelect.getType()
         select = None
 
-        cls._addInput(data={'name': newName,
-                            'varType': valType,
-                            'list': isList,
-                            'optional': isOptional,
-                            'default': default,
-                            'select': select}, cls=cls)
+        data = {'name': newName,
+                'varType': valType,
+                'list': isList,
+                'optional': isOptional,
+                'default': default,
+                'select': select}
+        cls._addInput(data=data, cls=cls)
+        self.inputs[newName] = data
 
         if 'Input' in cls.__inputs__:
             del cls.__inputs__['Input']
@@ -1196,7 +1272,9 @@ class NodeWizardDialog(QDialog):
         cls = self.getNodeClassObject()
 
         i = self.removeButtons.index(self.sender())
-        del cls.__inputs__[list(cls.__inputs__.keys())[i]]
+        key = list(cls.__inputs__.keys())[i]
+        del self.inputs[key]
+        del cls.__inputs__[key]
         if not cls.__inputs__.keys():
             cls._addInput(data={'name': 'Input',
                                       'varType': object}, cls=cls)
@@ -1204,6 +1282,8 @@ class NodeWizardDialog(QDialog):
         self.editInput()
 
     def editOutput(self):
+        if not self.ready:
+            return
         try:
             self.editWidget.deleteLater()
         except:
@@ -1273,9 +1353,11 @@ class NodeWizardDialog(QDialog):
         newName = self.newNameEditO.text()
         valType = self.newTypeBoxO.getType()
 
-        cls._addOutput(data={'name': newName,
-                            'varType': valType,
-                            'list': isList}, cls=cls)
+        data = {'name': newName,
+                'varType': valType,
+                'list': isList}
+        cls._addOutput(data=data, cls=cls)
+        self.outputs[newName] = data
 
         if 'Output' in cls.__outputs__:
             del cls.__outputs__['Output']
@@ -1287,12 +1369,66 @@ class NodeWizardDialog(QDialog):
         cls = self.getNodeClassObject()
 
         i = self.removeButtons.index(self.sender())
-        del cls.__outputs__[list(cls.__outputs__.keys())[i]]
+        key = list(cls.__outputs__.keys())[i]
+        del cls.__outputs__[key]
+        del self.outputs[key]
         if not cls.__outputs__.keys():
             cls._addOutput(data={'name': 'Output',
                                       'varType': object}, cls=cls)
         self.updateNode()
         self.editOutput()
+
+    def editRun(self):
+        if not self.ready:
+            return
+        try:
+            self.editWidget.deleteLater()
+        except:
+            pass
+        inputWidget = QWidget(self)
+        self.editWidget = inputWidget
+        self.layout().addWidget(inputWidget)
+        l = QVBoxLayout()
+        inputWidget.setLayout(l)
+
+        self.warningLabel = QLabel('<font color="red">Warning: All code will be executed with the same '
+                                   'privileges as the Floppy editor itself.</font>')
+        l.addWidget(self.warningLabel)
+
+        self.signatureLabel = QLabel('<font color="orange">def</font> <font color="yellow">run'
+                                     '</font>(<font color="gray">self</font>):')
+        l.addWidget(self.signatureLabel)
+
+        ww = QWidget(inputWidget)
+        ll = QHBoxLayout()
+        ww.setLayout(ll)
+        ll.addWidget(QWidget())
+
+        self.codeEdit = CodeEdit(self)
+        codeString = self.runCodeString
+        if codeString.startswith('def'):
+            codeString = '\n'.join([line.strip() for line in codeString.split('\n')[1:]])
+        self.codeEdit.setPlainText(codeString)
+        ll.addWidget(self.codeEdit)
+
+        l.addWidget(ww)
+
+        confirmButton = QPushButton('Confirm')
+        confirmButton.clicked.connect(self.confirmRun)
+        l.addWidget(confirmButton)
+
+    def confirmRun(self):
+        runCodeString0 = self.codeEdit.toPlainText()
+        runCodeString = 'def run(self):\n ' + '\n '.join(runCodeString0.split('\n'))
+        scope = {}
+        exec(runCodeString, scope)
+        cls = self.getNodeClassObject()
+
+        # ---Magic line. Don't touch!---
+        cls.run = scope['run'].__get__(None, cls)
+        # ------------------------------
+
+        self.runCodeString = runCodeString0
 
     def getNode(self):
         return self.painter.nodes[0]
@@ -1314,6 +1450,49 @@ class NodeWizardDialog(QDialog):
         newNode = self.graph.spawnNode(NODECLASSES[name])
         newNode.__pos__ = (0, -135)
         self.painter.repaint()
+        self.toString()
+
+    def toString(self):
+        string = 'class {}({}):\n '.format(self.name, self.baseClassName)
+        string += '\n '.join(["Input('{name}', {varType}, list={list}, "
+                              "default='{default}', opt={opt})".format(name=inp['name'],
+                                                                       varType=inp['varType'].__name__,
+                                                                       list='True' if inp['list'] else 'False',
+                                                                       opt='True' if inp['optional'] else 'False',
+                                                                       default=inp['default'],
+                                                                       select=inp['select']) for inp in self.inputs.values()])
+        string += '\n '
+        string += '\n '.join(["Output('{name}', {varType},"
+                              " list={list})".format(name=out['name'],
+                                                     varType=out['varType'].__name__,
+                                                     list='True' if out['list'] else 'False') for out in self.outputs.values()])
+
+        string += '\n\n def setup(self):\n   '
+        string += '\n   '.join([line for line in self.setupCodeString.split('\n')])
+
+        string += '\n\n def run(self):\n   '
+        string += '\n   '.join([line for line in self.runCodeString.split('\n')])
+        return string
+
+    def toDict(self):
+        return {'name': self.name,
+                'baseClass': self.baseClassName,
+                'setup': self.setupCodeString,
+                'inputs': self.inputs,
+                'outputs': self.outputs,
+                'run': self.runCodeString}
+
+    def fromDict(self, data):
+        self.name = data['name']
+        self._fromDict()
+
+    def _fromDict(self, data):
+        self.baseClassName = data['baseClass']
+        self.setupCodeString = data['setup']
+        self.inputs = data['inputs']
+        self.outputs = data['outputs']
+        self.runCodeString = data['run']
+
 
 
 class CodeEdit(QPlainTextEdit):
