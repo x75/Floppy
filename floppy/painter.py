@@ -1,8 +1,8 @@
+import json
 import os
-import types
 import time
 from floppy.graph import Graph
-from floppy.node import InputNotAvailable, ControlNode, DynamicNode, MetaNode, Node, NODECLASSES
+from floppy.node import InputNotAvailable, ControlNode, DynamicNode, MetaNode, Node, NODECLASSES, _NODECLASSES
 from floppy.ressources.mainWindow import Ui_MainWindow
 from floppy.floppySettings import SettingsDialog
 from floppy.nodeLib import ContextNodeFilter, ContextNodeList
@@ -18,6 +18,8 @@ import logging
 logger = logging.getLogger('Floppy')
 
 mainWindow = None
+
+MANAGEDNODECLASSES = {}
 
 LOCALPORT = 8080
 PINSIZE = 8
@@ -975,7 +977,7 @@ class NodeWizardDialog(QDialog):
         self.painterBox.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff )
         self.painterBox.setWidget(newPainter)
 
-        NodeClass = MetaNode('NewNode', (Node,), {})
+        NodeClass = MetaNode('NewNode', (_NODECLASSES[self.baseClassName],), {})
         NodeClass.__inputs__ = OrderedDict()
         NodeClass._addInput(data={'name': 'Input',
                                   'varType': object}, cls=NodeClass)
@@ -990,7 +992,11 @@ class NodeWizardDialog(QDialog):
         self.editWidget = QWidget(self)
         self.layout().addWidget(self.editWidget)
         self.ready = False
-
+        # with open('test.dat', 'r') as fp:
+        #     self.fromJson(fp.read())
+        #     self.ready=True
+        #     self.updateNode()
+        #     self.editName()
         self.startWizard()
 
 
@@ -1008,8 +1014,11 @@ class NodeWizardDialog(QDialog):
 
         baseLabel = QLabel('Select Node Class:')
         selectBase = QComboBox(editWidget)
-        for key in ['Node'] + sorted(list(NODECLASSES.keys())):
+        newFont = QFont("FontFamily", italic=True, weight=3)
+        for i, key in enumerate(['Node'] + sorted(list(_NODECLASSES.keys()))):
             selectBase.addItem(key)
+            if key in MANAGEDNODECLASSES.keys():
+                selectBase.setItemData(i, newFont, Qt.FontRole)
         selectBase.setCurrentText('Node')
         self.selectBase = selectBase
         l.addRow(baseLabel, selectBase)
@@ -1070,7 +1079,7 @@ class NodeWizardDialog(QDialog):
         self.graph.deleteNode(node)
         self.painter.unregisterNode(node)
 
-        NodeClass = MetaNode(newName, (Node,), {})
+        NodeClass = MetaNode(newName, (_NODECLASSES[self.baseClassName],), {})
         self._fromDict(data)
         NodeClass.__inputs__ = OrderedDict()
         if not self.inputs:
@@ -1136,16 +1145,10 @@ class NodeWizardDialog(QDialog):
 
     def confirmSetup(self):
         setupCodeString0 = self.codeEdit.toPlainText()
-        setupCodeString = 'def setup(self):\n ' + '\n '.join(setupCodeString0.split('\n'))
-        scope = {}
-        exec(setupCodeString, scope)
-        cls = self.getNodeClassObject()
-
-        # ---Magic line. Don't touch!---
-        cls.setup = scope['setup'].__get__(None, cls)
-        # ------------------------------
-
         self.setupCodeString = setupCodeString0
+
+
+
 
         # newNode = self.graph.spawnNode(cls)
         # newNode.setup()
@@ -1419,15 +1422,6 @@ class NodeWizardDialog(QDialog):
 
     def confirmRun(self):
         runCodeString0 = self.codeEdit.toPlainText()
-        runCodeString = 'def run(self):\n ' + '\n '.join(runCodeString0.split('\n'))
-        scope = {}
-        exec(runCodeString, scope)
-        cls = self.getNodeClassObject()
-
-        # ---Magic line. Don't touch!---
-        cls.run = scope['run'].__get__(None, cls)
-        # ------------------------------
-
         self.runCodeString = runCodeString0
 
     def getNode(self):
@@ -1445,12 +1439,30 @@ class NodeWizardDialog(QDialog):
     def updateNode(self):
         node = self.getNode()
         name = self.getNodeName()
+        runCodeString = 'def run(self):\n ' + '\n '.join(self.runCodeString.split('\n'))
+        scope = {}
+        exec(runCodeString, scope)
+        cls = self.getNodeClassObject()
+
+        # ---Magic line. Don't touch!---
+        cls.run = scope['run'].__get__(None, cls)
+        # ------------------------------
+
+        setupCodeString = 'def setup(self):\n ' + '\n '.join(self.setupCodeString.split('\n'))
+        scope = {}
+        exec(setupCodeString, scope)
+        cls = self.getNodeClassObject()
+
+        # ---Magic line. Don't touch!---
+        cls.setup = scope['setup'].__get__(None, cls)
+        # ------------------------------
+
         self.graph.deleteNode(node)
         self.painter.unregisterNode(node)
         newNode = self.graph.spawnNode(NODECLASSES[name])
         newNode.__pos__ = (0, -135)
         self.painter.repaint()
-        self.toString()
+
 
     def toString(self):
         string = 'class {}({}):\n '.format(self.name, self.baseClassName)
@@ -1484,7 +1496,7 @@ class NodeWizardDialog(QDialog):
 
     def fromDict(self, data):
         self.name = data['name']
-        self._fromDict()
+        self._fromDict(data)
 
     def _fromDict(self, data):
         self.baseClassName = data['baseClass']
@@ -1493,6 +1505,53 @@ class NodeWizardDialog(QDialog):
         self.outputs = data['outputs']
         self.runCodeString = data['run']
 
+    def toJson(self):
+        data = self.toDict()
+        for k, input in data['inputs'].items():
+            input['varType'] = input['varType'].__name__
+        for k, output in data['outputs'].items():
+            output['varType'] = output['varType'].__name__
+        return json.dumps(data)
+
+    def fromJson(self, data):
+        data = json.loads(data)
+        for k, input in data['inputs'].items():
+            input['varType'] = TypeBox.str2Type(input['varType'])
+        for k, output in data['outputs'].items():
+            output['varType'] = TypeBox.str2Type(output['varType'])
+        self.fromDict(data)
+
+        node = self.painter.nodes[0]
+        self.graph.deleteNode(node)
+        self.painter.unregisterNode(node)
+        newName = self.name
+        NodeClass = MetaNode(newName, (_NODECLASSES[self.baseClassName],), {})
+        self._fromDict(data)
+        NodeClass.__inputs__ = OrderedDict()
+        if not self.inputs:
+            NodeClass._addInput(data={'name': 'Input',
+                                      'varType': object}, cls=NodeClass)
+        else:
+            for inp in self.inputs.values():
+                NodeClass._addInput(data=inp, cls=NodeClass)
+
+        NodeClass.__outputs__ = OrderedDict()
+        if not self.outputs:
+            NodeClass._addOutput(data={'name': 'Output',
+                                       'varType': object}, cls=NodeClass)
+        else:
+            for out in self.outputs.values():
+                NodeClass._addOutput(data=out, cls=NodeClass)
+        newNode = self.graph.spawnNode(NODECLASSES[newName])
+        newNode.__pos__ = (0, -135)
+
+
+    def closeEvent(self, event):
+        # with open('test.dat', 'w') as fp:
+        #     fp.write(self.toJson())
+
+        MANAGEDNODECLASSES[self.name] = self.getNodeClassObject()
+        super(NodeWizardDialog, self).closeEvent(event)
 
 
 class CodeEdit(QPlainTextEdit):
@@ -1506,6 +1565,15 @@ class HeadlineLabel2(QLabel):
     pass
 
 class TypeBox(QComboBox):
+    TYPEMAP = OrderedDict((('str', str),
+                                ('bool', bool),
+                                ('int', int),
+                                ('float', float),
+                                ('object', object)))
+    for name, t in FLOPPYTYPES.items():
+        TYPEMAP[name] = t
+
+
     def __init__(self, parent=None, current=None):
         super(TypeBox, self).__init__(parent)
         self.typeMap = OrderedDict((('str', str),
@@ -1523,6 +1591,10 @@ class TypeBox(QComboBox):
 
     def getType(self):
         return self.typeMap[self.currentText()]
+
+    @staticmethod
+    def str2Type(string):
+        return TypeBox.TYPEMAP[string]
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None, painter=None):
