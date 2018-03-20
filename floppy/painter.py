@@ -1,6 +1,7 @@
 import json
 import os
 import time
+from copy import deepcopy
 from floppy.graph import Graph
 from floppy.node import InputNotAvailable, ControlNode, DynamicNode, MetaNode, Node, NODECLASSES, _NODECLASSES
 from floppy.ressources.mainWindow import Ui_MainWindow
@@ -902,7 +903,7 @@ QPushButton {
 
 
 class NodeWizardDialog(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, updateFunc=None):
         super(NodeWizardDialog, self).__init__(parent)
         self.setStyleSheet('''
         QDialog {
@@ -951,6 +952,7 @@ class NodeWizardDialog(QDialog):
             font: bold 14px;
         }
                 ''')
+        self.updateFunc = updateFunc
         self.name = ''
         self.baseClassName = 'Node'
         self.setupCodeString = 'super(type(self), self).setup()'
@@ -967,6 +969,7 @@ class NodeWizardDialog(QDialog):
         self.saveButton = QPushButton('Save')
         self.saveButton.clicked.connect(self.saveNodes)
         self.addSaveButton = False
+        self.spacer = QWidget(self)
 
         newPainter = WizardPainter(self)
         self.painter = newPainter
@@ -1205,6 +1208,7 @@ class NodeWizardDialog(QDialog):
         confirmButton.clicked.connect(self.confirmSetup)
         l.addWidget(confirmButton)
         if self.addSaveButton:
+            l.addWidget(self.spacer)
             l.addWidget(self.saveButton)
 
     def confirmSetup(self):
@@ -1310,7 +1314,8 @@ class NodeWizardDialog(QDialog):
         # confirmButton = QPushButton('Confirm')
         # l.addWidget(confirmButton, i+1,0,1,7 )
         if self.addSaveButton:
-            l.addWidget(self.saveButton, i+1,0,1,7 )
+            l.addWidget(self.spacer, i+1,0)
+            l.addWidget(self.saveButton, i+2,0,1,7 )
 
     def addInput(self):
         node = self.painter.nodes[0]
@@ -1415,7 +1420,8 @@ class NodeWizardDialog(QDialog):
 
 
         if self.addSaveButton:
-            l.addWidget(self.saveButton, i+1,0,1,7 )
+            l.addWidget(self.spacer, i + 1, 0)
+            l.addWidget(self.saveButton, i+2,0,1,7 )
 
     def addOutput(self):
         node = self.painter.nodes[0]
@@ -1489,6 +1495,7 @@ class NodeWizardDialog(QDialog):
         confirmButton.clicked.connect(self.confirmRun)
         l.addWidget(confirmButton)
         if self.addSaveButton:
+            l.addWidget(self.spacer)
             l.addWidget(self.saveButton)
 
     def confirmRun(self):
@@ -1561,8 +1568,8 @@ class NodeWizardDialog(QDialog):
         return {'name': self.name,
                 'baseClass': self.baseClassName,
                 'setup': self.setupCodeString,
-                'inputs': self.inputs,
-                'outputs': self.outputs,
+                'inputs': deepcopy(self.inputs),
+                'outputs': deepcopy(self.outputs.copy()),
                 'run': self.runCodeString}
 
     def fromDict(self, data):
@@ -1648,20 +1655,36 @@ class NodeWizardDialog(QDialog):
 
 
     def closeEvent(self, event):
+        cls = self.getNodeClassObject()
+        try:
+            del cls.__inputs__['Input']
+        except KeyError:
+            pass
+        try:
+            del cls.__outputs__['Output']
+        except KeyError:
+            pass
+        if self.updateFunc:
+            self.updateFunc()
         super(NodeWizardDialog, self).closeEvent(event)
 
     def saveNodes(self):
         filePath = os.path.join(customNodesPath, 'managedNodes.dat')
+        if not os.path.isfile(filePath):
+            open(filePath, 'a').close()
         MANAGEDNODECLASSES[self.name] = self.getNodeClassObject()
+
         nodeData = OrderedDict()
         with open(filePath, 'r') as fp:
             for line in fp.readlines():
                 name, body = line.split(':::')
                 nodeData[name] = line
+
         nodeData[self.name] = '{}:::{}\n'.format(self.name, self.toJson())
         with open(filePath, 'w') as fp:
             for datum in nodeData.values():
                 fp.write(datum)
+
 
     @staticmethod
     def loadManagedNodes():
@@ -1986,7 +2009,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.DrawArea.setTabText(currentIndex, self.DrawArea.tabText(currentIndex)+'*')
 
     def openNodeWizard(self):
-        dialog = NodeWizardDialog(self)
+        dialog = NodeWizardDialog(self, updateFunc=self.FilterEdit.reCheck)
         dialog.setStyleSheet('''
 QDialog {
     background-color: #414141;

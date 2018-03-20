@@ -28,6 +28,7 @@ class NodeFilter(QLineEdit):
     def __init__(self, parent=None):
         super(NodeFilter, self).__init__(parent)
         self.textEdited.connect(self.check)
+        self.lastText = ''
         self.setStyleSheet("NodeFilter {background-color:rgb(75,75,75) ;border:1px solid rgb(0, 0, 0); "
                            "border-color:black; color: white }")
 
@@ -48,6 +49,7 @@ class NodeFilter(QLineEdit):
         :return: None
         """
         text = text.lower()
+        self.lastText = text
         # nodes = [str(node) for node in nodeList if text in str(node).lower()]
         if not text.startswith('$'):
             nodes = [node for node in NODECLASSES.keys() if text in node.lower()]
@@ -61,6 +63,9 @@ class NodeFilter(QLineEdit):
             item.setText(node)
             model.appendRow(item)
         self.listView.setModel(model)
+
+    def reCheck(self):
+        self.check(self.lastText)
 
     def registerNodeListLayout(self, layout, widget):
         """
