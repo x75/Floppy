@@ -5,7 +5,7 @@ from floppy.graph import Graph
 from floppy.node import InputNotAvailable, ControlNode, DynamicNode, MetaNode, Node, NODECLASSES, _NODECLASSES
 from floppy.ressources.mainWindow import Ui_MainWindow
 from floppy.floppySettings import SettingsDialog
-from floppy.nodeLib import ContextNodeFilter, ContextNodeList
+from floppy.nodeLib import ContextNodeFilter, ContextNodeList, customNodesPath
 from floppy.FloppyTypes import FLOPPYTYPES
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, QPoint, QSettings
@@ -953,14 +953,21 @@ class NodeWizardDialog(QDialog):
                 ''')
         self.name = ''
         self.baseClassName = 'Node'
-        self.setupCodeString = 'print("Hello")\nprint(self.run)\nself.foo = []'
-        self.runCodeString = 'print("Hello World")'
+        self.setupCodeString = 'super(type(self), self).setup()'
+        self.runCodeString = 'super(type(self), self).run()'
+        # self.setupCodeString = 'print("Hello World")'
+        # self.runCodeString = 'print("Hello World")'
         self.inputs = OrderedDict()
         self.outputs = OrderedDict()
 
         self.resize(500,500)
         self.setLayout(QVBoxLayout())
         l = self.layout()
+
+        self.saveButton = QPushButton('Save')
+        self.saveButton.clicked.connect(self.saveNodes)
+        self.addSaveButton = False
+
         newPainter = WizardPainter(self)
         self.painter = newPainter
         # self.painter.resize(self.painter.width(), 800)
@@ -999,6 +1006,40 @@ class NodeWizardDialog(QDialog):
         #     self.editName()
         self.startWizard()
 
+    def removeNode(self):
+        node = self.painter.nodes[0]
+        self.graph.deleteNode(node)
+        self.painter.unregisterNode(node)
+
+    def spawnNode(self, nodeName, nodeClassName):
+        NodeClass = _NODECLASSES[nodeClassName]
+        # NodeClass = MetaNode(nodeName, (_NODECLASSES[self.baseClassName],), {})
+        # try:
+        #     NodeClass.__inputs__ = NodeClass.__bases__[0].__inputs__.copy()
+        # except AttributeError as e:
+        #     print(e)
+        #     NodeClass.__inputs__ = OrderedDict()
+        # try:
+        #     NodeClass.__outputs__ = NodeClass.__bases__[0].__outputs__.copy()
+        # except AttributeError:
+        #     NodeClass.__outputs__ = OrderedDict()
+
+
+
+        # if nodeClassName in ('Node', 'DynamicNode'):
+        #
+        #     NodeClass.__inputs__ = OrderedDict()
+        #     NodeClass._addInput(data={'name': 'Input',
+        #                               'varType': object}, cls=NodeClass)
+        #     NodeClass.__outputs__ = OrderedDict()
+        #     NodeClass._addOutput(data={'name': 'Output',
+        #                                'varType': object}, cls=NodeClass)
+        newNode = self.graph.spawnNode(NodeClass)
+
+
+        newNode.__pos__ = (0, -135)
+        self.currentNodeName = nodeName
+        self.painter.repaint()
 
     def startWizard(self):
         try:
@@ -1014,6 +1055,7 @@ class NodeWizardDialog(QDialog):
 
         baseLabel = QLabel('Select Node Class:')
         selectBase = QComboBox(editWidget)
+        selectBase.currentTextChanged.connect(self.onBaseChange)
         newFont = QFont("FontFamily", italic=True, weight=3)
         for i, key in enumerate(['Node'] + sorted(list(_NODECLASSES.keys()))):
             selectBase.addItem(key)
@@ -1033,6 +1075,14 @@ class NodeWizardDialog(QDialog):
 
         ll = self.layout()
         ll.addWidget(editWidget)
+
+    def onBaseChange(self, text):
+        self.removeNode()
+        try:
+            self.spawnNode(text, text)
+        except:
+            print('Cannot spawn Node of Class {}.'.format(text))
+        self.painter.repaint()
 
 
     def editNode(self):
@@ -1072,6 +1122,8 @@ class NodeWizardDialog(QDialog):
         newName = self.e.text()
         if not newName or ' ' in newName:
             return
+        if newName in _NODECLASSES:
+            return
         try:
             del NODECLASSES[self.currentNodeName]
         except KeyError:
@@ -1108,6 +1160,7 @@ class NodeWizardDialog(QDialog):
         self.name = newName
 
         self.updateNode()
+        self.addSaveButton = True
         self.editInput()
 
     def editSetup(self):
@@ -1138,6 +1191,9 @@ class NodeWizardDialog(QDialog):
 
         self.codeEdit = CodeEdit(self)
         codeString = self.setupCodeString
+        # if 'super(' in codeString:
+        #     codeString = codeString.split(',')
+        #     codeString = codeString[0][:6] + ',' + self.name + codeString[1]
         if codeString.startswith('def'):
             codeString = '\n'.join([line.strip() for line in codeString.split('\n')[1:]])
         self.codeEdit.setPlainText(codeString)
@@ -1148,6 +1204,8 @@ class NodeWizardDialog(QDialog):
         confirmButton = QPushButton('Confirm')
         confirmButton.clicked.connect(self.confirmSetup)
         l.addWidget(confirmButton)
+        if self.addSaveButton:
+            l.addWidget(self.saveButton)
 
     def confirmSetup(self):
         setupCodeString0 = self.codeEdit.toPlainText()
@@ -1249,8 +1307,10 @@ class NodeWizardDialog(QDialog):
         self.newSelect = newSelect
 
 
-        confirmButton = QPushButton('Confirm')
-        l.addWidget(confirmButton, i+1,0,1,7 )
+        # confirmButton = QPushButton('Confirm')
+        # l.addWidget(confirmButton, i+1,0,1,7 )
+        if self.addSaveButton:
+            l.addWidget(self.saveButton, i+1,0,1,7 )
 
     def addInput(self):
         node = self.painter.nodes[0]
@@ -1354,8 +1414,8 @@ class NodeWizardDialog(QDialog):
         self.newTypeBoxO = newTypeBox
 
 
-        confirmButton = QPushButton('Confirm')
-        l.addWidget(confirmButton, i+1,0,1,4 )
+        if self.addSaveButton:
+            l.addWidget(self.saveButton, i+1,0,1,7 )
 
     def addOutput(self):
         node = self.painter.nodes[0]
@@ -1428,6 +1488,8 @@ class NodeWizardDialog(QDialog):
         confirmButton = QPushButton('Confirm')
         confirmButton.clicked.connect(self.confirmRun)
         l.addWidget(confirmButton)
+        if self.addSaveButton:
+            l.addWidget(self.saveButton)
 
     def confirmRun(self):
         runCodeString0 = self.codeEdit.toPlainText()
@@ -1458,9 +1520,10 @@ class NodeWizardDialog(QDialog):
         # ------------------------------
 
         setupCodeString = 'def setup(self):\n ' + '\n '.join(self.setupCodeString.split('\n'))
+
         scope = {}
         exec(setupCodeString, scope)
-        cls = self.getNodeClassObject()
+        # cls = self.getNodeClassObject()
 
         # ---Magic line. Don't touch!---
         cls.setup = scope['setup'].__get__(None, cls)
@@ -1471,7 +1534,6 @@ class NodeWizardDialog(QDialog):
         newNode = self.graph.spawnNode(NODECLASSES[name])
         newNode.__pos__ = (0, -135)
         self.painter.repaint()
-
 
     def toString(self):
         string = 'class {}({}):\n '.format(self.name, self.baseClassName)
@@ -1522,6 +1584,36 @@ class NodeWizardDialog(QDialog):
             output['varType'] = output['varType'].__name__
         return json.dumps(data)
 
+    @staticmethod
+    def fromJsonStatic(data):
+        data = json.loads(data)
+        for k, input in data['inputs'].items():
+            input['varType'] = TypeBox.str2Type(input['varType'])
+        for k, output in data['outputs'].items():
+            output['varType'] = TypeBox.str2Type(output['varType'])
+
+
+
+        NodeClass = MetaNode(data['name'], (_NODECLASSES[data['baseClass']],), {})
+        try:
+            NodeClass.__inputs__ = NodeClass.__bases__[0].__inputs__.copy()
+        except AttributeError as e:
+            print(e)
+            NodeClass.__inputs__ = OrderedDict()
+        try:
+            NodeClass.__outputs__ = NodeClass.__bases__[0].__outputs__.copy()
+        except AttributeError:
+            NodeClass.__outputs__ = OrderedDict()
+
+        # NodeClass.__inputs__ = OrderedDict()
+        for inp in data['inputs'].values():
+            NodeClass._addInput(data=inp, cls=NodeClass)
+
+        # NodeClass.__outputs__ = OrderedDict()
+        for out in data['outputs'].values():
+            NodeClass._addOutput(data=out, cls=NodeClass)
+        return NodeClass
+
     def fromJson(self, data):
         data = json.loads(data)
         for k, input in data['inputs'].items():
@@ -1556,11 +1648,29 @@ class NodeWizardDialog(QDialog):
 
 
     def closeEvent(self, event):
-        # with open('test.dat', 'w') as fp:
-        #     fp.write(self.toJson())
-
-        MANAGEDNODECLASSES[self.name] = self.getNodeClassObject()
         super(NodeWizardDialog, self).closeEvent(event)
+
+    def saveNodes(self):
+        filePath = os.path.join(customNodesPath, 'managedNodes.dat')
+        MANAGEDNODECLASSES[self.name] = self.getNodeClassObject()
+        nodeData = OrderedDict()
+        with open(filePath, 'r') as fp:
+            for line in fp.readlines():
+                name, body = line.split(':::')
+                nodeData[name] = line
+        nodeData[self.name] = '{}:::{}\n'.format(self.name, self.toJson())
+        with open(filePath, 'w') as fp:
+            for datum in nodeData.values():
+                fp.write(datum)
+
+    @staticmethod
+    def loadManagedNodes():
+        filePath = os.path.join(customNodesPath, 'managedNodes.dat')
+        with open(filePath, 'r') as fp:
+            for datum in fp.readlines():
+                datum = datum.strip().split(':::')[-1]
+                cls = NodeWizardDialog.fromJsonStatic(datum)
+                MANAGEDNODECLASSES[cls.__name__] = cls
 
 
 class CodeEdit(QPlainTextEdit):
@@ -1607,6 +1717,7 @@ class TypeBox(QComboBox):
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None, painter=None):
+        NodeWizardDialog.loadManagedNodes()
         self.closeOnReturn = False
         self.overrideReturn = False
         self.returnValue = None
