@@ -548,7 +548,7 @@ class Node(object, metaclass=MetaNode):
                     raise AttributeError('No I/O with name {} defined.'.format(item.lstrip('_')))
                 # raise AttributeError('No Input with name {} defined.'.format(item.lstrip('_')))
         else:
-            return super(Node, self).__getattr__(item)
+            return super(Node, self).__getattribute__ (item)
 
     def getInputPin(self, inputName):
         """

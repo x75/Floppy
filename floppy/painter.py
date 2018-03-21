@@ -1056,6 +1056,12 @@ class NodeWizardDialog(QDialog):
         editWidget.setLayout(l)
         self.editWidget = editWidget
 
+        editButton = QPushButton('Edit Node Class')
+        self.editButton = editButton
+        editButton.setEnabled(False)
+        editButton.setToolTip('Only managed Node classes can be edited.')
+        editButton.clicked.connect(self.editNode)
+
         baseLabel = QLabel('Select Node Class:')
         selectBase = QComboBox(editWidget)
         selectBase.currentTextChanged.connect(self.onBaseChange)
@@ -1070,8 +1076,8 @@ class NodeWizardDialog(QDialog):
 
         subclassButton = QPushButton('Create Subclass')
         subclassButton.clicked.connect(self.subclassNode)
-        editButton = QPushButton('Edit Node Class')
-        editButton.clicked.connect(self.editNode)
+
+
         l.addRow(editButton, subclassButton)
 
 
@@ -1085,6 +1091,12 @@ class NodeWizardDialog(QDialog):
             self.spawnNode(text, text)
         except:
             print('Cannot spawn Node of Class {}.'.format(text))
+        if text in MANAGEDNODECLASSES:
+            self.editButton.setEnabled(True)
+            # pass
+        else:
+            # pass
+            self.editButton.setEnabled(False)
         self.painter.repaint()
 
 
@@ -1605,7 +1617,6 @@ class NodeWizardDialog(QDialog):
         try:
             NodeClass.__inputs__ = NodeClass.__bases__[0].__inputs__.copy()
         except AttributeError as e:
-            print(e)
             NodeClass.__inputs__ = OrderedDict()
         try:
             NodeClass.__outputs__ = NodeClass.__bases__[0].__outputs__.copy()
@@ -1619,6 +1630,25 @@ class NodeWizardDialog(QDialog):
         # NodeClass.__outputs__ = OrderedDict()
         for out in data['outputs'].values():
             NodeClass._addOutput(data=out, cls=NodeClass)
+
+        runCodeString = 'def run(self):\n ' + '\n '.join(data['run'].split('\n'))
+        scope = {}
+        exec(runCodeString, scope)
+
+        # ---Magic line. Don't touch!---
+        NodeClass.run = scope['run'].__get__(None, NodeClass)
+        # ------------------------------
+
+        setupCodeString = 'def setup(self):\n ' + '\n '.join(data['setup'].split('\n'))
+
+        scope = {}
+        exec(setupCodeString, scope)
+        # cls = self.getNodeClassObject()
+
+        # ---Magic line. Don't touch!---
+        NodeClass.setup = scope['setup'].__get__(None, NodeClass)
+        # ------------------------------
+
         return NodeClass
 
     def fromJson(self, data):
