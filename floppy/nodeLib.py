@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, QPoint, QModelIndex
 from PyQt5.QtGui import *
 from floppy.node import NODECLASSES
-import floppy.painter
+import floppy.floppyUi
 import os
 from importlib.machinery import SourceFileLoader
 customNodesPath = os.path.join(os.path.dirname(__file__), 'CustomNodes')
@@ -140,7 +140,7 @@ class NodeList(QListView):
             # self.blockSignals(True)
             # self.selectionChanged()
             try:
-                floppy.painter.mainWindow.getPainter().reportWidget.updateReport(self.selectedClass.classReport())
+                floppy.floppyUi.mainWindow.getPainter().reportWidget.updateReport(self.selectedClass.classReport())
             except AttributeError:
                 pass
 
@@ -157,20 +157,20 @@ class NodeList(QListView):
             # transform = self.graph.painter.transform
             pos = QCursor.pos()
             try:
-                topLeft = floppy.painter.mainWindow.getPainter().mapToGlobal(floppy.painter.mainWindow.getPainter().pos())
+                topLeft = floppy.floppyUi.mainWindow.getPainter().mapToGlobal(floppy.floppyUi.mainWindow.getPainter().pos())
             except AttributeError:
                 pass
             else:
                 pos -= topLeft
 
-                pos -= floppy.painter.mainWindow.getPainter().center
+                pos -= floppy.floppyUi.mainWindow.getPainter().center
                 # pos -= self.graph.painter.center
                 # print(pos, self.graph.painter.center, pos*transform)
-                pos /= floppy.painter.mainWindow.getPainter().scale
+                pos /= floppy.floppyUi.mainWindow.getPainter().scale
                 # print(transform)
 
-                floppy.painter.mainWindow.getGraph().spawnNode(self.selectedClass, position=(pos.x(), pos.y()))
-                floppy.painter.mainWindow.getGraph().update()
+                floppy.floppyUi.mainWindow.getGraph().spawnNode(self.selectedClass, position=(pos.x(), pos.y()))
+                floppy.floppyUi.mainWindow.getGraph().update()
 
 
     def mouseMoveEvent(self, event):
@@ -221,7 +221,7 @@ class ContextNodeList(NodeList):
         :return: None
         """
         super(NodeList, self).mouseReleaseEvent(event)
-        painter = floppy.painter.mainWindow.getPainter()
+        painter = floppy.floppyUi.mainWindow.getPainter()
         # pos = QCursor.pos()
         pos = self.parent().mapToGlobal(self.parent().pos())
         topLeft = painter.mapToGlobal(painter.pos())
@@ -229,9 +229,9 @@ class ContextNodeList(NodeList):
 
         pos -= painter.center
         pos /= painter.scale
-        floppy.painter.mainWindow.getGraph().spawnNode(self.selectedClass, position=(pos.x(), pos.y()))
+        floppy.floppyUi.mainWindow.getGraph().spawnNode(self.selectedClass, position=(pos.x(), pos.y()))
         self.down = False
-        floppy.painter.mainWindow.getGraph().requestUpdate()
+        floppy.floppyUi.mainWindow.getGraph().requestUpdate()
         self.dialog.close(True)
 
     def keyPressEvent(self, event):
@@ -242,8 +242,8 @@ class ContextNodeList(NodeList):
         """
         super(ContextNodeList, self).keyPressEvent(event)
         if event.key() == Qt.Key_Return:
-            painter = floppy.painter.mainWindow.getPainter()
-            graph = floppy.painter.mainWindow.getGraph()
+            painter = floppy.floppyUi.mainWindow.getPainter()
+            graph = floppy.floppyUi.mainWindow.getGraph()
             name = self.filter.listView.selectedIndexes()[0].data()
             self.selectedClass = NODECLASSES[name]
             pos = self.parent().mapToGlobal(self.parent().pos())

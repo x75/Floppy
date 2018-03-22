@@ -1097,11 +1097,23 @@ class NodeWizardDialog(QDialog):
         else:
             # pass
             self.editButton.setEnabled(False)
+        self.baseClassName = text
         self.painter.repaint()
 
 
     def editNode(self):
-        pass
+        filePath = os.path.join(customNodesPath, 'managedNodes.dat')
+        with open(filePath, 'r') as fp:
+            for datum in fp.readlines():
+                name, datum = datum.strip().split(':::')
+                if name == self.baseClassName:
+                    datum = datum
+                    self.fromJson(datum)
+                else:
+                    continue
+        self.painter.repaint()
+        self.ready = True
+        self.editInput()
 
     def subclassNode(self):
         self.ready = True

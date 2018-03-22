@@ -1,5 +1,5 @@
 from floppy.graph import Graph
-from floppy.painter import Painter2D, MainWindow
+from floppy.floppyUi import Painter2D, MainWindow
 import sys
 from PyQt5.QtWidgets import QApplication
 import argparse
