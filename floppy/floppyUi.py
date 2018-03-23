@@ -1105,7 +1105,10 @@ class NodeWizardDialog(QDialog):
         filePath = os.path.join(customNodesPath, 'managedNodes.dat')
         with open(filePath, 'r') as fp:
             for datum in fp.readlines():
-                name, datum = datum.strip().split(':::')
+                try:
+                    name, datum = datum.strip().split(':::')
+                except ValueError:
+                    continue
                 if name == self.baseClassName:
                     datum = datum
                     self.fromJson(datum)
@@ -1617,7 +1620,13 @@ class NodeWizardDialog(QDialog):
 
     @staticmethod
     def fromJsonStatic(data):
-        data = json.loads(data)
+        try:
+            data = json.loads(data)
+        except json.decoder.JSONDecodeError:
+            logger.error('Cannot load managed node class. String <{}> is invalid JSON.'.format(data))
+            return None
+        else:
+            logger.debug('Creating managed node class <{}>. Base class is <{}>.'.format(data['name'], data['baseClass']))
         for k, input in data['inputs'].items():
             input['varType'] = TypeBox.str2Type(input['varType'])
         for k, output in data['outputs'].items():
@@ -1664,7 +1673,11 @@ class NodeWizardDialog(QDialog):
         return NodeClass
 
     def fromJson(self, data):
-        data = json.loads(data)
+        try:
+            data = json.loads(data)
+        except json.decoder.JSONDecodeError:
+            logger.error('Cannot load managed node class. String <{}> is invalid JSON.'.format(data))
+            return None
         for k, input in data['inputs'].items():
             input['varType'] = TypeBox.str2Type(input['varType'])
         for k, output in data['outputs'].items():
@@ -1735,7 +1748,10 @@ class NodeWizardDialog(QDialog):
             for datum in fp.readlines():
                 datum = datum.strip().split(':::')[-1]
                 cls = NodeWizardDialog.fromJsonStatic(datum)
-                MANAGEDNODECLASSES[cls.__name__] = cls
+                if cls:
+                    MANAGEDNODECLASSES[cls.__name__] = cls
+                else:
+                    continue
 
 
 class CodeEdit(QPlainTextEdit):
