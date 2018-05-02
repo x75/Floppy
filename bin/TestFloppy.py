@@ -12,8 +12,10 @@ if __name__ == '__main__':
     wd = sys.argv[-1]
     report = []
     for file in glob.glob(wd):
-        # x = subprocess.call(, shell=True)
+        if 'Lauescript' in file:
+            continue
         p = Popen(['python.exe', 'Floppy.py', '--test', '{}'.format(file)], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        # print(['python.exe', 'Floppy.py', '--test', '{}'.format(file)])
         try:
             output, err = p.communicate("", timeout=20)
         except TimeoutExpired:

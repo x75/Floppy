@@ -5,6 +5,8 @@ from threading import Lock
 from os.path import isfile
 import floppy.graph
 
+SCOPES = {}
+
 NODECLASSES = {}
 _NODECLASSES = {}
 # STOREDVALUES = {}
@@ -16,6 +18,20 @@ class InputNotAvailable(Exception):
 
 class InputAlreadySet(Exception):
     pass
+
+
+class InterfaceNodeScope(object):
+    def __init__(self, name):
+        SCOPES[name] = self
+        self.interfaceClasses = {}
+
+
+class InterfaceFactory(object):
+    def __init__(self, scope):
+        self.scope = scope
+
+    def __call__(self, inputData, outputData):
+        return MetaNode()
 
 
 def abstractNode(cls: type):
