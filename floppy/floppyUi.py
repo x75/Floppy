@@ -1745,6 +1745,8 @@ class NodeWizardDialog(QDialog):
     @staticmethod
     def loadManagedNodes():
         filePath = os.path.join(customNodesPath, 'managedNodes.dat')
+        if not os.path.isfile(filePath):
+            open(filePath, 'a').close()
         with open(filePath, 'r') as fp:
             for datum in fp.readlines():
                 datum = datum.strip().split(':::')[-1]
