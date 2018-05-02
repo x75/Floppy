@@ -1,4 +1,8 @@
-FLOPPYTYPES = {}
+FLOPPYTYPES = {'str': str,
+                                'bool': bool,
+                                'int': int,
+                                'float': float,
+                                'object': object}
 
 
 class MetaType(type):

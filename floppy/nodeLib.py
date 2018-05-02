@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, QPoint, QModelIndex
 from PyQt5.QtGui import *
-from floppy.node import NODECLASSES
+import floppy
 import floppy.floppyUi
 import os
 from importlib.machinery import SourceFileLoader
@@ -52,11 +52,11 @@ class NodeFilter(QLineEdit):
         self.lastText = text
         # nodes = [str(node) for node in nodeList if text in str(node).lower()]
         if not text.startswith('$'):
-            nodes = [node for node in NODECLASSES.keys() if text in node.lower()]
+            nodes = [node for node in floppy.node.NODECLASSES.keys() if text in node.lower()]
         else:
             # nodes = set(self.nodeScanner.getHints(text[1:]) + self.nodeScanner.getHints(text[1:], False))
             text = text[1:]
-            nodes = set([nodeName for nodeName, node in NODECLASSES.items() if node.matchHint(text)])
+            nodes = set([nodeName for nodeName, node in floppy.node.NODECLASSES.items() if node.matchHint(text)])
         model = QStandardItemModel()
         for node in sorted(nodes):
             item = QStandardItem()
@@ -136,7 +136,7 @@ class NodeList(QListView):
             super(NodeList, self).mousePressEvent(event)
             self.down = True
             name = self.filter.listView.selectedIndexes()[0].data()
-            self.selectedClass = NODECLASSES[name]
+            self.selectedClass = floppy.node.NODECLASSES[name]
             # self.blockSignals(True)
             # self.selectionChanged()
             try:
@@ -245,7 +245,7 @@ class ContextNodeList(NodeList):
             painter = floppy.floppyUi.mainWindow.getPainter()
             graph = floppy.floppyUi.mainWindow.getGraph()
             name = self.filter.listView.selectedIndexes()[0].data()
-            self.selectedClass = NODECLASSES[name]
+            self.selectedClass = floppy.node.NODECLASSES[name]
             pos = self.parent().mapToGlobal(self.parent().pos())
             topLeft = painter.mapToGlobal(painter.pos())
             pos -= topLeft
@@ -291,10 +291,10 @@ class ContextNodeFilter(NodeFilter):
             else:
                 text = '$' + self.dialog.getTypeHint()
         if not text.startswith('$'):
-            nodes = [node for node in NODECLASSES.keys() if text in node.lower()]
+            nodes = [node for node in floppy.node.NODECLASSES.keys() if text in node.lower()]
         else:
             text = text[1:]
-            nodes = set([nodeName for nodeName, node in NODECLASSES.items() if node.matchHint(text)])
+            nodes = set([nodeName for nodeName, node in floppy.node.NODECLASSES.items() if node.matchHint(text)])
         model = QStandardItemModel()
         for node in sorted(nodes):
             item = QStandardItem()

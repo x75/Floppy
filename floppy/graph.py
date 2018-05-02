@@ -543,8 +543,12 @@ class Graph(object):
     def load(self, fileName, callback=None):
         with open(fileName, 'r') as fp:
             saveState = json.loads(fp.read())
-        self.loadState(saveState, callback)
-        # self.loadDict(saveState)
+        from floppy.node import InterfaceFactory, NodeScope, switchToScope
+        scope = NodeScope('testScope')
+        factory = InterfaceFactory(scope)
+        factory(saveState)
+        switchToScope('testScope')
+        # self.loadState(saveState, callback)
 
     def loadState(self, saveState, callback=None, reuseIDs=False):
         """

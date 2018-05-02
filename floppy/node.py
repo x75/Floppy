@@ -1,11 +1,12 @@
 from collections import OrderedDict
 from copy import copy
-from floppy.FloppyTypes import Type, MetaType
+from floppy.FloppyTypes import Type, MetaType, FLOPPYTYPES
 from threading import Lock
 from os.path import isfile
 import floppy.graph
 
 SCOPES = {}
+CURRENTSCOPENAME = 'main'
 
 NODECLASSES = {}
 _NODECLASSES = {}
@@ -20,18 +21,82 @@ class InputAlreadySet(Exception):
     pass
 
 
-class InterfaceNodeScope(object):
+class NodeScope(object):
+    """
+    Class representing a scope in which interface node classes can exist.
+    Interface node classes and a corresponding scope are created for every graph pulled from a remote interpreter.
+    """
     def __init__(self, name):
         SCOPES[name] = self
-        self.interfaceClasses = {}
+        self.classes = {}
+        self._classes = {}
+
+    def __contains__(self, item):
+        try:
+            return item.__name__ in self.classes
+        except AttributeError:
+            return item in self.classes
+
+    def add(self, nodeClass):
+        name = nodeClass.__name__
+        if name in self.classes:
+            raise Exception
+        self.classes[name] = nodeClass
+        self._classes[name] = nodeClass
+
+mainScope = NodeScope('main')
+mainScope.classes = NODECLASSES
+mainScope._classes = _NODECLASSES
+
+def switchToScope(scopeName):
+    if not scopeName in SCOPES:
+        raise ValueError('No scope of name {} found.'.format(scopeName))
+    nextScope = SCOPES[scopeName]
+    global NODECLASSES, _NODECLASSES, CURRENTSCOPENAME
+    NODECLASSES, _NODECLASSES = nextScope.classes, nextScope._classes
+    CURRENTSCOPENAME = scopeName
+
 
 
 class InterfaceFactory(object):
+    """
+    Factory class for creating interface node classes from serialized graph data.
+    """
     def __init__(self, scope):
         self.scope = scope
 
-    def __call__(self, inputData, outputData):
-        return MetaNode()
+    def _filterClasses(self, graphData):
+        return set([nodeData[1]['class'] for nodeData in graphData])
+
+    def __call__(self, graphData):
+        classes = self._filterClasses(graphData)
+        print('Interface classes needed:', classes)
+        for nodeData in graphData:
+            nodeID, data = nodeData
+            nodeName = '_{}_'.format(data['class'])
+            if nodeName in self.scope:
+                continue
+            NodeClass = MetaNode(nodeName, (Node,), {})
+            for inputData in data['inputs']:
+                inputName = inputData[0]
+                if inputName == 'TRIGGER':
+                    continue
+                NodeClass.__inputs__ = OrderedDict()
+                varType = FLOPPYTYPES[inputData[1]]
+                NodeClass._addInput(data={'name': inputName,
+                                          'varType': varType}, cls=NodeClass)
+
+            for outputData in data['outputs']:
+                outputName = outputData[0]
+                NodeClass.__outputs__ = OrderedDict()
+                varType = FLOPPYTYPES[outputData[1]]
+                NodeClass._addOutput(data={'name': outputName,
+                                           'varType': varType}, cls=NodeClass)
+
+            print(' Interface class', nodeName, 'assembled.')
+            self.scope.add(NodeClass)
+        print('Scope ready.')
+
 
 
 def abstractNode(cls: type):
@@ -282,8 +347,9 @@ class MetaNode(type):
     def __new__(cls, name, bases, classdict):
         result = type.__new__(cls, name, bases, classdict)
         # result.__dict__['Input'] = result._addInput
-        NODECLASSES[name] = result
-        _NODECLASSES[name] = result
+        if not name.endswith('_') and not name.startswith('_'):
+            NODECLASSES[name] = result
+            _NODECLASSES[name] = result
         try:
             result.__inputs__ = result.__bases__[0].__inputs__.copy()
         except AttributeError:

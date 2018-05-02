@@ -3,7 +3,8 @@ import os
 import time
 from copy import deepcopy
 from floppy.graph import Graph
-from floppy.node import InputNotAvailable, ControlNode, DynamicNode, MetaNode, Node, NODECLASSES, _NODECLASSES
+from floppy.node import ControlNode, DynamicNode, MetaNode
+import floppy
 from floppy.ressources.mainWindow import Ui_MainWindow
 from floppy.floppySettings import SettingsDialog
 from floppy.nodeLib import ContextNodeFilter, ContextNodeList, customNodesPath
@@ -987,14 +988,14 @@ class NodeWizardDialog(QDialog):
         self.painterBox.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff )
         self.painterBox.setWidget(newPainter)
 
-        NodeClass = MetaNode('NewNode', (_NODECLASSES[self.baseClassName],), {})
+        NodeClass = MetaNode('NewNode', (floppy.node._NODECLASSES[self.baseClassName],), {})
         NodeClass.__inputs__ = OrderedDict()
         NodeClass._addInput(data={'name': 'Input',
                                   'varType': object}, cls=NodeClass)
         NodeClass.__outputs__ = OrderedDict()
         NodeClass._addOutput(data={'name': 'Output',
                                    'varType': object}, cls=NodeClass)
-        newNode = newGraph.spawnNode(NODECLASSES['NewNode'])
+        newNode = newGraph.spawnNode(floppy.node.NODECLASSES['NewNode'])
         newNode.__pos__ = (0,-135)
         self.currentNodeName = 'NewNode'
         # l.addWidget(newPainter)
@@ -1015,7 +1016,7 @@ class NodeWizardDialog(QDialog):
         self.painter.unregisterNode(node)
 
     def spawnNode(self, nodeName, nodeClassName):
-        NodeClass = _NODECLASSES[nodeClassName]
+        NodeClass = floppy.node._NODECLASSES[nodeClassName]
         # NodeClass = MetaNode(nodeName, (_NODECLASSES[self.baseClassName],), {})
         # try:
         #     NodeClass.__inputs__ = NodeClass.__bases__[0].__inputs__.copy()
@@ -1066,7 +1067,7 @@ class NodeWizardDialog(QDialog):
         selectBase = QComboBox(editWidget)
         selectBase.currentTextChanged.connect(self.onBaseChange)
         newFont = QFont("FontFamily", italic=True, weight=3)
-        for i, key in enumerate(['Node'] + sorted(list(_NODECLASSES.keys()))):
+        for i, key in enumerate(['Node'] + sorted(list(floppy.node._NODECLASSES.keys()))):
             selectBase.addItem(key)
             if key in MANAGEDNODECLASSES.keys():
                 selectBase.setItemData(i, newFont, Qt.FontRole)
@@ -1152,20 +1153,20 @@ class NodeWizardDialog(QDialog):
         newName = self.e.text()
         if not newName or ' ' in newName:
             return
-        if newName in _NODECLASSES:
+        if newName in floppy.node._NODECLASSES:
             return
         try:
-            del NODECLASSES[self.currentNodeName]
+            del floppy.node.NODECLASSES[self.currentNodeName]
         except KeyError:
             print('Failed to delete tmp node:', self.currentNodeName)
         node = self.painter.nodes[0]
         self.graph.deleteNode(node)
         self.painter.unregisterNode(node)
 
-        NodeClass = MetaNode(newName, (_NODECLASSES[self.baseClassName],), {})
+        NodeClass = MetaNode(newName, (floppy.node._NODECLASSES[self.baseClassName],), {})
         self._fromDict(data)
         try:
-            NodeClass.__inputs__ =_NODECLASSES[self.baseClassName].__inputs__.copy()
+            NodeClass.__inputs__ = floppy.node._NODECLASSES[self.baseClassName].__inputs__.copy()
         except AttributeError:
             NodeClass.__inputs__ = OrderedDict()
         if not self.inputs and len(list(NodeClass.__inputs__.keys())) == 1:
@@ -1175,7 +1176,7 @@ class NodeWizardDialog(QDialog):
             NodeClass._addInput(data=inp, cls=NodeClass)
 
         try:
-            NodeClass.__outputs__ =_NODECLASSES[self.baseClassName].__outputs__.copy()
+            NodeClass.__outputs__ = floppy.node._NODECLASSES[self.baseClassName].__outputs__.copy()
         except AttributeError:
             NodeClass.__outputs__ = OrderedDict()
         if not self.outputs:
@@ -1184,7 +1185,7 @@ class NodeWizardDialog(QDialog):
         else:
             for out in self.outputs.values():
                 NodeClass._addOutput(data=out, cls=NodeClass)
-        newNode = self.graph.spawnNode(NODECLASSES[newName])
+        newNode = self.graph.spawnNode(floppy.node.NODECLASSES[newName])
         newNode.__pos__ = (0, -135)
 
         self.name = newName
@@ -1634,7 +1635,7 @@ class NodeWizardDialog(QDialog):
 
 
 
-        NodeClass = MetaNode(data['name'], (_NODECLASSES[data['baseClass']],), {})
+        NodeClass = MetaNode(data['name'], (floppy.node._NODECLASSES[data['baseClass']],), {})
         try:
             NodeClass.__inputs__ = NodeClass.__bases__[0].__inputs__.copy()
         except AttributeError as e:
