@@ -1977,6 +1977,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.pushAction.triggered.connect(self.pushGraph)
         self.pushAction.setIconVisibleInMenu(True)
         self.addAction(self.pushAction)
+
+        self.pullAction = QAction(QIcon(os.path.join(self.iconRoot, 'pull.png')), 'Pull', self)
+        # self.pullAction.setShortcut('Ctrl+X')
+        self.pullAction.triggered.connect(self.pullGraph)
+        self.pullAction.setIconVisibleInMenu(True)
+        self.addAction(self.pullAction)
         
         self.settingsAction = QAction(QIcon(os.path.join(self.iconRoot, 'settings.png')), 'Settings', self)
         self.settingsAction.setShortcut('Ctrl+T')
@@ -2038,6 +2044,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.mainToolBar.addAction(self.connectAction)
         # self.mainToolBar.addAction(self.statusAction)
         self.mainToolBar.addAction(self.dropAction)
+        self.mainToolBar.addAction(self.pullAction)
 
 
 
@@ -2200,6 +2207,12 @@ QDialog {
             self.activeGraph.push2Runner()
         except AttributeError:
             self.statusBar.showMessage('Cannot Push Graph. No Interpreter Available.', 2000)
+
+    def pullGraph(self):
+        try:
+            self.activeGraph.pullFromRunner()
+        except AttributeError:
+            self.statusBar.showMessage('Cannot Pull Graph. No Interpreter Connected.', 2000)
 
     def killRunner(self):
         try:

@@ -439,6 +439,13 @@ class Graph(object):
         # self.sendUpdate(data)
         self.rgiConnection.send('PUSH'+message, self.print)
 
+    def pullFromRunner(self):
+        """
+
+        :return:
+        """
+        self.rgiConnection.send('PULL', self.print)
+
     def serialize(self):
         """
         Returns a serialized representation of the graph instance.
@@ -543,12 +550,12 @@ class Graph(object):
     def load(self, fileName, callback=None):
         with open(fileName, 'r') as fp:
             saveState = json.loads(fp.read())
-        from floppy.node import InterfaceFactory, NodeScope, switchToScope
-        scope = NodeScope('testScope')
-        factory = InterfaceFactory(scope)
-        factory(saveState)
-        switchToScope('testScope')
-        # self.loadState(saveState, callback)
+        # from floppy.node import InterfaceFactory, NodeScope, switchToScope
+        # scope = NodeScope('testScope')
+        # factory = InterfaceFactory(scope)
+        # factory(saveState)
+        # switchToScope('testScope')
+        self.loadState(saveState, callback)
 
     def loadState(self, saveState, callback=None, reuseIDs=False):
         """

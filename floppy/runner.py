@@ -37,6 +37,7 @@ class Runner(object):
 
     def __init__(self):
         logger.info('Creating new interpreter.')
+        self.rawData = ''
         self.status = []
         self.runningNodes = []
         self.conn = None
@@ -81,6 +82,7 @@ class Runner(object):
     #     return data
 
     def loadGraph(self, data):
+        self.rawData = data
         data = json.loads(data)
 
         self.graphData = data
@@ -89,6 +91,9 @@ class Runner(object):
             self.cmdQueue.get()
         self.cmdQueue.put(ExecutionThread.loadGraph)
         xLock.release()
+
+    def getSerializedGraph(self):
+        self.rawData
 
     def updateGraph(self, data):
         data = json.loads(data)
@@ -375,7 +380,10 @@ class CommandProcessor(Thread):
     def run(self):
         while True:
             # message = self.cSocket.recv(1024).decode()
-            message = self.receive()
+            try:
+                message = self.receive()
+            except ConnectionResetError:
+                break
             if message:
                 # logger.debug('Received command: {}...'.format(message[:10]))
                 if message == 'KILL':
@@ -392,6 +400,10 @@ class CommandProcessor(Thread):
                 elif message == 'UNPAUSE':
                     self.send('Runner is unpausing.')
                     self.master.unpause()
+                elif message == 'PULL':
+                    message = self.master.getSerializedGraph()
+                    self.send('PULL:::'+message)
+
                 elif message.startswith('UPDATE'):
                     self.send('Runner is updating.')
                     self.master.updateGraph(message[6:])
