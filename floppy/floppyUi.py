@@ -471,6 +471,7 @@ class Painter2D(Painter):
         halfPinSize = PINSIZE//2
 
         for j, node in enumerate(self.nodes):
+            # print(node)
             if issubclass(type(node), DynamicNode):
                 node.probeGraph()
                 self.updateDrawItems(node)
@@ -620,12 +621,17 @@ class Painter2D(Painter):
                 self.outputPinPositions.append((point, outputPin.ID))
 
             # trans = painter.transform()
+            # print('     ',node)
+        # print('Nodes Drawn')
+
         self.pinPositions = {value[1]: value[0] for value in self.inputPinPositions+self.outputPinPositions}
         # self.drawConnections(painter)
         self.transform = painter.transform()
         self.transform = painter.transform()
         for item in lastDraws:
             item.draw(painter, last=True)
+
+        # print('Paint Frame')
 
         if self.selectFrame and self.selectFrame_End:
             painter.setBrush(QColor(255,255,255,25))
@@ -637,9 +643,10 @@ class Painter2D(Painter):
             painter.translate(-self.width()/2. - self.globalOffset.x(), -self.height()/2. - self.globalOffset.y())
             painter.drawRect(x, y, xx, yy)
             painter.translate(self.width()/2. + self.globalOffset.x(), self.height()/2. + self.globalOffset.y())
-
+        # print('     Frame Painted')
 
     def drawConnections(self, painter):
+        # print('Drawing Connections.')
         if not self.graph:
             print('No graph connected yet.')
             return
@@ -673,6 +680,8 @@ class Painter2D(Painter):
                 elif issubclass(type(info['outputNode']), ControlNode) and info['outputName'] == 'Final':
                     rotate = 'output'
                 self.drawBezier(start, end, color, painter, rotate)
+
+        # print('     Connections Drawn.')
 
     def drawLooseConnection(self, position):
         self.looseConnection = position

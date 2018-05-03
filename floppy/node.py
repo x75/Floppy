@@ -77,18 +77,16 @@ class InterfaceFactory(object):
             if nodeName in self.scope:
                 continue
             NodeClass = MetaNode(nodeName, (Node,), {})
+            NodeClass.__inputs__ = OrderedDict()
+            NodeClass.__outputs__ = OrderedDict()
             for inputData in data['inputs']:
                 inputName = inputData[0]
-                if inputName == 'TRIGGER':
-                    continue
-                NodeClass.__inputs__ = OrderedDict()
                 varType = FLOPPYTYPES[inputData[1]]
                 NodeClass._addInput(data={'name': inputName,
                                           'varType': varType}, cls=NodeClass)
 
             for outputData in data['outputs']:
                 outputName = outputData[0]
-                NodeClass.__outputs__ = OrderedDict()
                 varType = FLOPPYTYPES[outputData[1]]
                 NodeClass._addOutput(data={'name': outputName,
                                            'varType': varType}, cls=NodeClass)

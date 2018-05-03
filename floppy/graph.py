@@ -4,6 +4,7 @@ import io
 import time
 from collections import OrderedDict
 import floppy
+from floppy.node import InterfaceFactory, NodeScope, switchToScope
 from floppy.runner import Runner, sendCommand, RGIConnection
 from socket import AF_INET, SOCK_STREAM, socket #, SHUT_RDWR, timeout, SHUT_RDWR, SO_REUSEADDR, SOL_SOCKET
 from threading import Thread, Lock
@@ -13,6 +14,10 @@ import struct
 
 def dummy(nodeClass):
     return nodeClass
+
+class GraphMode(object):
+    DEFAULT = 0
+    INTERFACE = 1
 
 
 class Graph(object):
@@ -27,6 +32,7 @@ class Graph(object):
     SHAREDRUNNERS = []
 
     def __init__(self, painter=None):
+        self.mode = GraphMode.DEFAULT
         self.returnValue = -1
         self.returnPriority = -1
         self.returningNode = None
@@ -328,7 +334,7 @@ class Graph(object):
         :return:
         """
         try:
-            self.painter.repaint()
+            # self.painter.repaint()
             self.painter.update()
         except AttributeError:
             pass
@@ -413,6 +419,22 @@ class Graph(object):
     def print(self, message):
         print(message)
 
+    def buildInterface(self, message):
+        _, message = message.split(':::')
+        self.mode = GraphMode.INTERFACE
+        saveState = json.loads(message)
+        scope = NodeScope('testScope')
+        factory = InterfaceFactory(scope)
+        factory(saveState)
+        switchToScope('testScope')
+        for nodeData in saveState:
+            nodeDatum = nodeData[1]
+            nodeDatum['class'] = '_{}_'.format(nodeDatum['class'])
+            # print(nodeDatum)
+        self.loadState(saveState, reuseIDs=True)
+        print('Interface Graph instantiated.')
+        self.requestUpdate()
+
     def updateRunner(self):
         """
         Serializes the graph and sends it to the connected graph interpreter telling it to load the new data.
@@ -444,7 +466,7 @@ class Graph(object):
 
         :return:
         """
-        self.rgiConnection.send('PULL', self.print)
+        self.rgiConnection.send('PULL', self.buildInterface)
 
     def serialize(self):
         """
@@ -626,8 +648,9 @@ class Graph(object):
                         self.connect(str(idMap[id]), outputName, str(inputNode), inputName)
                     except KeyError:
                         print('Warning: Could not create connection due to missing node.')
-
+        # print('preUpdate')
         self.update()
+        # print('postUpdate')
         return idMap
 
     def updateState(self, data, reuseIDs=False):
