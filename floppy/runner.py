@@ -93,7 +93,7 @@ class Runner(object):
         xLock.release()
 
     def getSerializedGraph(self):
-        self.rawData
+        return self.rawData
 
     def updateGraph(self, data):
         data = json.loads(data)
