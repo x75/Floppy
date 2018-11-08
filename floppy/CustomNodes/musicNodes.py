@@ -11,8 +11,6 @@ import matplotlib.pyplot as plt
 
 import librosa
 
-plt.ion()
-
 # custom types
 class Ndarray(Type):
     color = (102, 102, 0)
@@ -50,14 +48,26 @@ class MPLPlot(PlotNode):
     def __init__(self, *args, **kwargs):
         PlotNode.__init__(self, *args, **kwargs)
         # super(MPLPlot, self).__init__(*args, **kwargs)
-        self.fig = plt.figure()
-        self.ax = self.fig.add_subplot(1,1,1)
-        plt.show()
+
+    def setup(self):
+        try:
+            plt.ion()
+            self.fig = plt.figure()
+            self.ax = self.fig.add_subplot(1,1,1)
+            plt.show()
+        except Exception as e:
+            print('MPLPlot init failed with matplotlib error %s' % e)
 
     def run(self):
         super(MPLPlot, self).run()
-        self.ax.plot(self._Y)
-        plt.draw()
+        try:
+            plt.ion()
+            print('plotting _y = %s to ax %s' % (self._y, self.ax))
+            self.ax.plot(self._y)
+            plt.draw()
+            plt.show()
+        except Exception as e:
+            print('MPLPlot run failed with matplotlib error %s' % e)
     
 # class AMyNode(Node):
 #     Input('Inta', int)
